@@ -1,0 +1,56 @@
+//This is an example of LAR code.
+
+| Compiler - C | 
+
+{ Default }
+
+[ Math ], [[[ ExampleSource ]]]
+
+struct AStructure
+{
+    Integer anInteger;
+    
+    String astring;
+}
+
+AStructure aStructOfStructure;
+
+[[[]]]
+{}
+||
+
+
+// { } This also means default.
+| Compiler - C++ | { } [[ ExampleSource ]]
+
+class Binder
+{
+    union
+    {
+        Integer integer;
+        
+        String string;
+    }
+    
+    GetString()
+    {
+        | Unissembly - High |
+        {
+            ret integer;
+        }
+        ||
+    }
+}
+
+int main
+{
+    Binder aBinder;
+    
+    aStructOfStructure.anInteger++;
+	
+	string[] strings;
+    
+    exit(0);
+}
+
+|| {} [[[]]]
