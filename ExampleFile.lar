@@ -23,23 +23,37 @@ AStructure aStructOfStructure;
 // { } This also means default.
 | Compiler - C++ | { } [[ ExampleSource ]]
 
+enum BindID { EInteger, EString };
+
 class Binder
 {
-    union
+    union IntStrUnion
     {
         Integer integer;
         
         String string;
     }
     
+public:
     GetString()
     {
-        | Unissembly - High |
-        {
-            ret integer;
-        }
-        ||
+    	if (bindType == EInteger)
+	{
+	    | Unissembly - High |{}(aUnionOfIntStr.integer integer)
+                 ret integer;
+            ||
+	}
+	else
+	{
+	    | Unissembly - High |{}(aUnionOfIntStr.string string)
+	         ret string;
+	    ||
+	}
     }
+private:
+    IntStrUnion aUnionOfIntStr;
+    
+    BindID bindType;
 }
 
 int main
