@@ -66,6 +66,8 @@ int main
 {
     Binder aBinder;
     
+    aBinder.Process();
+    
     aStructOfStructure.anInteger++;
 	
     string[] strings;
