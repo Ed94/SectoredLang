@@ -40,7 +40,7 @@ public:
     	if (bindType == EInteger)
 	{
 	    | Unissembly - High |{}(aUnionOfIntStr.integer integer)
-                 inc integer
+	         inc integer
 		 ret integer
             {}||
 	    
