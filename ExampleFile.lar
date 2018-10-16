@@ -68,7 +68,7 @@ int main
     
     aStructOfStructure.anInteger++;
 	
-	string[] strings;
+    string[] strings;
     
     exit(0);
 }
