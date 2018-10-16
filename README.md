@@ -2,7 +2,7 @@
 A little project to test a concept for programming.
 
 
-#Features:
+# Features:
 
 Multi-Leveled abstraction approach to programming: Program from binary to pure functional in one language.
 
@@ -10,7 +10,7 @@ Refactorable Syntax: All keys for every level can be refactored to an alias set.
 
 LAR Handler:
 
-#Modules:
+# Modules:
 Metal
 Assembly
 Unisembly
@@ -19,7 +19,7 @@ Interpreter
 Functional
 
 
-#Alias Sets:
+# Alias Sets:
 
 Spaces:
 Levels
