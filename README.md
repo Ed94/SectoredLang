@@ -31,6 +31,7 @@ These mappings are saved as an alias set.
 ## Spaces:
 
 Levels:
+
 | Level | - Decalres a level to be used. (Levels cannot be defined, they are built into the handler).
 
 Alias
