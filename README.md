@@ -34,13 +34,13 @@ Levels:
 
 | Level | - Decalres a level to be used. (Levels cannot be defined, they are built into the handler).
 
-Alias
+Alias:
 
 * { Alias } - Used after level declaration to determine alias. ( { } for default)
 * {{ Alias }} - Extends an alias
 * {{{ Alias }} - Declares a new alias.
 
-Source
+Source:
 
 * [ Name ] - Used as an include.
 * [[ Name ]] - Extends a source space.
