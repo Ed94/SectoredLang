@@ -1,6 +1,6 @@
 //This is an example of LAR code.
 
-| Compiler - C | 
+| Compiler - C1 | 
 
 { Default }
 
@@ -21,7 +21,7 @@ AStructure aStructOfStructure;
 
 
 // { } This also means default.
-| Compiler - C++ | { } [[ ExampleSource ]]
+| Compiler - C3 | { } [[ ExampleSource ]]
 
 enum BindID { EInteger, EString };
 
