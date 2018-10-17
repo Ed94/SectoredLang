@@ -36,7 +36,7 @@ Levels:
 
 Alias:
 
-* { Alias } - Used after level declaration to determine alias ( { } for default). Done after level decalred and before a source space.
+* { Alias } - Used after level declaration to determine alias ( { } for default). Done after a is level declared and before a source space.
 * {{ Alias }} - Extends an alias space.
 * {{{ Alias }} - Declares a new alias space.
 
