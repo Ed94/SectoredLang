@@ -49,7 +49,6 @@ public:
 	else
 	{
 	    | Unissembly - High |{}(aUnionOfIntStr.string string)
-	    	 inc integer
 	         ret string
 	    {}||
 	    
