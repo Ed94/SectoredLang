@@ -7,9 +7,9 @@ A little project to test a concept for programming.
 Multi-Leveled abstraction approach to programming: Program from binary to pure functional in one language.
 
 Refactorable Syntax: All keys for every level can be refactored to an alias set.
-## LAR Handler:
+# LAR Handler:
 
-# Modules:
+## Modules:
 Metal
 
 Assembly
@@ -23,12 +23,12 @@ Interpreter
 Functional
 
 
-# Alias Sets:
+## Alias Sets:
 Allow for all key's used during parsing to be mapped to an alias for use of foreign language that LAR's functionality could support if a key sutiably matches the original's function.
 
 These mappings are saved as an alias set.
 
-# Spaces:
+## Spaces:
 
 Levels
 
