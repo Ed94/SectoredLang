@@ -1,4 +1,4 @@
-# LAR (Layer Abstracted Refactorable)
+# M.A.S. (Modular - Aliased - Sectored)
 A little project to test a concept for programming.
 
 
@@ -7,7 +7,9 @@ A little project to test a concept for programming.
 Multi-Leveled abstraction approach to programming: Program from binary to pure functional in one language.
 
 Refactorable Syntax: All keys for every level can be refactored to an alias set.
-# LAR Handler:
+
+
+# M.A.S. Handler:
 
 ## Modules:
 Metal
@@ -28,11 +30,11 @@ Allow for all key's used during parsing to be mapped to an alias for use of fore
 
 These mappings are saved as an alias set.
 
-## Spaces:
+## Sectors:
 
-Levels:
+Sector:
 
-| Level | - Decalres a level to be used. (Levels cannot be defined, they are built into the handler).
+| Sector | - Decalres a Sector to be used. (Levels cannot be defined, they are built into the handler).
 
 Alias:
 
