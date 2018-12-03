@@ -57,7 +57,7 @@ Alias: Defines an alias to the base lexicon set the language uses, as well as ma
 
 * { Alias } - Used after level declaration to determine alias ( { } for default). Done after a is level declared and before a source space.
 * {{ Alias }} - Extends an alias space.
-* {{{ Alias }} - Declares a new alias space.
+* {{{ Alias }}} - Declares a new alias space.
 
 Source: Implementation to be compiled or interpreted, etc; By the handler with the use of aliases and modules to determine specifications.
 
