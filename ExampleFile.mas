@@ -2,7 +2,7 @@
 
 | Compiler - C1 | 
 
-{ Default }
+{ C }
 
 [ Math ], [[[ ExampleSource ]]]
 
@@ -21,7 +21,7 @@ AStructure aStructOfStructure;
 
 
 // { } This also means default.
-| Compiler - C3 | { } [[ ExampleSource ]]
+| Compiler - C3 | { C++ } [[ ExampleSource ]]
 
 enum BindID { EInteger, EString };
 
