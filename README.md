@@ -73,6 +73,8 @@ New sectors can possibly be defined. (Built on top of existing sectors and base 
 
 Ex: Library Packages.
 
-.mas (name of language) files are the implementation to be used by the handler.
+## Organization
 
-.bp (blueprint) files are the header/table of contents/indexer of implementation. They are read first within the designated directories for the handler to manage or generate packages. Completely optional. Used as a way to better organize code and provide implementation level documentation.
+**.mas** (name of language) files are the source code implementation to be managed by the handler.
+
+**.bp** (blueprint) files are the header/table of contents/indexer of implementation. They are read first within the designated directories for the handler to manage or generate packages. Completely optional. Used as a way to better organize code and provide implementation level documentation.
