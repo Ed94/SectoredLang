@@ -21,7 +21,7 @@ The handler will deduce what modules to use when using the formatting of the sec
 
 Naturally downside of this handler is there is an minimum degree of overhead for supporting a module based system. It has to interpet how to package implementation based on all these factors. Also any modules beyond compiled will need a byte-code level interpreter at least to be able to generate a proper package. Package types can also greatly vary depending on modules used from compiled code to pure vm code or hybrid.
 
-The benefit is its one single programming language platform to do entire implmentation of a project or any other use case.
+The benefit is its one single programming language platform to do entire implmentation of a project or any other use case. Code from other languages can be brought into being managed by the handler so long as an alias set is defined for the lanauge the code was written in. Everything done is strictly explicit (To the level specified) to prevent hidden ambiguities.
 
 ## Modules:
 Metal - The raw binary packager.
