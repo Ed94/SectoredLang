@@ -19,7 +19,7 @@ All modules compiled and higher have sub-levels that divide features by the leve
 
 The handler will deduce what modules to use when using the formatting of the sectors within the mas files.
 
-Naturally downside of this handler is there is an minimum degree of overhead for supporting a module based system that can interpet how to package implementation based on all these factors. Also any modules beyond compiled will need a byte-code level interpreter at least to be able to generate a proper package. Package types can also greatly vary depending on modules used from compiled code to pure vm code or hybrid.
+Naturally downside of this handler is there is an minimum degree of overhead for supporting a module based system. It has to interpet how to package implementation based on all these factors. Also any modules beyond compiled will need a byte-code level interpreter at least to be able to generate a proper package. Package types can also greatly vary depending on modules used from compiled code to pure vm code or hybrid.
 
 ## Modules:
 Metal - The raw binary packager.
