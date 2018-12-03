@@ -15,7 +15,7 @@ Explicit: Everything done must be declared visibity. All implicit features must 
 
 The general purpose handler(compiler/interpeter/etc) for an MAS programming langauge. The handler is fully modular. Whatever is generated soley depends on what modules are installed. Thus portability varies on what modules are available per platform.
 
-All modules compiled and higher have sub-levels that divide features by the level of overhead they require. The lowest levels are the least overhead (thus the least performance cost), while the higher levels go up in complexity and lower performance.
+All modules compiled and higher have sub-levels that divide features by the level of overhead they require. The lowest levels are the least overhead (thus the least performance cost), while the higher levels go up in complexity and have lower performance.
 
 The handler will deduce what modules to use when using the formatting of the sectors within the mas files.
 
