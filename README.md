@@ -8,7 +8,7 @@ Multi-Leveled abstraction approach to programming: Program from binary to pure f
 
 Refactorable Syntax: All keys for every level can be refactored to an alias set.
 
-Explicit: Everything done must be declared visibity. All implicit features must be declared to be used in a sector before use.
+Explicit: Everything done must be declared visibity. All implicit features must be declared in a sector before use.
 
 
 # M.A.S. Handler:
