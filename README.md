@@ -6,7 +6,7 @@ A dynamic, highly adaptable, programming language. (Currently only a concept)
 
 Multi-Leveled abstraction approach to programming: Program from binary to pure logic in using a single implementation handler.
 
-Refactorable Syntax: All keys for every level can be refactored to an alias set.
+Refactorable Syntax: All keys for every module/level can be refactored to an alias set.
 
 Explicit: Everything done must be declared visibity. All implicit features must be declared in a sector before use.
 
