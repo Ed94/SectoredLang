@@ -40,7 +40,7 @@ Logical
 
 
 ## Alias Sets:
-Allow for all key's used during parsing to be mapped to an alias for use of foreign language that LAR's functionality could support if a key sutiably matches the original's function.
+Allow for all key's used during parsing to be mapped to an alias for use of foreign language that MAS's functionality could support if a key sutiably matches the original's function.
 
 These mappings are saved as an alias set.
 
