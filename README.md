@@ -81,4 +81,4 @@ Ex: Library Packages.
 
 **.bp** (blueprint) files are the header/table of contents/indexer of implementation. They are read first within the designated directories for the handler to manage or generate packages. Completely optional. Used as a way to better organize code and provide implementation level documentation.
 
-**.as** (alias set) files are used to explicity store only alias information. Provides better support from the handler in aiding the developer produce an alias set of any scale. (Ex: Producing an alias set to support foreign programming language code)
+**.as** (alias set) files are used to explicity store only alias information. Provides better support from the handler in aiding the developer to produce an alias set of any scale. (Ex: Producing an alias set to support foreign programming language code)
