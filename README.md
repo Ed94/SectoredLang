@@ -32,7 +32,7 @@ Assembly - Assembler.
 
 Unisembly - Universal Assembler. Abstracts assembly to a low level universal assmelby alias set. Has different levels for abstraction support. (Ranging from 1:1 statement execution to multi-statement abstraction)
 
-Compiled - Traditional High-Level compiled langauge. Has various low level support (sub-levels) ranging from low lying level operation to very high level.
+Compiled - Traditional High-Level compiled langauge. Has various low level support (sub-levels) ranging from low lying operation to very high overhead.
 
 Interpreter
 
