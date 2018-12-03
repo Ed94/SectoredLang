@@ -42,7 +42,7 @@ Logical
 
 
 ## Alias Sets:
-Allow for all key's or defined, or ordered set of statments, used during parsing to be mapped to an alias. These can be used as a preprocessor or macro of sort. Can also b used to import a foreign language that MAS's functionality could support.
+Allow for all key's or defined, or ordered set of statments, to be mapped to an alias. These can be used as a preprocessor or macro of sort. Can also b used to import a foreign language that MAS's functionality could support.
 
 These mappings are saved as an alias set.
 
