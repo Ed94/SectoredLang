@@ -13,13 +13,16 @@ Explicit: Everything done must be declared visibity. All implicit features must 
 
 # M.A.S. Handler:
 
-The general purpose handler(compiler/interpeter/etc) for an MAS programming langauge. The handler is fully modular. Whatever is generated soley depends on what modules are installed.
+The general purpose handler(compiler/interpeter/etc) for an MAS programming langauge. The handler is fully modular. Whatever is generated soley depends on what modules are installed. Thus portability varies on what modules are available per platform.
 
 All modules compiled and higher have sub-levels that divide features by the level of overhead they require. The lowest levels are the least overhead (thus the least performance cost), while the higher levels go up in complexity and lower performance.
 
+The handler will deduce what modules to use when using the formatting of the sectors within the mas files.
+
+Naturally downside of this handler is there is an minimum degree of overhead for supporting a module based system that can interpet how to package implementation based on all these factors. Also any modules beyond compiled will need a byte-code level interpreter at least to be able to generate a proper package. Package types can also greatly vary depending on modules used from compiled code to pure vm code or hybrid.
 
 ## Modules:
-Metal - The binary packager. 
+Metal - The raw binary packager.
 ( Can have several sub-modules installed depending on hardware platforms support. )
 
 Assembly - Assembler.
