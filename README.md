@@ -4,7 +4,7 @@ A dynamic, highly adaptable, programming language. (Currently only a concept)
 
 # Features:
 
-Multi-Leveled abstraction approach to programming: Program from binary to pure logic in using a single implementation handler.
+Multi-Leveled abstraction approach to programming: Program from binary to pure logic using a single implementation handler.
 
 Refactorable Syntax: All keys for every module/level can be refactored to an alias set/macro.
 
