@@ -13,14 +13,21 @@ Explicit: Everything done must be declared visibity. All implicit features must 
 
 # M.A.S. Handler:
 
+The general purpose handler(compiler/interpeter/etc) for an MAS programming langauge. The handler is fully modular. Whatever is generated soley depends on what modules are installed.
+
+All modules compiled and higher have sub-levels that divide features by the level of overhead they require. The lowest levels are the least overhead (thus the least performance cost), while the higher levels go up in complexity and lower performance.
+
+
 ## Modules:
-Metal
+Metal - The binary packager. 
+( Can have several sub-modules installed depending on hardware platforms support. )
 
-Assembly
+Assembly - Assembler.
+( Can have several sub-modules depending on hardware paltform support. )
 
-Unisembly
+Unisembly - Universal Assembler. Abstracts assembly packages to a low level universal assmelby alias set. Has different abstraction level support. Ranging from 1:1 statement execution. To multi-statement abstraction.
 
-Compiled
+Compiled - Traditional High-Level compiled langauge. Has various low level support (sub-levels) ranging from low lying level operation. To very high level. (Think of the difference between c to the highest overload features of c++). 
 
 Interpreter
 
@@ -28,10 +35,12 @@ Functional
 
 Logical
 
+
 ## Alias Sets:
 Allow for all key's used during parsing to be mapped to an alias for use of foreign language that LAR's functionality could support if a key sutiably matches the original's function.
 
 These mappings are saved as an alias set.
+
 
 ## Sectors:
 
