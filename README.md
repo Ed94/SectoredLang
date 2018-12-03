@@ -72,3 +72,7 @@ All sectors are closed by just putting the brackets without a space between: || 
 New sectors can possibly be defined. (Built on top of existing sectors and base base support the handler provides.)
 
 Ex: Library Packages.
+
+.mas (name of language) files are the implementation to be used by the handler.
+
+.bp (blueprint) files are the header/table of contents/indexer of implementation. They are read first within the designated directories for the handler to manage or generate packages. Completely optional. Used as a way to better organize code and provide implementation level documentation.
