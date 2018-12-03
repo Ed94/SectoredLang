@@ -25,7 +25,7 @@ The benefit is its one single programming language platform to do entire implmen
 
 ## Modules:
 Metal - The raw binary packager.
-( Can have several sub-modules installed depending on hardware platforms support. )
+( Can have several sub-modules installed depending on hardware platform support. )
 
 Assembly - Assembler.
 ( Can have several sub-modules depending on hardware paltform support. )
