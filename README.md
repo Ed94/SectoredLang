@@ -77,7 +77,7 @@ Ex: Library Packages.
 
 ## Organization
 
-**.msc** (managed source code) files are the source code implementation to be managed by the handler.
+**.mcsource** (managed source code) files are the source code implementation to be managed by the handler.
 
 .mcsource files can be locked to a specifc module or level by appending .msc_(module name)_(level/platform specifier) to the end of the file. (Ignore paretheses. Level/platform specifier is only if the module supports it.)
 
