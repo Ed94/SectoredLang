@@ -84,3 +84,10 @@ Ex: Library Packages.
 **.bp** (blueprint) files are the header/table of contents/indexer of implementation. They are read first within the designated directories for the handler to manage or generate packages. Completely optional. Used as a way to better organize code and provide implementation level documentation.
 
 **.alis** (alias set) files are used to explicity store only alias information. Provides better support from the handler in aiding the developer to produce an alias set of any scale. (Ex: Producing an alias set to support foreign programming language code)
+
+## Proof of Concept (Proposal):
+The proof of concept will be made using rust. 
+
+It will use a module called Concept.
+
+There will be an alias set to support C.
