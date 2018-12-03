@@ -77,6 +77,8 @@ Ex: Library Packages.
 
 **.mas** (name of language) files are the source code implementation to be managed by the handler.
 
+.mas files can be locked to a specifc module or level by appending .mas_(module name)_(level [if any]) to the end of the file.
+
 **.bp** (blueprint) files are the header/table of contents/indexer of implementation. They are read first within the designated directories for the handler to manage or generate packages. Completely optional. Used as a way to better organize code and provide implementation level documentation.
 
 **.as** (alias set) files are used to explicity store only alias information. Provides better support from the handler in aiding the developer produce an alias set of any scale. (Ex: Producing an alias set to support foreign programming language code)
