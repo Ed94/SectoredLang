@@ -10,7 +10,7 @@ Refactorable Syntax: All keys for every module/level can be refactored to an ali
 
 Explicit: Everything done must be declared visibity. All implicit features must be declared in a sector before use.
 
-Comprehendable: Everything about this language is about design for comprehension first. Symbols used must conform to design principles used in the visual fields for optimal human perception. The naming of all key terms used in the base lexicon set are carefully considered and by easy to pick up and understand. (No excessive mnemonic nonsense)
+Comprehendable: Everything int the language is designed for comprehendability in mind. Symbols used must conform to design principles used in the visual fields for optimal human perception. The naming of all key terms used in the base lexicon set are carefully considered and by easy to pick up and understand. (No excessive mnemonic nonsense)
 
 
 # M.A.S. Handler:
