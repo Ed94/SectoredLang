@@ -61,7 +61,7 @@ There are three built in defined sectors: || - For modules. {} - For aliases. []
 
 Alias: Defines an alias to the base lexicon set the language uses, as well as macros.
 
-* { Alias } - Used after level declaration to determine alias ( { } for default). Done after a is level declared and before a source space.
+* { Alias } - Used after level declaration to determine alias ( { } for default). Done after a level is declared and before a source space.
 * {{ Alias }} - Extends an alias space.
 * {{{ Alias }}} - Declares a new alias space.
 
