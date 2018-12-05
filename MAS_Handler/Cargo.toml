@@ -1,0 +1,14 @@
+[package]
+
+name    = "MAS"
+version = "0.0.1"
+authors = ["Edward R. Gonzalez <edwardgz@gmail.com>"]
+
+
+[dependencies]
+
+
+[[bin]]
+
+name = "MAS_Handler"
+path = "Source/Launcher.rs"
