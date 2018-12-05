@@ -30,7 +30,7 @@ Metal - The raw binary packager.
 ( Can have several sub-modules installed depending on hardware platform support. )
 
 Assembly - Assembler.
-( Can have several sub-modules depending on hardware paltform support. )
+( Can have several sub-modules depending on hardware platform support. )
 
 Unisembly - Universal Assembler. Abstracts assembly to a low level universal assembly alias set. Has different levels for abstraction support. (Ranging from 1:1 statement execution to multi-statement abstraction)
 
