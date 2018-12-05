@@ -44,7 +44,7 @@ Logical
 
 
 ## Alias Sets:
-Allow for all key's or defined, or ordered set of statments, to be mapped to an alias. These can be used as a preprocessor or macro of sort. Can also b used to import a foreign language that MAS's functionality could support.
+Allow for all key's to be defined, or ordered set of statments, to be mapped to an alias. These can be used as a preprocessor or macro of sort. Can also be used to import a foreign language that MAS's functionality could support.
 
 Module/Level dependencies must be explcitly defined within the alias.
 
@@ -57,7 +57,7 @@ Sector: Defines a area of code within a mas file for the handler to properly com
 
 There are three built in defined sectors: || - For modules. {} - For aliases. [] - For source code.
 
-| Module | - Declares a module to be used. (Modules cannot be defined, they are built into the handler).
+| Module | - Declares a module to be used. (Modules cannot be defined, they are the imported into the handler).
 
 Alias: Defines an alias to the base lexicon set the language uses, as well as macros.
 
