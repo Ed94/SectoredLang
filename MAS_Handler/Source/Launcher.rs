@@ -1,11 +1,12 @@
+#![allow(non_snake_case        )]   //Not my style. I'll be providing documentation on my conventions later as I learn the language.
+#![allow(non_upper_case_globals)]
+
 //Using
 
 use std::io::
 {
-    Read,
+    Read ,
     stdin,
-    stdout,
-    Write
 };
 
 
@@ -117,7 +118,7 @@ fn main()
     {
         println!("Cycle.");
 
-        stdin().read_line(&mut CmdL_InputInst.UserInput);
+        stdin().read_line(&mut CmdL_InputInst.UserInput).expect("Failed to read line for user input.");
 
         CmdL_InputInst.Parse();
         
