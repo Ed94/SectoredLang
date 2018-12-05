@@ -7,8 +7,12 @@ authors = ["Edward R. Gonzalez <edwardgz@gmail.com>"]
 
 [dependencies]
 
+[lib]
+
+name = "MAS_Library"
+path = "Source/Library.rs"
 
 [[bin]]
 
 name = "MAS_Handler"
-path = "Source/Launcher.rs"
+path = "Source/Execution.rs"
