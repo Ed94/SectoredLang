@@ -10,7 +10,7 @@ Refactorable Syntax: All keys for every module/level can be refactored to an ali
 
 Explicit: Everything done must be declared visibity. All implicit features must be declared in a sector before use.
 
-Comprehendable: Everything int the language is designed for comprehendability in mind. Symbols used must conform to design principles used in the visual fields for optimal human perception. The naming of all key terms used in the base lexicon set are carefully considered and by easy to pick up and understand. (No excessive mnemonic nonsense) Structural use of those terms in accordance to their meaning must visually statisfy the meaning as much as practically posssible.
+Comprehendable: Everything int the language is designed for comprehendability in mind. Symbols used must conform to design principles used in the visual fields for optimal human perception. The naming of all key terms used in the base lexicon set are carefully considered and should be easy to pick up and understand. (No excessive mnemonic nonsense) Structural use of those terms in accordance to their meaning must visually statisfy the meaning as much as practically posssible.
 
 
 # M.A.S. Handler:
@@ -30,7 +30,7 @@ Metal - The raw binary packager.
 ( Can have several sub-modules installed depending on hardware platform support. )
 
 Assembly - Assembler.
-( Can have several sub-modules depending on hardware paltform support. )
+( Can have several sub-modules depending on hardware platform support. )
 
 Unisembly - Universal Assembler. Abstracts assembly to a low level universal assembly alias set. Has different levels for abstraction support. (Ranging from 1:1 statement execution to multi-statement abstraction)
 
@@ -44,7 +44,7 @@ Logical
 
 
 ## Alias Sets:
-Allow for all key's or defined, or ordered set of statments, to be mapped to an alias. These can be used as a preprocessor or macro of sort. Can also b used to import a foreign language that MAS's functionality could support.
+Allow for all key's to be defined, or ordered set of statments, to be mapped to an alias. These can be used as a preprocessor or macro of sort. Can also be used to import a foreign language that MAS's functionality could support.
 
 Module/Level dependencies must be explcitly defined within the alias.
 
@@ -57,11 +57,11 @@ Sector: Defines a area of code within a mas file for the handler to properly com
 
 There are three built in defined sectors: || - For modules. {} - For aliases. [] - For source code.
 
-| Module | - Declares a module to be used. (Modules cannot be defined, they are built into the handler).
+| Module | - Declares a module to be used. (Modules cannot be defined, they are the imported into the handler).
 
 Alias: Defines an alias to the base lexicon set the language uses, as well as macros.
 
-* { Alias } - Used after level declaration to determine alias ( { } for default). Done after a is level declared and before a source space.
+* { Alias } - Used after level declaration to determine alias ( { } for default). Done after a level is declared and before a source space.
 * {{ Alias }} - Extends an alias space.
 * {{{ Alias }}} - Declares a new alias space.
 
@@ -81,7 +81,7 @@ Ex: Library Packages.
 
 **.mcsource** (managed code source) files are the source code implementation to be managed by the handler.
 
-.mcsource files can be locked to a specifc module or level by appending .msc_(module name)_(level/platform specifier) to the end of the file. (Ignore paretheses. Level/platform specifier is only if the module supports it.)
+.mcsource files can be locked to a specifc module or level by appending .mcs_(module name)_(level/platform specifier) to the end of the file. (Ignore paretheses. Level/platform specifier is only if the module supports it.)
 
 **.bp** (blueprint) files are the header/table of contents/indexer of implementation. They are read first within the designated directories for the handler to manage or generate packages. Completely optional. Used as a way to better organize code and provide implementation level documentation.
 
