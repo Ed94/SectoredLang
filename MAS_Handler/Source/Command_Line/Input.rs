@@ -28,6 +28,11 @@ use super::
 
 //Input Definition:
 
+pub enum PollOption
+{
+    Line,
+}
+
 //Structure
 pub struct Input
 {
@@ -53,6 +58,17 @@ impl Input
     {
         match _idToCheck
         {
+            ID::Help =>
+            {
+                if self.cmdBank.Help == Input::FoundCmd
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
             ID::Quit =>
             {
                 if self.cmdBank.Quit == Input::FoundCmd
@@ -64,6 +80,39 @@ impl Input
                     return false;
                 }
             },
+            ID::Console =>
+            {
+                if self.cmdBank.Console == Input::FoundCmd
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            ID::IPC =>
+            {
+                if self.cmdBank.IPC == Input::FoundCmd
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            ID::WebFramework =>
+            {
+                if self.cmdBank.WebFramework == Input::FoundCmd
+                {
+                    return true;
+                }
+                else 
+                {
+                    return false;
+                }
+            }
 
             //_ => println!("Failed to find match for ID given to Input::Check."),
         }
@@ -76,14 +125,25 @@ impl Input
         self.cmdBank.Clear();
     }
 
-    pub fn GetUserInput(&mut self)
+    pub fn PollStdin(&mut self, _pollToComplete: PollOption)
     {
-        stdin().read_line(&mut self.userInput).expect("Failed to read line for user input.");
+        match _pollToComplete
+        {
+            PollOption::Line =>
+            {
+                stdin().read_line(&mut self.userInput).expect("Failed to read line for user input.");
+            }
+        }
     }
 
     pub fn Parse(&mut self)
     {
-                                         //This right here with input doesn't feel right...
-        self.cmdBank.Quit = self.userInput.contains(&Input::Quit.to_string());
+        self.cmdBank.Help = self.userInput.contains(&Input::Bind_Help.to_string());
+                                         //This right here with input doesn't feel right... (I gave the binds a identifier to thier origin cause you can't figure it out via vs code hover)
+        self.cmdBank.Quit = self.userInput.contains(&Input::Bind_Quit.to_string());
+
+        self.cmdBank.Console      = self.userInput.contains(&Input::Bind_Console     .to_string());
+        self.cmdBank.IPC          = self.userInput.contains(&Input::Bind_IPC         .to_string());
+        self.cmdBank.WebFramework = self.userInput.contains(&Input::Bind_WebFramework.to_string());
     }
 }

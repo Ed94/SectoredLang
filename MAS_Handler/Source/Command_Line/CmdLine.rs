@@ -2,10 +2,10 @@
 
 //Module TOC
 
-pub mod Input;
-
-mod Flags   ;
+pub mod Input   ;
 pub mod Registry;
+
+mod Flags;
 
 
 //Constants

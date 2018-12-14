@@ -11,15 +11,35 @@ use super::
 
 pub enum ID
 {
-    Quit, 
+    //General
+    Help,
+    Quit,
+
+    //Input Interface options
+    Console     ,
+    IPC         ,
+    WebFramework 
 }
 
 pub trait Binds
 {
-    const Quit: &'static str;
+    //General
+    const Bind_Help        : &'static str;
+    const Bind_Quit        : &'static str;
+    //Input Interface option
+    const Bind_Console     : &'static str;
+    const Bind_IPC         : &'static str;
+    const Bind_WebFramework: &'static str;
+
 }
 
 impl Binds for Input
 {
-    const Quit: &'static str = "quit";
+    //General
+    const Bind_Help        : &'static str = "help"         ;
+    const Bind_Quit        : &'static str = "quit"         ;
+    //Input Interface Option
+    const Bind_Console     : &'static str = "console"      ;
+    const Bind_IPC         : &'static str = "IPC"          ;
+    const Bind_WebFramework: &'static str = "web famework" ;
 }

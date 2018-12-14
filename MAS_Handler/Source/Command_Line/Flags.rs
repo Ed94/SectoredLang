@@ -4,7 +4,11 @@
 
 pub struct Flags
 {
-    pub Quit: bool,
+    pub Help        : bool,
+    pub Quit        : bool,
+    pub Console     : bool,
+    pub IPC         : bool,
+    pub WebFramework: bool,
 }
 
 impl Flags
@@ -13,12 +17,20 @@ impl Flags
     {
         Flags
         {
-            Quit: false,
+            Help        : false,
+            Quit        : false,
+            Console     : false,
+            IPC         : false,
+            WebFramework: false,
         }
     }
 
     pub fn Clear(&mut self)
     {
-        self.Quit = false;
+        self.Help         = false;
+        self.Quit         = false;
+        self.Console      = false;
+        self.IPC          = false;
+        self.WebFramework = false;
     }
 }

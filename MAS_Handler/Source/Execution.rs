@@ -23,8 +23,13 @@ use MAS_Library::
 
     CmdLine::
     {
-        Input::Input,
-        Registry::ID,
+        Input::
+        {
+            PollOption,
+            Input     ,
+        },
+
+        Registry::ID
     }
 };
 
@@ -41,11 +46,24 @@ fn main()
     
     println!("MAS Handler");
 
+    println!("");
+
+    println!("Please select a interfacing option. (Console, IPC, Web Framework");
+
+    InputInst.PollStdin(PollOption::Line);
+
+    InputInst.Parse();
+
+    if InputInst.Check(ID::Console)
+    {
+        CycleInst.RunCycle(&mut InputInst);
+    }
+
     while CycleInst.exist == true
     {
         println!("Cycle.");
 
-        InputInst.GetUserInput();
+        InputInst.PollStdin(PollOption::Line);
 
         InputInst.Parse();
         
