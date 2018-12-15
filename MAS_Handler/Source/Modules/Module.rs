@@ -1,9 +1,8 @@
 
-//Metal
-#[path = "Metal/x86-64/x86-64.rs"] pub mod x86_64;   //x86-64 "Module"
-
-//Assembly
-#[path = "Assembly/NASM/NASM.rs"] pub mod NASM;   //NASM "Module"
-
-//Compiled
-#[path = "Compiled/Concept/Concept.rs"] pub mod Concept;   //Concept "Module".
+//All the the supported module types.
+#[path = "Metal/Metal.rs"            ] pub mod Metal      ;   //Metal     "Module"
+#[path = "Assembler/Assembler.rs"    ] pub mod Assembler  ;   //Assembler "Module"
+#[path = "Compiler/Compiler.rs"      ] pub mod Compiler   ;   //Compiler  "Module"
+#[path = "Interpreter/Interpreter.rs"] pub mod Interpreter;   //Interpreter "Module"
+#[path = "Functional/Functional.rs"  ] pub mod Functional ;   //Functional "Module"
+#[path = "Logical/Logical.rs"        ] pub mod Logical    ;   //Logical "Module"
