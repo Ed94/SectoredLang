@@ -29,12 +29,12 @@ The benefit is its one single programming language platform to do entire implmen
 Metal - The raw binary packager.
 ( Can have several sub-modules installed depending on hardware platform support. )
 
-Assembly - Assembler.
+Assembler - Assembler.
 ( Can have several sub-modules depending on hardware platform support. )
 
-Unisembly - Universal Assembler. Abstracts assembly to a low level universal assembly alias set. Has different levels for abstraction support. (Ranging from 1:1 statement execution to multi-statement abstraction)
+Unisembler - Universal Assembler. Abstracts assembly to a low level universal assembly alias set. Has different levels for abstraction support. (Ranging from 1:1 statement execution to multi-statement abstraction)
 
-Compiled - Traditional High-Level compiled langauge. Has various low level support (sub-levels) ranging from low lying operation to very high overhead.
+Compiler - Traditional High-Level compiled langauge. Has various low level support (sub-levels) ranging from low lying operation to very high overhead.
 
 Interpreter
 
