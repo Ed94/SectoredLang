@@ -5,5 +5,7 @@
 
 //Module TOC
 
-#[path = "Core/Core.rs"           ] pub mod Core   ;   //Core modules.
-#[path = "Command_Line/CmdLine.rs"] pub mod CmdLine;   //Command line related modules.
+#[path = "Core/Core.rs"           ] pub mod Core    ;   //Core modules.
+#[path = "Command_Line/CmdLine.rs"] pub mod CmdLine ;   //Command line related modules.
+#[path = "Modules/Module.rs"      ] pub mod Module  ;   //"Modules" related modules. lol.
+#[path = "Packager/Packager.rs"   ] pub mod Packager;   //Packager related modules.

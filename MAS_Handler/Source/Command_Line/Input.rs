@@ -28,6 +28,11 @@ use super::
 
 //Input Definition:
 
+pub enum InputOption
+{
+    Stdin,
+}
+
 pub enum PollOption
 {
     Line,
@@ -145,5 +150,18 @@ impl Input
         self.cmdBank.Console      = self.userInput.contains(&Input::Bind_Console     .to_string());
         self.cmdBank.IPC          = self.userInput.contains(&Input::Bind_IPC         .to_string());
         self.cmdBank.WebFramework = self.userInput.contains(&Input::Bind_WebFramework.to_string());
+    }
+
+    pub fn Refresh(&mut self, _inputOption: InputOption, _pollToComplete: PollOption)
+    {
+        match _inputOption
+        {
+            InputOption::Stdin =>
+            {
+                self.PollStdin(_pollToComplete);
+
+                self.Parse();
+            }
+        }
     }
 }

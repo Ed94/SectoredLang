@@ -25,8 +25,9 @@ use MAS_Library::
     {
         Input::
         {
-            PollOption,
-            Input     ,
+            InputOption,
+            PollOption ,
+            Input      ,
         },
 
         Registry::ID
@@ -39,8 +40,7 @@ use MAS_Library::
 fn main()
 {
     let mut CycleInst: Cycler = Cycler::Create();
-
-    let mut InputInst: Input = Input::Create();
+    let mut InputInst: Input = Input  ::Create();
     
     println!("");
     
@@ -50,29 +50,11 @@ fn main()
 
     println!("Please select a interfacing option. (Console, IPC, Web Framework");
 
-    InputInst.PollStdin(PollOption::Line);
-
-    InputInst.Parse();
+    InputInst.Refresh(InputOption::Stdin, PollOption::Line);
 
     if InputInst.Check(ID::Console)
     {
         CycleInst.RunCycle(&mut InputInst);
-    }
-
-    while CycleInst.exist == true
-    {
-        println!("Cycle.");
-
-        InputInst.PollStdin(PollOption::Line);
-
-        InputInst.Parse();
-        
-        if InputInst.Check(ID::Quit)
-        {
-            CycleInst.exist = false;
-        }
-
-        InputInst.ClearBank();
     }
 
     println!("");
