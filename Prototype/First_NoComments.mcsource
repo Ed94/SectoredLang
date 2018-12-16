@@ -1,0 +1,86 @@
+| Compiler - Concept - L0 |
+
+{ Native, Implicit { Parameters, Return { call, type } } }
+
+[Std]::[IO]::[Console]::[Output]
+[[[ First ]]]
+
+global:
+{
+    func Add (*uI8 _intOneRef, *uI8 _intTwoRef, *uI8 _resultRef) -> void
+    {
+        _resultRef.val = _intOneRef.val + _intTwoRef.val;
+
+        ShowResult();
+
+        return;
+    };
+}
+
+strict:
+{
+    declare:
+    {
+        uI8 intOne;
+        uI8 intTwo;
+        uI8 result;
+    }
+
+    func AllocateDeclares
+    {
+        alloc intOne;
+        alloc intTwo;
+        alloc result;
+    }
+
+    func DeallocateDeclares
+    {
+        dealloc intOne,
+                intTwo,
+                result ;
+    }
+};
+
+local:
+{
+    func ShowResult
+    {
+        COutF("%uI8", &result);
+        
+        COutEndL;
+    }
+}
+
+[]
+{}
+
+
+{ Native }
+
+[[[ Execution ]]]
+
+global:
+{
+    func Execute () -> void
+    {
+        [First]
+        {
+            AllocateDeclares();
+
+            intOne = 1;
+            intTwo = 1;
+
+            result = 0;
+        };
+
+        Add(&[First]::intOne, &[First]::intTwo, &[First]::result);
+
+        [First]::DeallocateDeclares();
+
+        return;
+    }
+}
+
+[]
+{}
+||

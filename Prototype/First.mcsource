@@ -1,0 +1,203 @@
+/*
+This is the first prototype file to be handled by the MAS Handler.
+
+To be used by the first package specifier for the handler to load and package to an executable.
+
+Note: The Concept compiler does not have any rules to the casing/formatting of idenfiiers used for declarations.
+*/
+
+
+
+//Module declaration
+| Compiler - Concept - L0 |
+
+
+
+//Alias Declaration.
+{ 
+    Native,   //Keys used by the native lexer are all lowercase. 
+    
+    Implicit   //Allows for the use of implicit deductions.
+    {
+        Parameters,   //Specified use of implicit parameter deduction. (Specifically when no parameters are given).
+
+        //Specified use of implicit return deduction. (Specifcally when no return is specified.)
+        Return
+        {
+            call,   //Implicit return call deduction.
+            type,   //Implicit return type deduction.
+        }  
+    }
+}
+
+
+
+/*
+    This is a include declaration of a specified multi-nested sector. Specifically one for referencing the standard library's IO sector's console output.
+
+    Includes must come after an alias sector declaration. However wtithin the alias, includes can be done at any position. However sectors that use it must
+    have it declared at some point beforehand.
+
+    If its only a single reference curly braces do not need to be used:
+    [Std]::[IO]::[Console]::[Output]
+*/
+[Std]
+{
+    [IO]
+    {
+        [Console]
+        {
+            [Output]
+        }  
+    }
+}
+
+
+
+/*
+    This is the first sector definition which will contain the declares and functions used by execution in the first prototype program.
+*/
+[[[ First ]]]
+
+/*
+    In any sector the scope must be defined. In this case a Global scope is used.
+    Anything defined within a global scope can be referenced by another sector so long as [First] was included in the file
+    before the use of the sector that would use it.
+    If the sector [First] was defined in the same file, then there is no need to include.
+*/
+global:
+{
+    /*
+        Adds two given integer references (_intOneRef, _intTwoRef) and stores the resulting value in _resultRef.
+        *uI8: Means raw pointer to a uI8 type.
+    */
+    func Add (*uI8 _intOneRef, *uI8 _intTwoRef, *uI8 _resultRef) -> void
+    {
+        _resultRef.val = _intOneRef.val + _intTwoRef.val;   //Adds the values of the referenced variables, and stores them within the result reference.
+
+        ShowResult();   //Call to local function ShowResult().
+
+        return;   //Indicates to return to sector called from.
+    };
+}
+
+
+/*
+    A Strict scope.
+    Meaning anything defined within the Strict scope key must be referenced using the [First] sector key, even if the sector was included.
+
+*/
+strict:
+{
+    /*
+        The declare key allows for the declaring of types for allocation.
+        In this case a set of 3 uI8 (unsigned 8-bit integers) is being declared.
+        Multiple declares can be done if wrapped within a set of curly braces.
+
+        Note: Unless specified allocation is not done the declarations.
+    */
+    declare:
+    {
+        uI8 intOne;   //First  unsigned integer definition.
+        uI8 intTwo;   //Second unsigned integer definition.
+        uI8 result;   //Container for result of operation between previously stated integers.
+    }
+
+    /*
+    Allocates memory of declarations. Note if you wanted to allocated with declare just do: alloc uI8 intOne;
+
+    Uses implcit deduction of parameters and return type plus call.
+    */
+    func AllocateDeclares
+    {
+        alloc intOne;
+        alloc intTwo;
+        alloc result;
+    }
+
+    /*
+    Deallocates memory of declarations.
+
+    Uses single key for mutiple declare identifiers (similar to C).
+    */
+    func DeallocateDeclares
+    {
+        dealloc intOne,
+                intTwo,
+                result ;
+    }
+};
+
+
+//Local Scope: Anything defined in local scope cannot be used ouside of the sector it belongs to.
+local:
+{
+    //Definition of ShowRsult function. Using implicit deduction of no parameters or return type.
+    func ShowResult
+    {
+        COutF("%uI8", &result);   //Call of "Console out formatted" function. Using implicit deduction of no paramters.
+        
+        COutEndL;   //Call of "Console out end line" function. Using implicit deduction of no parameters.
+
+        //Return call is implicitly deduced.
+    }
+}
+
+
+[]
+
+{}   //End of use of Native alias. (The one with implicit specifiers)
+
+
+
+
+/*
+    Alias declaration. (This time not using any implicit rules)
+*/
+{ Native }
+
+
+
+
+/*
+    This is the execution sector definition which contains the function: Execute. 
+*/
+[[[ Execution ]]]
+
+
+global:
+{
+    /*
+        This function will be used to define execution prodecure of the program
+        for the compiler.
+    */
+    func Execute () -> void
+    {
+        /*
+            Here is First sector being referenced and its declarations being manipulated within execution.
+            New declarations cannot be done on a reference to another sector.
+        */
+        [First]
+        {
+            AllocateDeclares();
+
+            intOne = 1;
+            intTwo = 1;
+
+            result = 0;
+        };
+
+        Add(&[First]::intOne, &[First]::intTwo, &[First]::result);   //Call to [First]'s Add function. & indicates to create a raw pointer of the sepcified declare.
+
+        [First]::DeallocateDeclares();
+
+        return;
+    }
+}
+
+
+[]   //End of Execution sector definition.
+
+{}   //End of use of Native alias.
+
+||   //End of use of Concept Level 0 sub-module from the Compiler module.
