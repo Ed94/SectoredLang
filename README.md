@@ -90,6 +90,6 @@ Ex: Library Packages.
 ## Proof of Concept (Proposal):
 The proof of concept will be made using rust. 
 
-It will use a module called Concept.
+It will use a compiler sub-module called Concept.
 
 There will be an alias set to support C.
