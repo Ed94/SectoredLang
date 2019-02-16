@@ -57,21 +57,19 @@ Sector: Defines a area of code within a mas file for the handler to properly com
 
 There are three built in defined sectors: || - For modules. {} - For aliases. [] - For source code.
 
-| Module | - Declares a module to be used. (Modules cannot be defined, they are the imported into the handler).
+* Module: - Declares a module to be used. (Modules can be defined, but must be packaged in such a way that the handler can import them).
 
 Alias: Defines an alias to the base lexicon set the language uses, as well as macros.
 
-* { Alias } - Used after level declaration to determine alias ( { } for default). Done after a level is declared and before a source space.
-* {{ Alias }} - Extends an alias space.
-* {{{ Alias }}} - Declares a new alias space.
+* Alias  - Used after level declaration to determine alias. Done after a level is declared and before a source space.
+* Append - Extends an alias space.
 
 Source: Implementation to be compiled or interpreted, etc; By the handler with the use of aliases and modules to determine specifications.
 
-* [ Name ] - Used as an include.
-* [[ Name ]] - Extends a source space.
-* [[[ Name ]]] - Declares a new source space.
+* Source - Used as an include.
+* Append - Extends a source space.
 
-All sectors are closed by just putting the brackets without a space between: || {} []
+All sectors are scope using brackets as done traditionally in languages for functions and classes for example.
 
 New sectors can possibly be defined. (Built on top of existing sectors and base base support the handler provides.)
 
