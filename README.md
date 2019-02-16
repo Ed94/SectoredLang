@@ -32,7 +32,7 @@ Metal - The raw binary packager. (x86/64, ARM, RISC, etc)
 Assembler - Native Hardware Assembler. (x86/64, ARM, RISC, etc)
 ( Can have several sub-modules depending on hardware platform support. )
 
-Unissembly - Universal Assembler. Abstracts platform assembly to a low level universal assembly alias set. Has different levels for abstraction support. (Ranging from 1:1 statement execution to multi-statement abstraction)
+Unissembly - Universal Assembler. Abstracts platform assembly to a low level universal assembly alias set. Has different levels for abstraction support. (Ranging from 1:1 statement execution to multi-statement abstraction) (Must have at least one assembler installed for a compatible Alias Set)
 
 Compiler - Traditional High-Level compiled langauge. Has various low level support (sub-levels) ranging from low lying operation to very high overhead. (Written in Unissembly)
 
