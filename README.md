@@ -92,5 +92,5 @@ It will use a compiler sub-module called Concept.
 
 There will be an alias set to support C.
 
-## Example:
+## Example of an .mcsource file:
 ![ExImage](https://files.catbox.moe/wupcux.png)
