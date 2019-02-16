@@ -93,4 +93,4 @@ It will use a compiler sub-module called Concept.
 There will be an alias set to support C.
 
 ## Example of an .mcsource file:
-![ExImage](https://files.catbox.moe/12lhro.png)
+![ExImage](https://files.catbox.moe/lgapmc.png)
