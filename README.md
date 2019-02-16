@@ -93,3 +93,6 @@ The proof of concept will be made using rust.
 It will use a compiler sub-module called Concept.
 
 There will be an alias set to support C.
+
+## Example:
+![ExImage](https://files.catbox.moe/wupcux.png)
