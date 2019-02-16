@@ -17,7 +17,7 @@ Comprehendable: The language is designed for comprehendability in mind. Symbols 
 
 The general purpose handler(compiler/interpeter/etc) for an MAS programming langauge. The handler is fully modular. Whatever is generated soley depends on what modules are installed. Thus portability varies on what modules are available per platform.
 
-All modules compiled and higher have sub-levels that divide features by the level of overhead they require. The lowest levels are the least overhead (thus the least performance cost), while the higher levels go up in complexity and have lower performance.
+All modules Unissembly and higher have sub-levels that divide features by the level of overhead they require. The lowest levels are the least overhead (thus the least performance cost), while the higher levels go up in complexity and have lower performance.
 
 The handler will deduce what modules to use when using the formatting of the sectors within the mas files.
 
@@ -26,17 +26,17 @@ Naturally downside of this handler is there is an minimum degree of overhead for
 The benefit is its one single programming language platform to do entire implmentation of a project or any other use case. Code from other languages can be brought into being managed by the handler so long as an alias set is defined for the lanauge the code was written in. Everything done is strictly explicit (To the level specified) to prevent hidden ambiguities.
 
 ## Modules:
-Metal - The raw binary packager.
+Metal - The raw binary packager. (x86/64, ARM, RISC, etc)
 ( Can have several sub-modules installed depending on hardware platform support. )
 
-Assembler - Assembler.
+Assembler - Native Hardware Assembler. (x86/64, ARM, RISC, etc)
 ( Can have several sub-modules depending on hardware platform support. )
 
-Unisembler - Universal Assembler. Abstracts assembly to a low level universal assembly alias set. Has different levels for abstraction support. (Ranging from 1:1 statement execution to multi-statement abstraction)
+Unissembly - Universal Assembler. Abstracts platform assembly to a low level universal assembly alias set. Has different levels for abstraction support. (Ranging from 1:1 statement execution to multi-statement abstraction)
 
-Compiler - Traditional High-Level compiled langauge. Has various low level support (sub-levels) ranging from low lying operation to very high overhead.
+Compiler - Traditional High-Level compiled langauge. Has various low level support (sub-levels) ranging from low lying operation to very high overhead. (Written in Unissembly)
 
-Interpreter
+Interpreter (Written in Compiler)
 
 Functional
 
