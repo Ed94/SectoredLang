@@ -55,7 +55,7 @@ These mappings are saved as an alias set.
 
 Sector: Defines a area of code within a mas file for the handler to properly compile.
 
-There are three built in defined sectors: || - For modules. {} - For aliases. [] - For source code.
+There are three built in defined sectors: Modules, Aliases, and Source code.
 
 * Module: - Declares a module to be used. (Modules can be defined, but must be packaged in such a way that the handler can import them).
 
