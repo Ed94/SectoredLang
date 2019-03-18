@@ -19,7 +19,7 @@ The general purpose handler(compiler/interpeter/etc) for an MAS programming lang
 
 All modules Unissembly and higher have sub-levels that divide features by the level of overhead they require. The lowest levels are the least overhead (thus the least performance cost), while the higher levels go up in complexity and have lower performance.
 
-Modules are written from each other, assembly to unissembly, unissembly to compiler etc. This is to provide a complete all inclusive scope to how the modules abstract/alias or provide overhead to each other. There is no need to learn a foreign set of documentation / concepts outside of the conventions of M.A.S.
+Modules are written from each other, assembly to unissembly, unissembly to compiler etc. This is to provide a complete all inclusive scope to how the modules abstract/alias or provide overhead to each other. There is no need to learn a foreign set of documentation / concepts outside of the conventions of M.A.S. (Exceptions would be around the binary or assembly module since that is by the architecture.
 
 The handler will deduce what modules to use when using the formatting of the sectors within the mas files.
 
