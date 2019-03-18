@@ -19,6 +19,8 @@ The general purpose handler(compiler/interpeter/etc) for an MAS programming lang
 
 All modules Unissembly and higher have sub-levels that divide features by the level of overhead they require. The lowest levels are the least overhead (thus the least performance cost), while the higher levels go up in complexity and have lower performance.
 
+Modules are written from each other, assembly to unissembly, unissembly to compiler etc. This is to provide a complete all inclusive scope to how the modules abstract/alias or provide overhead to each other. There is no need to learn a foreign set of documentation / concepts outside of the conventions of M.A.S.
+
 The handler will deduce what modules to use when using the formatting of the sectors within the mas files.
 
 Naturally downside of this handler is there is an minimum degree of overhead for supporting a module based system. It has to interpet how to package implementation based on all these factors. Also any modules beyond compiled will need a byte-code level interpreter at least to be able to generate a proper package. Package types can also greatly vary depending on modules used from compiled code to pure vm code or hybrid.
@@ -36,7 +38,7 @@ Unissembly - Universal Assembler. Abstracts platform assembly to a low level uni
 
 Compiler - Traditional High-Level compiled langauge. Has various low level support (sub-levels) ranging from low lying operation to very high overhead. (Written in Unissembly)
 
-Interpreter (Written in Compiler)
+Interpreter (Written in Compiler/Unissembly)
 
 Functional
 
