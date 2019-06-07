@@ -1,0 +1,18 @@
+[package]
+
+name    = "MAS"
+version = "0.0.1"
+authors = ["Edward R. Gonzalez <edwardgz@gmail.com>"]
+
+
+[dependencies]
+
+[lib]
+
+name = "MAS_Library"
+path = "Source/Library.rs"
+
+[[bin]]
+
+name = "MAS_Handler"
+path = "Source/Execution.rs"
