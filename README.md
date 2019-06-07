@@ -4,7 +4,7 @@ A dynamic, highly adaptable, programming language. (Currently only a concept)
 
 # Features:
 
-Multi-Leveled abstraction approach to programming: Program from binary to pure logic using a single implementation handler.
+Multi-Leveled abstraction approach to programming: Program from hardware's assembly to pure logic using a single implementation handler.
 
 Refactorable Syntax: All keys for every module/level can be refactored to an alias set/macro.
 
@@ -12,6 +12,7 @@ Explicit: Everything done must be declared visibity. All implicit features must 
 
 Comprehendable: The language is designed for comprehendability in mind. Symbols used must conform to design principles used in the visual fields for optimal human perception. The naming of all key terms used in the base lexicon set are carefully considered and should be easy to pick up and understand. (No excessive mnemonic nonsense) Structural use of those terms in accordance to their meaning must visually statisfy the meaning as much as practically posssible.
 
+Non-Obfuscating: No Module hides the implmentation of another baser module that built it. This includes modules that use bootstrapping to build themselves out. The origin of the boostrap must be clearly shown and never removed a previous version of the module.
 
 # M.A.S. Handler:
 
@@ -34,9 +35,11 @@ Metal - The raw binary packager. (x86/64, ARM, RISC, etc)
 Assembler - Native Hardware Assembler. (x86/64, ARM, RISC, etc)
 ( Can have several sub-modules depending on hardware platform support. )
 
-Unissembly - Universal Assembler. Abstracts platform assembly to a low level universal assembly alias set. Has different levels for abstraction support. (Ranging from 1:1 statement execution to multi-statement abstraction) (Must have at least one assembler installed for a compatible Alias Set) (Essentially an IR to an extent)
 
-Compiler - Traditional High-Level compiled langauge. Has various low level support (sub-levels) ranging from low lying operation to very high overhead. (Written in Unissembly/Compiler)
+
+Unissembly - Universal Assembler (Imperative). Abstracts platform assembly to a low level universal assembly alias set. Has different levels for abstraction support. (Ranging from 1:1 statement execution to multi-statement abstraction) (Must have at least one assembler installed for a compatible Alias Set) (Essentially acts a writtable intermediary, pure data types only)
+
+Compiler - Traditional High-Level compiled langauge (support for strong typing, etc). Has various low level support (sub-levels) ranging from low lying operation to very high overhead. (Written in Unissembly/Compiler)
 
 Interpreter (Written in Compiler/Unissembly ()
 
@@ -46,6 +49,7 @@ Logical
 
 
 ## Alias Sets:
+
 Allow for all key's to be defined, or ordered set of statments, to be mapped to an alias. These can be used as a preprocessor or macro of sort. Can also be used to import a foreign language that MAS's functionality could support.
 
 Module/Level dependencies must be explcitly defined within the alias.
@@ -87,12 +91,8 @@ Ex: Library Packages.
 
 **.alis** (alias set) files are used to explicity store only alias information. Provides better support from the handler in aiding the developer to produce an alias set of any scale. (Ex: Producing an alias set to support foreign programming language code)
 
-## Proof of Concept (Proposal):
-The proof of concept will be made using rust. 
-
-It will use a compiler sub-module called Concept.
-
-There will be an alias set to support C.
+## Proof of Concept:
+I'm still looking into the best way to make a proper concept of this that actually does what I intended. 
 
 ## Example of an .mcsource file:
 ![ExImage](https://i.imgur.com/RD6CKjp.png)
