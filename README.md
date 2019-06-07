@@ -35,9 +35,9 @@ Metal - The raw binary packager. (x86/64, ARM, RISC, etc)
 Assembler - Native Hardware Assembler. (x86/64, ARM, RISC, etc)
 ( Can have several sub-modules depending on hardware platform support. )
 
+IR-Frameowrk (Intermedidary Representation Compiler Framework) - Toolchains for generating optimized assembly for a hardware platform.
 
-
-Unissembly - Universal Assembler (Imperative). Abstracts platform assembly to a low level universal assembly alias set. Has different levels for abstraction support. (Ranging from 1:1 statement execution to multi-statement abstraction) (Must have at least one assembler installed for a compatible Alias Set) (Essentially acts a writtable intermediary, pure data types only)
+Unissembly - Universal Assembler (Imperative). Uses an IR-Framework or Assembler to produce a universal language intended to be closer to form of assembly's syntax over. Has different levels for abstraction support. (Ranging from 1:1 statement execution to multi-statement abstraction, statements are explicitly sub-categorized by their level of abstraction from direct opcodes) (Must have at least one IR-Framework or Assembler installed for a compatible Alias Set) (Essentially acts a writtable intermediary, pure data types only)
 
 Compiler - Traditional High-Level compiled langauge (support for strong typing, etc). Has various low level support (sub-levels) ranging from low lying operation to very high overhead. (Written in Unissembly/Compiler)
 
@@ -92,7 +92,11 @@ Ex: Library Packages.
 **.alis** (alias set) files are used to explicity store only alias information. Provides better support from the handler in aiding the developer to produce an alias set of any scale. (Ex: Producing an alias set to support foreign programming language code)
 
 ## Proof of Concept:
-I'm still looking into the best way to make a proper concept of this that actually does what I intended. 
+I'm still looking into the best way to make a proper concept of this that actually does what I intended.
+
+Dude to my lack of knoweledge of anything past IR frameworks, I'll attempt to make Unissembly as best as I can from my vision of it in LLVM.
+
+From it, an attempt will be made to make the Compiler module's level 0 (Essentially an imperative, base, C-Like language)
 
 ## Example of an .mcsource file:
 ![ExImage](https://i.imgur.com/RD6CKjp.png)
