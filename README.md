@@ -94,7 +94,7 @@ Ex: Library Packages.
 ## Proof of Concept:
 I'm still looking into the best way to make a proper concept of this that actually does what I intended.
 
-Dude to my lack of knoweledge of anything past IR frameworks, I'll attempt to make Unissembly as best as I can from my vision of it in LLVM.
+Due to my lack of knoweledge of anything past IR frameworks, I'll attempt to make Unissembly as best as I can from my vision of it in LLVM.
 
 From it, an attempt will be made to make the Compiler module's level 0 (Essentially an imperative, base, C-Like language)
 
