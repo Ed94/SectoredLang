@@ -1,0 +1,69 @@
+Engine.Input.bp
+
+
+alias :
+EKeyCode : Platform:: EKeyCode
+
+KeyEventCallback    : fn(_keyState : EState)
+KeyEventCallbackPtr : ptr<KeyEventCallback>
+;
+
+
+ct : NumKeysTracked : uDM = 6 ;
+
+
+EState : enum<u8> :
+None
+Relased
+Pressed
+Held
+;
+
+
+Subscriptions : mut struct :
+	Array : ptr<KeyEventCallbackPtr>
+	Num   : uDM
+;
+
+
+KeySignals : mut struct, SL:: ArrayS<bool, NumKeysTracked> :
+	Up,    
+	Down,
+	Left,
+	Right,
+	Enter,
+	Tab,
+	: bool = false
+;
+
+
+SignalState : mut struct :
+	Current, Previous : KeySignals
+;
+
+
+DataContext : mut struct :
+	SignalStates : SignalState
+
+	KeyStates : ArrayS<EState, NumKeysTracked>
+	= EState:: None
+
+	KeyEventSubs : ArrayS<Subscriptions, NumKeysTracked>
+	= null
+;
+
+
+pub fn :
+
+	GetDataContext -> ref<ro DataContext>
+
+	Update
+
+	Subscribe   (_key : EkeyCode, _callback : ref<KeyEventCallback>)
+	Unsubscribe (_key : EkeyCode, _callback : ref<KeyEventCallback>)
+
+	(KeySignals):
+		KeyCodeAtIndex  (_index : uDM     ) -> EkeyCode
+		IndexFromKeyCode(_key   : EKeyCode) -> uDM
+	;
+;

@@ -1,0 +1,146 @@
+Engine.Memory.source
+
+
+static : GlobalMemory : BlockArray ;
+
+
+fn :
+
+	(self : ref<BlockArray>) :
+	{
+		Add -> ref<Block> :
+
+			if self.Array == null :
+
+				heap : allocate() : self.Array ;
+
+				if self.Array == null : Debug:: HandleError("Failed to globally allocate block array.") ;
+
+				self.Length = 1
+			;
+			else :
+			{
+				stack :
+					newSize  : u32        = self.Length + 1
+					newBlock : ptr<Block> = null
+				;
+
+				bool = heap : allocate(newSize) : newBlock ;
+
+				if newBlock != null :
+
+					FormatWithData(newBlock, self.Array, self.Length)  
+
+					self.Array = newBlock
+				;
+				else :
+					Debug:: HandleError("Failed to globally reallocate block array.") ;
+				;
+			};
+
+			heap : allocate() : self.Array[self.Length - 1] ;
+
+		-> self.Array[self.Length - 1]
+		;
+	};
+;
+
+pub fn heap :
+
+	(self : ref<BlockArray>) :
+	{
+		allocate<Type, indir = ptr>(_numToAllocate : uDM) -> indir<Type> :
+
+			stack : newBlock : ptr<Block> = self.Add() ;
+
+			newBlock.Size = _numToAllocate
+			
+			heap : allocate<Type>(_numToAllocate) : newBlock.Locaiton ;
+
+			if newBlock.Location == null : 
+			-> newBlock.Location
+			;
+			else : 
+				Debug:: HandleError("Failed to scope allocate memory.") 
+			;
+		;
+
+		reallocate<Type, indir = ptr>(_address : indir<Type>, _numDesired : u32) -> indir<Type> :
+
+			stack : index : uDM = 0 ;
+
+			loop : if index == self.Length : break ;
+			{
+				if self.Array[index].Location == _address :
+
+					stack : newLocation           : ptr<Type> = null ;
+					heap  : allocate(_numDesired) : newLocation      ;
+
+					if newLocation != null :
+
+						heap : deallocate : self.Array[index].Location ;
+
+						self.Array[index].Location = newLocation ;
+
+					-> self.Array[index].Location
+					;
+				;
+			};
+		;
+
+		deallocate :
+
+			stack : index : uDM = 0 ;
+
+			loop :
+			{
+				if index == self.Length : break ;
+
+				heap :
+					deallocate : self.Array[index].Location
+					deallocate ; self.Array[index]
+				;
+			};
+
+			heap : deallocate : self.Array ;
+		;
+	};
+
+	(Global) : 
+	{
+		allocate<Type, indir = ptr>(_numToAllocate : uDM) -> indir<Type> :
+
+			stack : allocedMemory                            : ptr<Type> = null ;
+			heap  : GlobalMemory.allocate(_numberToAllocate) : allocedMemory    ;
+
+			if allocMemory != null : 
+			-> allocMemory
+			;
+			else :
+				Debug:: HandleError("Failed to globally allocate memory.") 
+			;
+		;
+
+		reallocate<Type, indir = ptr>(_address : indir<Type>, _numDesired : uDM) -> indir<Type> :
+
+			stack : index : uDM = 0 ;
+
+			loop : if index == GlobalMemory.Length : -> null ;
+			{
+				if GlobalMemory.Array[index].Location == _address :
+
+					stack : reallocedMemory                                : ptr<Type> = null ;
+					heap  : GlobalMemory.reallocate(_address, _numDesired) : reallocMemory    ;
+
+					if reallocedMemory != null : -> reallocedMemory ;
+					else                       : -> null            ;
+				;
+			};
+		;
+
+		deallocate :
+
+			heap : GlobalMemory.deallocate() : GlobalMemory
+		;
+	};
+;

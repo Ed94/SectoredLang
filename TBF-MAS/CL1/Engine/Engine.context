@@ -1,0 +1,38 @@
+
+context : TBF_MAS_ConsoleEngine
+module  : Compiler
+layer   : 1
+alias   : Standard.Version.2021
+name    : Engine
+
+dependencies : 
+StandardLibrary
+;
+
+alias append :
+SL : StandardLibrary
+;
+
+files :
+Config           : bp
+Cycler           : bp, source
+Debug            : bp, source
+Engine           : bp
+Execution        : bp, source
+Input            : bp, source
+Memory           : bp, source
+Renderer         : bp, source
+State            : bp, source
+State_Intro      : bp, source
+Timing           : bp, source
+Platform         : bp 
+Platform_Windows : bp, source
+;
+
+alias append :
+allocate   = Memory:: Global:: allocate
+reallocate = Memory:: Global:: reallocate
+deallocate = Memory:: Global:: deallocate
+;
+
+entrypoint : Platform:: Entrypoint
