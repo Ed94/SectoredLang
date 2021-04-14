@@ -2,39 +2,42 @@ Engine.Execution.bp
 
 
 alias :
-ErrorOut : SL::Error::Output 
+ErrorOut : SL::Error::Output;
 ;
 
 
-Entrypoint : 
+fn : 
 
-	PrepareModules()
+	pub :
+	{
+		Entrypoint : 
 
-	Cycler:: Initalize()
+			PrepareModules();
 
--> ExitCode:: Success
+			Cycler:: Initalize();
+
+		-> ExitCode:: Success;
+		;
+	};
+
+
+	PrepareModules :
+		Renderer:: LoadModule();
+		State   :: LoadModule();
+	;
+
+
+	PrintStartMessage :
+		Debug:: Log("TBF MAS Layer 1 Engine");
+	;
+
+
+	UnloadModules :
+		Renderer:: UnloadModule();
+		
+		heap : deallocate() ;
+	;
+
+
+	defer Entrypoint : UnloadModules(); ;
 ;
-
-
-PrepareModules :
-	Renderer:: LoadModule()
-	State   :: LoadModule()
-;
-
-
-PrintStartMessage :
-	Debug:: Log( "TBF MAS Layer 1 Engine")
-;
-
-
-UnloadModules :
-	Renderer:: UnloadModule    ()
-	Memory  :: GlobalDeallocate()
-;
-
-
-defer Entrypoint :
-
-	UnloadModules()
-;
-

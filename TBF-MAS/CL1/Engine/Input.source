@@ -4,36 +4,67 @@ Engine.Input.source
 static : InputData : mut DataContext ;
 
 
+fn (KeySignals) :
+
+KeyCodeAtIndex (_index : uDM) -> EkeyCode :
+{	
+	switch index :
+	
+		case 0: -> EKeyCode:: Arrow_Up,
+		case 1: -> EKeyCode:: Arrow_Down,
+		case 2: -> EKeyCode:: Arrow_Left,
+		case 3: -> EKeyCode:: Arrow_Right,
+		case 4: -> EKeyCode:: Enter,
+		case 5: -> EKeyCode:: Tab
+	;
+
+-> EKeyCode:: None;
+};
+
+IndexFromKeyCode (_key   : EKeyCode) -> uDM :
+{	
+	switch _index :
+
+		case EKeyCode:: Arrow_Up   : -> 0,
+		case EKeyCode:: Arrow_Down : -> 1,
+		case EKeyCode:: Arrow_Left : -> 2,
+		case EKeyCode:: Arrow_Right: -> 3,
+		case EKeyCode:: Enter      : -> 4,
+		case EKeyCode:: Tab        : -> 5
+	;
+
+-> SL:: NumLimit<uDM>:: Max();
+};
+
+;
+
+
+pub fn :
+
 GetDataContext : -> InputData ;
 
-
 Update :
-
-	in InputData.SignalStates :
-
-		Previous = Current
-	;
+{
+	in InputData.SignalStates : Previous = Current ;
 
 	loop :
 	{
-		stack : index : uDM = 0 ;
+		stack : index : mut uDM = 0 ;
 
 		if index == NumKeysTracked : break;
 
-		stack : 
-			keyCode : EKeyCode = KeySignals:: KeyCodeAtIndex(index)
-		;
+		stack : keyCode : mut EKeyCode = KeySignals:: KeyCodeAtIndex(index) ;
 
 		ct :
-			current  : ref<InputData.SignalStates.Current >
-			previous : cref<InputData.SignalStates.Previous>
+			current  : ref<mut SignalState> = InputData.SignalStates.Current ,
+			previous : ref<mut SignalState> = InputData.SignalStates.Previous
 		;
 
-		current[index] = Platform:: GetKeySignal(keyCode)
+		current[index] = Platform:: GetKeySignal(keyCode);
 
 		stack :
-			currentState : ct ref<EState> = InputData.KeyStates[index]
-			latestState  : EState         = EState:: None
+			currentState : ref<mut EState> = InputData.KeyStates[index],
+			latestState  :     mut EState  = EState:: None
 		;
 
 		if current[index] == previous[index] :
@@ -49,112 +80,84 @@ Update :
 
 		if lastestState != currentState :
 
-			currentState = latestState
+			currentState = latestState;
 
-			stack : subIndex : uDM = 0 ;
+			stack : subIndex : mut uDM = 0 ;
 
-			loop :
+			loop : if subIndex == KeyEventSubs[index].Num : break ;
 
-				if subIndex == KeyEventSubs[index].Num : break ;
+				ct : sub : ref<KeyEventCallback> = KeyEventSubs[index].Array[subIndex] ;
 
-				ct : sub : KeyEventCallbackPtr = KeyEventSubs[index].Array[subIndex] ;
+				if sub != null : sub.val ;
 
-				if sub != KeyEventCallbackPtr:: null : sub.val ;
-
-				subIndex++
+				subIndex++;
 			;
 		;
 
-		index++
+		index++;
 	};
-;
-
-
-Subscribe (_key : EkeyCode, _callback : ref<KeyEventCallback>) :
-{
-	stack : 
-		index    : uDM                   = KeySignals:: IndexFromKeyCode(_key)
-		subs     : ct ref<Subscriptions> = InputData.KeyEventSubs[index]
-		subIndex : uDM                   = 0
-	;
-
-	if subs.Num == 0 : 
-		
-		heap : allocate(1) : subs.Array ;
-
-		subs.Num++
-	;
-
-	else :
-	{
-		loop :
-		{
-			if subIndex == subs.Num : break ;
-
-			if _callback.ptr == subs.Array[subIndex] : 
-
-				if sub == null : sub = _callback.ptr ;
-
-				ret
-			;
-		};
-
-		newSize : uDM  = subs.Num + 1;
-		result  : bool = heap : reallocate(newSize) : subs.Array
-
-		if  result != false : subs.Num++;
-		else                : Debug:: HandleError("Failed to globally reallocate sub array.") ;
-	};
-
-	index             = subs.Num - 1
-	subs.Array[index] = _callback.ptr
 };
 
-Unsubscribe (_key : EkeyCode, _callback : ref<KeyEventCallback>) :
+(_key : EkeyCode, _callback : ref<KeyEventCallback>) :
 
-	stack :
-		index    : uDM                   = KeySignals:: IndexFromKeyCode(_key)
-		subs     : ct ref<Subscriptions> = InputData.KeyEventSubs[index]
-		subIndex : uDM                   = 0
-	;
-
-	loop:
+	Subscribe :
 	{
-		if subIndex == KeyEventSubs[index].Array[subIndex] :
-
-			if sub == _callback.ptr : sub = null ;
-
-			ret
+		stack : 
+			index    :     mut uDM            = KeySignals:: IndexFromKeyCode(_key),
+			subs     : ref<mut Subscriptions> = InputData.KeyEventSubs[index]      ,
+			subIndex :     mut uDM            = 0
 		;
+
+		if subs.Num == 0 : 
+			
+			heap : allocate(1) : subs.Array ;
+
+			subs.Num++;
+		;
+
+		else :
+		{
+			loop : if subIndex == subs.Num : break ;
+			{
+				if _callback.ptr == subs.Array[subIndex].ptr : 
+
+					stack : sub : ref<KeyEventCallback> ;
+
+					if sub == null : sub.ptr = _callback.ptr ;
+
+					ret;
+				;
+			};
+
+			newSize : uDM  = subs.Num + 1 ;
+			result  : bool = heap : reallocate(newSize) : subs.Array ;
+
+			if  result != false : subs.Num++ ;
+			else                : Debug:: HandleError("Failed to globally reallocate sub array.") ;
+		};
+
+		index             = subs.Num - 1
+		subs.Array[index] = _callback.ptr
+	};
+
+	Unsubscribe :
+	{
+		stack :
+			index    : uDM                   = KeySignals:: IndexFromKeyCode(_key),
+			subs     : ct ref<Subscriptions> = InputData.KeyEventSubs[index],
+			subIndex : uDM                   = 0
+		;
+
+		loop: if subIndex == KeyEventSubs[index].Length : break ;
+		{
+			if subIndex == KeyEventSubs[index].Array[subIndex] :
+
+				if sub == _callback.ptr : sub = null ;
+
+				ret;
+			;
+		};
 	};
 ;
 
-KeyCodeAtIndex (_index : uDM) -> EkeyCode :
-	
-	switch index :
-	
-		case 0: -> EKeyCode:: Arrow_Up
-		case 1: -> EKeyCode:: Arrow_Down
-		case 2: -> EKeyCode:: Arrow_Left
-		case 3: -> EKeyCode:: Arrow_Right
-		case 4: -> EKeyCode:: Enter
-		case 5: -> EKeyCode:: Tab
-	;
-
--> EKeyCode:: None
-;
-
-IndexFromKeyCode (_key   : EKeyCode) -> uDM :
-	
-	switch _index :
-
-		case EKeyCode:: Arrow_Up   : -> 0
-		case EKeyCode:: Arrow_Down : -> 1
-		case EKeyCode:: Arrow_Left : -> 2
-		case EKeyCode:: Arrow_Right: -> 3
-		case EKeyCode:: Enter      : -> 4
-		case EKeyCode:: Tab        : -> 5
-	;
-
--> SL:: NumLimit<uDM>:: Max()
-;
+;   // pub fn

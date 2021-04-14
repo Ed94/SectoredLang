@@ -1,109 +1,78 @@
-// Parent Header
-#include "Timing.h"
+Engine.Timing.source
 
 
-
-// Includes
-#include "Memory.h"
-#include "Renderer.h"
+static : Timing : TimingData ;
 
 
-
-// Static Data
-
-// Private
-
-TimingData Timing;
+alias : Clock : Platform:: HResClock ;
 
 
+pub fn :
 
-// Forward Declarations
+GetContext -> ref<TimingData> : -> Timing ;
 
-void Timing_InitalizeData(void);
-
-
-
-// Functions
-
-// Public
-
-const TimingData* Timing_GetContext(void)
+Update : 
 {
-	return &Timing;
-}
+	in Timing :
+		TicksElapsed = Snapshot.End - Snapshot.Start;
 
-void Timing_LoadModule(void)
+		stack : intermediary : mut u64 = TicksElapsed * TicksToMicroSecs ;
+
+		Microseconds = cast<f64>(intermediary);
+
+		intermediary  = cast<f64>(Snapshot.Frequency);
+		Microseconds /= intermediary;
+
+		intermediary  = cast<f64>(TicksElapsed);
+		DeltaTime     = intermediary;
+		intermediary  = cast<f64>(MicrosecondToSecond);
+		DeltaTime    /= intermediary;	
+	;
+
+	Renderer:: ProcessTiming();
+};
+
+(TakeSnapshot) :
 {
-	Timing_InitalizeData();
-}
+	Start : Clock.Now(Timing.Snapshot.Start) ;
+	End   : Clock.Now(Timing.Snapshot.End  ) ;
+};
 
-void Timing_TakeInitialSnapshot(void)
+
+// This alias definition is restrictd to this pub fn: scope
+alias :
+{	// This is overloading the default floating point operator 
+	// with one that takes into account float accuracy to the epsilon.
+	// f64.epsilon is a member defined by SL::Numerics.
+	f64.>= : SL:: Numerics:: f64.>=(f64.epsilon);
+	f64.<= : SL:: Numerics:: f64.<=(f64.epsilon);
+};
+
+(self : ref<Timer>) :
 {
-	QueryPerformanceCounter(&Timing.TimeSnapshot_Initial);
-}
 
-void Timing_TakeEndingSnapshot(void)
-{
-	QueryPerformanceCounter(&Timing.TimeSnapshot_End);
-}
-
-void Timing_Update(void)
-{
-	Timing.Cycle_TicksElapsed = Timing.TimeSnapshot_End.QuadPart - Timing.TimeSnapshot_Initial.QuadPart;
-
-	Timing.Cycle_Microseconds = (float64)(Timing.Cycle_TicksElapsed * TickToMicroseconds);
-	Timing.Cycle_Microseconds = Timing.Cycle_Microseconds / (float64)Timing.TimeFrequency.QuadPart;
-
-	Timing.DeltaTime = (float64)Timing.Cycle_TicksElapsed / (float64)MicrosecondToSecond;
-
-	Renderer_ProcessTiming(Timing.DeltaTime);
-}
-
-// Private
-
-void Timing_InitalizeData(void)
-{
-	Timing.Cycle_TicksElapsed = 0;
-	Timing.Cycle_Microseconds = 0.0;	
-	Timing.DeltaTime          = 0.0;
-
-	QueryPerformanceFrequency(&Timing.TimeFrequency);
-
-	return;
-}
-
-
-
-// Timer Class
-
-// Functions
-
-// Public
-
-bool Timer_Ended(TimerData* _timer)
-{
-	return 
-		Float64_ApproxGreater(_timer->Elapsed, _timer->EndTime) || 
-		Float64_ApproxEqual  (_timer->Elapsed, _timer->EndTime)   ;
-}
-
-void Timer_Reset(TimerData* _timer)
-{
-	_timer->Elapsed = 0.01;
-}
-
-void Timer_Tick(TimerData* _timer)
-{
-	if (Float64_ApproxEqual(Timing.DeltaTime, 0.000001) || Float64_ApproxLess(Timing.DeltaTime, 0.0000011))
+	Ended -> bool :
 	{
-		_timer->Elapsed = _timer->Elapsed + 0.000001;
+		stack : result : mut f64 = 0.0 ;
 
-		return;
-	}
-	else
+		result = Elapsed >= EndTime ;
+
+	-> result
+	};
+};
+
+(self : ref<mut Timer>) :
+{
+	Reset : Elapsed = 0.0 ;
+
+	Tick :
 	{
-		_timer->Elapsed = _timer->Elapsed + Timing.DeltaTime;
-
-		return;
-	}
-}
+		if DeltaTime <= 0.000001 :
+			Elapsed = Elapsed + 0.000001 ;
+		;
+		else :
+			Elapsed = Elapsed + Deltatime ;
+		;
+	};
+};
+;

@@ -1,38 +1,47 @@
-
-context : TBF_MAS_ConsoleEngine
-module  : Compiler
-layer   : 1
-alias   : Standard.Version.2021
-name    : Engine
+context : TBF_MAS_ConsoleEngine ; 
+module  : Compiler              ;
+layer   : 1                     ;
+alias   : Standard.Version.2021 ;
+name    : Engine                ;
 
 dependencies : 
 StandardLibrary
 ;
 
 alias append :
-SL : StandardLibrary
+SL : StandardLibrary;
 ;
 
 files :
-Config           : bp
-Cycler           : bp, source
-Debug            : bp, source
-Engine           : bp
-Execution        : bp, source
-Input            : bp, source
-Memory           : bp, source
-Renderer         : bp, source
-State            : bp, source
-State_Intro      : bp, source
-Timing           : bp, source
-Platform         : bp 
-Platform_Windows : bp, source
+Config           : bp         ;
+Cycler           : bp, source ;
+Debug            : bp, source ;
+Engine           : bp         ;
+Execution        : bp, source ;
+Input            : bp, source ;
+LAL              : bp, source ;
+Memory           : bp, source ;
+Renderer         : bp, source ;
+State            : bp, source ; 
+State_Intro      : bp, source ;
+Timing           : bp, source ;
+
+if MAS:: Platform:: Win   : Platform_Win   : alias, bp, source ;
+if MAS:: Platform:: Mac   : Platform_Mac   : alias, bp, source ;
+if MAS:: Platform:: Linux : Platform_Linux : alias, bp, source ;
+;
+
+alias append : (heap) :
+		allocate   = Memory:: Global:: allocate  ;
+		reallocate = Memory:: Global:: reallocate;
+		deallocate = Memory:: Global:: deallocate;
+	;
 ;
 
 alias append :
-allocate   = Memory:: Global:: allocate
-reallocate = Memory:: Global:: reallocate
-deallocate = Memory:: Global:: deallocate
+if MAS:: Platform:: Win   : Platform : Platform_Win;   ;
+if MAS:: Platform:: Mac   : Platform : Platform_Mac;   ;
+if MAS:: Platform:: Linux : Platform : Platform_Linux; ;
 ;
 
-entrypoint : Platform:: Entrypoint
+entrypoint : Platform:: Entrypoint;

@@ -1,154 +1,141 @@
-// Parent Header
-#include "Windows_Platform.h"
+Engine.Platform_Wind.source
 
 
+pub fn :
 
-// Includes
-
-#include "Execution.h"
-
-
-
-// Macros
-
-#define STANDARD_INPUT  stdin
-#define STANDARD_OUTPUT stdout
-#define STANDARD_ERROR  stderr
-
-
-
-// Static Data
-
-CTS_CString SConsole_In   = "CONIN$";
-CTS_CString SConsole_Out  = "CONOUT$";
-CTS_CString SConsole_Null = "NUL:";
-
-CTS_CString SReadCode  = "r";
-CTS_CString SWriteCode = "w";
-
-
-
-// Functions
-
-
-// Public
-
-bool Bind_IOBufferTo_Console(void)
+(Console) -> bool :
 {
-	FILE* dummyFile = NULL;
+	alias : 
+	ReassignPtr : File:: ReassignPtr;
+	BufferMode  : File:: BufferMode;
+	SetBuffer   : File:: SetBuffer;
+	Access      : File:: Access;
+	CF_In       : Console:: Filename:: In;
+	CF_Out      : Console:: Filename:: Out;
+	CF_Null     : Console:: Filename:: Null;
+	CS_In       : Console:: Stream:: In;
+	CS_Out      : Console:: Stream:: Out;
+	CS_Err      : Console:: Stream:: Err;
+	;
 
-
-	freopen_s(&dummyFile, SConsole_In , SReadCode , STANDARD_INPUT );
-	freopen_s(&dummyFile, SConsole_Out, SWriteCode, STANDARD_OUTPUT);
-	freopen_s(&dummyFile, SConsole_Out, SWriteCode, STANDARD_ERROR );
-
-	// Redirect STDIN if the console has an input handle	
-	if (GetStdHandle(STD_INPUT_HANDLE) != INVALID_HANDLE_VALUE)
+	Bind_IOBuffers :
 	{
-		if (freopen_s(&dummyFile, SConsole_In , SReadCode , STANDARD_INPUT) != 0)
-		{
-			return false;
-		}
-		else
-		{
-			setvbuf(STANDARD_INPUT, NULL, _IONBF, 0);
-		}
-	}
+		stack : dummyFile : ptr<File> = null ;
 
-	// Redirect STDOUT if the console has an output handle
-	if (GetStdHandle(STD_OUTPUT_HANDLE) != INVALID_HANDLE_VALUE)
+		ReassignPtr(dummyFile.ptr, CF_In , Access:: Read , CS_In );
+		ReassignPtr(dummyFile.ptr, CF_Out, Access:: Write, CS_Out);
+		ReassignPtr(dummyFile.ptr, CF_Out, Access:: Write, CS_Err);
+
+		stack : result : ErrorNo = -1 ;
+
+		// Redirect standard input if the console has an input handle	
+		if StdHandle:: Get(Input) != StdHandle:: Invalid :
+		{
+			result = ReassignPtr(dummyFile.ptr, CF_In , Access:: Read , CS_In)
+
+			if result != 0 :
+			-> false
+			;
+			else :
+				SetBuffer(CS_In, null, BufferMode:: NoBuffer, 0);
+			;
+		};
+
+		// Redirect standard output if the console has an output handle
+		if StdHandle:: Get(Output) != StdHandle:: Invalid :
+		{
+			result = ReassignPtr(dummyFile.ptr, CF_Out , Access:: Write , CS_Out)
+
+			if result != 0 :
+			-> false
+			;
+			else :
+				SetBuffer(CS_Out, null, BufferMode:: NoBuffer, 0);
+			;
+		};
+
+		// Redirect standard error if the console has an error handle
+		if StdHandle:: Get(Error) != StdHandle:: Invalid :
+		{
+			result = ReassignPtr(dummyFile.ptr, CF_Out , Access:: Write , CS_Err)
+
+			if result != 0 :
+			-> false
+			;
+			else :
+				SetBuffer(CS_Err, null, BufferMode:: NoBuffer, 0);
+			;
+		};
+
+	->true;
+	};
+
+	Unbind_IOBuffers :
 	{
-		if (freopen_s(&dummyFile, SConsole_Out, SWriteCode, STANDARD_OUTPUT) != 0)
-		{
-			return false;
-		}
-		else
-		{
-			setvbuf(STANDARD_OUTPUT, NULL, _IONBF, 0);
-		}
-	}
+		stack : 
+			dummyFile : ptr<File> = null;
+			result    : ErrorNo   = -1  ;
+		;
 
-	// Redirect STDERR if the console has an error handle
-	if (GetStdHandle(STD_ERROR_HANDLE) != INVALID_HANDLE_VALUE)
-	{
-		if (freopen_s(&dummyFile, SConsole_Out, SWriteCode, STANDARD_ERROR) != 0)
-		{
-			return false;
-		}
-		else
-		{
-			setvbuf(STANDARD_ERROR, NULL, _IONBF, 0);
-		}
-	}
+		// Just to be safe, redirect standard IO to NUL before releasing.
 
-	return true;
-}
+		// Redirect standard input to null
+		result = ReassignPtr(dummyFile.ptr, CF_Null , Access:: Read, CS_In)
 
-bool RequestConsole(void)
+		if result != 0 :
+		-> false
+		;
+		else :
+			SetBuffer(CS_In, null, BufferMode:: NoBuffer, 0);
+		;
+
+		// Redirect standard output to null
+		result = ReassignPtr(dummyFile.ptr, CF_Null , Access:: Write, CS_Out)
+
+		if result != 0 :
+		-> false
+		;
+		else :
+			SetBuffer(CS_Out, null, BufferMode:: NoBuffer, 0);
+		;
+
+		// Redirect standard error to null
+		result = ReassignPtr(dummyFile.ptr, CF_Null , Access:: Write, CS_Err)
+
+		if result != 0 :
+		-> false
+		;
+		else :
+			SetBuffer(CS_Err, null, BufferMode:: NoBuffer, 0);
+		;
+	-> true;
+	};
+
+	RequestConsole : -> AllocConsole(); ;
+};
+
+
+GetKeySignal(_key : EVirtualKey) :
 {
-	return AllocConsole();
-}
-
-bool Unbind_IOBufferTo_Console(void)
-{
-	FILE* dummyFile;
-
-
-	// Just to be safe, redirect standard IO to NUL before releasing.
-
-	// Redirect STDIN to NUL
-	if (freopen_s(&dummyFile, SConsole_Null, SReadCode, STANDARD_INPUT) != 0)
-	{
-		return false;
-	}
-	else
-	{
-		setvbuf(STANDARD_INPUT, NULL, _IONBF, 0);
-	}
-
-	// Redirect STDOUT to NUL
-	if (freopen_s(&dummyFile, SConsole_Null, SWriteCode, STANDARD_OUTPUT) != 0)
-	{
-		return false;
-	}
-	else
-	{
-		setvbuf(STANDARD_OUTPUT, NULL, _IONBF, 0);
-	}
-
-	// Redirect STDERR to NUL
-	if (freopen_s(&dummyFile, SConsole_Null, SWriteCode, STANDARD_ERROR) != 0)
-	{
-		return false;
-	}
-	else
-	{
-		setvbuf(STANDARD_ERROR, NULL, _IONBF, 0);
-	}
-
-	return true;
-}
-
-bool GetKeySignal(EKeyCode _key)
-{
-	if (GetAsyncKeyState(_key) & 0x8000)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
+	if GetAsyncKeyState(_key) & 0x8000 : 
+		-> true;
+	;
+	else :
+		-> false;
+	;
+};
 
 
-
-// Private
-
-INT WinMain()
+Entrypoint :
 {	
-	EntryPoint();
+	WinMain
+	(
+		hInstance     : InstHandle, 
+		hPrevInstance : InstHandle, 
+		pCmdLine      : PStr, 
+		nCmdShow      : s32
+	) 
+	-> s32 : -> Execution:: Entrypoint() ;
+};
 
-	return 0;
-}
-
+;

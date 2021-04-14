@@ -1,13 +1,5 @@
-#pragma once
+Engine.State_Intro.bp
 
 
 
-// Includes
-
-#include "State.h"
-
-
-
-// Functions
-
-StateObj* GetIntroState(void);
+fn : GetIntroState(void) -> ptr<State::State> ;

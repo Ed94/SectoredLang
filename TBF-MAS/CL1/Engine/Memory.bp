@@ -1,40 +1,47 @@
-// TBF_MAS_CE_Layer1
 Engine.Memory.bp
 
 
-alias : BlockPtr = ptr<Block> ;
+alias : BlockPtr : ptr<Block> ;
 
 
-Block : mut struct :
-	Location : ptr<byte> = null
-	Size     : uDM       = 0
+Block : struct :
+	Location : ptr<byte> = nul;
+	Size     : uDM       = 0  ;
 ;
 
-BlockArray : mut struct
-	Array  : ptr<BlockPtr> = null
-	Length : uDM           = 0
-;
-
-
-alias append :
-FormatByFill   = SL:: FormatByFill
-FormatWithData = SL:: FomratWithData
+BlockArray : struct
+	Array  : ptr<BlockPtr> = null;
+	Length : uDM           = 0   ;
 ;
 
 
-fn : (self : ref<BlockArray>) : Add -> ref<Block> ; ;
+alias :
+FormatByFill   = SL:: FormatByFill  ;
+FormatWithData = SL:: FomratWithData;
+;
 
-pub fn heap :
 
-	(self : ref<BlockArray>) :
-		allocate  <Type, indir = ptr>(                        _numberToAllocate : uDM) -> indir<Type>
-		reallocate<Type, indir = ptr>(_address : indir<type>, _numberDesired    : uDM) -> indir<Type>
+fn : (self : ref<mut BlockArray>) : Add -> ref<mut Block> ; ;
+
+pub fn (heap) :
+
+	(self : ref<mut BlockArray>) :
+
+		<Type, indir = ptr> :
+			allocate  (                        _numberToAllocate : uDM) -> indir<mut Type>,
+			reallocate(_address : indir<Type>, _numberDesired    : uDM) -> indir<mut Type>
+		;
+
 		deallocate
 	;
 	
-	context Global :
-		allocate  <Type, indir = ptr>(                        _numberToAllocate : uDM) -> indir<Type>
-		reallocate<Type, indir = ptr>(_address : indir<Type>, _numberDesired    : uDM) -> indir<Type>
+  (Global) :
+	
+		<Type, indir = ptr> :
+			allocate  (                        _numberToAllocate : uDM) -> indir<mut Type>,
+			reallocate(_address : indir<Type>, _numberDesired    : uDM) -> indir<mut Type>
+		;
+
 		deallocate
 	;
 ;

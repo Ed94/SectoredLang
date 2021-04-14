@@ -1,40 +1,91 @@
-#pragma once
+Engine.State.source
 
 
-
-// Includes
-
-#include "LAL.h"
-
-
-
-// Aliases (Typedefs)
-
-typedef struct StateObj_Def StateObj;
+EFocusState : enum<u8> :
+	Game,
+	Logs
+;
 
 
-
-// Structs
-
-struct StateObj_Def
-{
-	Void_Function* Load  ;
-	Void_Function* Unload; 
-	Void_Function* Update;
-	Void_Function* Render;
-};
+static : 
+EngineState : mut ptr<State>  = null;
+FocusState  : mut EFocusState = Game;
+;
 
 
+fn (_state : EInputState) :
 
-// Functions
+	OnKey_ArrowUp :
+	{
+		switch _state  :
+		case   Pressed :
+		{	
+			switch FocusState :
+			case   Logs       : Renderer:: Logs_ScrollUp() ;
+			;
+		};
+		;
+	};
 
-void State_LoadModule(void);
+	OnKey_ArrowDown :
+	{
+		switch _state  :
+		case   Pressed :
+		{	
+			switch FocusState :
+			case   Logs       : Renderer:: Logs_ScrollDown() ;
+			;
+		};
+		;
+	};
 
-void State_SetState(StateObj* _state);
+	OnKey_Tab :
+	{
+		switch _state  :
+		case   Pressed :
+		{
+			switch FocusState :
+			case   Game       : FocusState = Logs ;
+			case   Logs       : FocusState = Game ;
+			;
+		};
+	};
+;
 
-void State_Update(void);
 
-void State_Render(void);
+pub fn :
 
-void State_LoadGame(void);
+	GetEngineState -> ref<State>         :  -> EngineState      ;
+	SetEngineState (_state : ref<State>) : EngineState = _state ;
 
+	LoadModule :
+	{
+		EngineState = Intro:: GetState();
+
+		EngineState.Load();
+
+		Input:: SubscribeTo(Key:: Arrow_Up  , OnKey_ArrowUp  );
+		Input:: SubscribeTo(Key:: Arrow_Down, OnKey_ArrowDown);
+		Input:: SubscribeTo(Key:: Tab       , OnKey_Tab      );
+	};
+
+	(self : ref<mut State>) :
+
+		SetState (_state : ref<State>) :
+		{
+			if self.ptr != null : rUnload() ;
+
+			self = _state;
+
+			CurrentState.Load();
+		}
+	;
+
+	(self : ref<State>) :
+
+		Load   : if self.ptr != null : rLoad  () ; ;
+		Unload : if self.ptr != null : rUnload() ; ;
+		Update : if self.ptr != null : rUpdate() ; ;
+		Render : if self.ptr != null : rRender() ; ;
+	;
+;

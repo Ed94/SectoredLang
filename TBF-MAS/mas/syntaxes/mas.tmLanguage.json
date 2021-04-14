@@ -1,0 +1,202 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "M.A.S.",
+	"patterns":
+	[
+		{
+			"include": "#sectors"
+		},
+		{
+			"include": "#specifiers"
+		},
+		{
+			"include": "#symbols"
+		},
+		{
+			"include": "#strings"
+		},
+		{
+			"include": "#builtins"
+		},
+		{
+			"include": "#literals"
+		},
+		{
+			"include": "#operators"
+		},
+		{
+			"include": "#formatting"
+		}
+	],
+	"repository": 
+	{
+		"sectors": 
+		{
+			"patterns": 
+			[
+				{
+					"name": "sectors.mas",
+					"match": "\\b(alias|ct|fn|in|defer)\\b"
+				},
+				{
+					"name": "sectors.control.mas",
+					"match": "\\b(if|else|loop|switch|case)\\b"
+				},
+				{
+					"name": "sectors.memory.mas",
+					"match": "\\b(static|stack|heap)\\b"
+				}
+			]
+		},
+		"specifiers":
+		{
+			"patterns":
+			[
+				{
+					"name": "specifiers.access.mas",
+					"match": "\\b(pub|mut|ro|struct)\\b"
+				},
+				{
+					"name": "specifiers.directive.mas",
+					"match": "\\b(inline|align|volatile)\\b"
+				},
+				{
+					"name": "specifiers.control.mas",
+					"match": "\\b(ret|label|goto|break|continue)\\b"
+				},
+				{
+					"name": "specifiers.scope",
+					"match": "(\\(|\\))"
+				}
+			]
+		},
+		"symbols":
+		{
+			"patterns":
+			[
+				{
+					"name": "symbols.blueprint",
+					"match": "(\\w(?=[\\w ]*? ?::))"
+				},
+				{
+					"name": "symbols.template",
+					"match": "(\\w(?=[\\w ]*? ?<))"
+				}
+			]
+		},
+		"strings": 
+		{
+			"patterns": 
+			[
+				{
+					"name" : "strings.quoted.single.mas",
+					"begin": "\\'",
+					"end"  : "\\'"
+				},
+				{
+					"name" : "strings.quoted.double.mas",
+					"begin": "\"",
+					"end"  : "\""
+				},
+				{
+					"name": "constant.character.escape.mas",
+					"match": "\\\\."
+				}
+			]
+		},
+		"builtins":
+		{
+			"patterns": 
+			[
+				{
+					"name": "builtins.types",
+					"match": "(bool)"
+				},
+				{
+					"name": "builtins.types.unsgined.mas",
+
+					"match": "(u8|u16|u32|u64|uDM)"
+				},
+				{
+					"name": "builtins.types.signed.mas",
+					"match": "(s8|s16|s32|s64|sDM)"
+				},
+				{
+					"name": "builtins.types.floats.mas",
+					"match": "(f32|f64)"
+				},
+				{
+					"name": "builtins.types.chars.mas",
+					"match": "(char8|char8s|char16|char32|char64)"
+				},
+				{
+					"name": "builtins.types.enums.mas",
+					"match": "(enum8|enum16|enum32|enum64|enumDM)"
+				},
+				{
+					"name": "builtins.types.addressing.mas",
+					"match": "(ptr|ref)"
+				},
+				{
+					"name": "builtins.functions.mas",
+					"match": "\\b(allocate|deallocate)\\b"
+				}
+			]
+		},
+		"literals":
+		{
+			"patterns": 
+			[
+				{
+					"name": "literals.boolean.mas",
+					"match": "\\b(true|false)\\b"
+				},
+				{
+					"name": "literals.integer.mas",
+					"match": "[0-9]"
+				},
+				{
+					"name": "literals.address",
+					"match": "(null)"
+				}
+			]
+		},
+		"operators":
+		{
+			"patterns": 
+			[
+				{
+					"name": "operators.arithmetic.mas",
+					"match": "^(\\+|-|\\*|\/)$"
+				},
+				{
+					"name": "operators.comparison.mas",
+					"match": "[=|!|>|<|>|<]"
+				},
+				{
+					"name": "operators.declaration.mas",
+					"match": "(:|->|;)"
+				},
+				{
+					"name" : "operators.access.mas",
+					"match": "(\\.|\\[|\\])"
+				}
+			]
+		},
+		"formatting":
+		{
+			"patterns":
+			[
+				{
+					"name": "formatting",
+					"match": "({|})"
+				},
+				{
+					"name": "formatting.comments",
+					"match": "(//.*)"
+				}
+			]
+		}
+	},
+	"scopeName": "source.mas"
+}

@@ -2,4 +2,4 @@ Engine.Engine.bp
 
 
 // This must be specified by the game.
-pub fn : LoadGame -> ptr<AState>;
+pub fn : LoadGame -> ptr<State:: StateObj> ;

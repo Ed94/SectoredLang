@@ -1,0 +1,12 @@
+Engine.LAL.bp
+
+
+<Representation>> :
+	Bitfield : struct :
+
+		Mask : Representation = 0;
+	;
+;
+
+
+
