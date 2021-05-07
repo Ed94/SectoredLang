@@ -1,0 +1,77 @@
+_file : Cycler.uas ;
+
+
+
+_bp :
+	
+	_public :
+	{
+		_symbol : Initialize ;
+		_symbol : Lapse      ;
+	};
+;
+
+
+
+_static :
+
+	_symbol  : Persist ;
+	_mutable : Persist ;
+
+	// Symbol value initalization
+	_init :
+	{
+		_allocate : Persist, byte  ;
+		_val      : Persist, false ;
+	};
+;
+
+
+
+_source :
+
+	_fn : Initialize :
+	{
+		_stack :
+		{
+			_symbol : result       ;
+			_push   : result, byte ; 
+		};
+
+		_val : Persist, true ;
+
+		_label : StartOfCycle
+		
+			_val : result,
+			{
+				_not : Persist ;
+			};
+
+			_if : result, true
+			{
+				_ret ;	
+			};
+
+			_call : Timing  :: TakeSnapshot:: Start  ;
+			_call : Input   ::                Update ;
+			_call : State   ::                Update ;
+			_call : Renderer::                Update ;
+			_call : Timing  :: TakeSnopshot:: End    ;
+			_call : Timing  ::                Update ;
+
+		_goto : StartOfCycle
+
+		_ret : 
+
+			_stack :
+			{
+				_pop : result ;
+			};
+		;
+	};
+
+	_fn : Lapse :
+	{
+		_val : Persist, false ;
+	};
+;

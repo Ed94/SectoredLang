@@ -1,0 +1,12 @@
+_file : Config.uas ;
+
+
+
+// Assembly Time
+_at :
+		
+	_symbol : Enabled         ;
+	_val    : Enabled , false ;
+;
+
+

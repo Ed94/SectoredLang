@@ -1,0 +1,13 @@
+Engine.LAL.bp
+
+
+alias :
+
+	bool : byte ;
+
+	(bool) :
+
+		false : byte = 0 ;
+		true  : byte = 1 ;
+	;
+;
