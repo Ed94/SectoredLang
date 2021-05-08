@@ -5,8 +5,8 @@ alias : BlockPtr : ptr<Block> ;
 
 
 Block : struct :
-	Location : ptr<byte> = nul;
-	Size     : uDM       = 0  ;
+	Location : ptr<byte> = null;
+	Size     : uDM       = 0   ;
 ;
 
 BlockArray : struct

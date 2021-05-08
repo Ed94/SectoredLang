@@ -1,5 +1,0 @@
-Engine.State_Intro.bp
-
-
-
-fn : GetIntroState(void) -> ptr<State::State> ;

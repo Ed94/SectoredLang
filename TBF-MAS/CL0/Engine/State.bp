@@ -1,0 +1,27 @@
+Engine.State.bp
+
+
+alias :
+fnType : fn();
+;
+
+
+State : struct :
+	rLoad   : fnType.ptr;
+	rUnload : fnType.ptr;
+	rUpdate : fnType.ptr;
+	rRender : fnType.ptr;
+;
+
+
+(self : State.ptr)
+
+	(_state : State.ptr) :
+	pub : fn :
+		Set;
+	;;;
+
+	pub : fn :
+		Load, Unload, Update, Render;
+	;;
+;

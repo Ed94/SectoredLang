@@ -1,0 +1,20 @@
+Engine.Platform.Win.bp
+
+
+alias : CellAttributeFlags : u16 ;;
+
+(Console) : 
+	ct : WhiteCell : CellAttributeFlags = (FG::Red, FG::Green, FG::Blue, FG::Intensity); ; 
+;
+
+
+(Console) : pub : fn :
+	Bind_IoBuffers, Unbind_IOBuffers, Request ret bool;
+;
+
+pub : fn :
+	Get_KeySignal (_key : EVirtualKey) ret bool;
+
+	Entrypoint;
+;
+

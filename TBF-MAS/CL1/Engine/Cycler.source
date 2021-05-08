@@ -1,7 +1,9 @@
 Engine.Cycler.source
 
+
 // Static Data, Persist is mutable.
 static : Persist : mut bool = false ;
+
 
 // Public function declaration scope, the curly's are optional.
 pub fn :
@@ -20,7 +22,6 @@ pub fn :
 			Timing  ::                Update();
 		};
 	;
-
 
 	Lapse : Persist = false ;
 };

@@ -1,6 +1,6 @@
 context : TBF_MAS_ConsoleEngine ; 
 module  : Compiler              ;
-layer   : 1                     ;
+layer   : 0                     ;
 alias   : Standard.Version.2021 ;
 name    : Engine                ;
 
@@ -39,8 +39,8 @@ alias append : (heap) :
 ;
 
 alias append :
-if MAS:: Platform:: Win   : Platform : Platform.Win;   ;
-if MAS:: Platform:: Mac   : Platform : Platform.Mac;   ;
+if MAS:: Platform:: Win   : Platform : Platform.Win  ;   ;
+if MAS:: Platform:: Mac   : Platform : Platform.Mac  ;   ;
 if MAS:: Platform:: Linux : Platform : Platform.Linux; ;
 ;
 

@@ -1,8 +1,8 @@
-Engine.State_Intro.source
+Engine.State.Intro.source
 
 
 alias :
-Timer = Timing:: Timer;
+Timer : Timing:: Timer;
 ;
 
 

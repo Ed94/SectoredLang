@@ -4,10 +4,10 @@ _file : Cycler.uas ;
 
 _bp :
 	
-	_public :
+	_pub :
 	{
-		_symbol : Initialize ;
-		_symbol : Lapse      ;
+		_sym : Initialize ;
+		_sym : Lapse      ;
 	};
 ;
 
@@ -15,8 +15,7 @@ _bp :
 
 _static :
 
-	_symbol  : Persist ;
-	_mutable : Persist ;
+	_sym  : Persist ;
 
 	// Symbol value initalization
 	_init :
@@ -34,8 +33,8 @@ _source :
 	{
 		_stack :
 		{
-			_symbol : result       ;
-			_push   : result, byte ; 
+			_sym  : result       ;
+			_push : result, byte ; 
 		};
 
 		_val : Persist, true ;

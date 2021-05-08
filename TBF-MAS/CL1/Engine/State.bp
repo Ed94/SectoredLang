@@ -19,7 +19,7 @@ SetEngineState (_state : State),
 
 LoadModule,
 
-(self : ref<mut Obj>) : 
+(self : ref<mut State>) : 
 	(_state : ref<State>) : Set ; 
 ;
 

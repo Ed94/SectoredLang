@@ -14,7 +14,7 @@ ct : NumKeysTracked : uDM = 6 ;
 
 EState : enum<u8> :
 None,
-Relased,
+Released,
 Pressed,
 Held,
 ;

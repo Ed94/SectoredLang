@@ -3,7 +3,7 @@ Engine.Platform_Win.bp
 
 alias : CellAttributeFlags : Bitfield<u16, ECellAttributeFlag> ;
 
-ct : (Console) : WhiteCell : CellAttributeFlags = (FG_Red, FG_Green, FG_Blue, FG_Intensity) ; ;
+ct : (Console) : WhiteCell : CellAttributeFlags = (FG::Red, FG::Green, FG::Blue, FG::Intensity) ; ;
 
 
 pub fn :
