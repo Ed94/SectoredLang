@@ -23,6 +23,7 @@
                     ".alias",
                     ".bp",
                     ".source"
+                    ".mial"
                 ],
                 "configuration": "./language-configuration.json"
             }

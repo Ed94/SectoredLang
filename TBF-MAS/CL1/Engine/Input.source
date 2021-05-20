@@ -55,28 +55,26 @@ Update :
 
 		stack : keyCode : mut EKeyCode = KeySignals:: KeyCodeAtIndex(index) ;
 
-		ct :
-			current  : ref<mut SignalState> = InputData.SignalStates.Current ,
-			previous : ref<mut SignalState> = InputData.SignalStates.Previous
-		;
+		in InputData.SignalStates :
+		{
+			Current[index] = Platform:: GetKeySignal(keyCode);
 
-		current[index] = Platform:: GetKeySignal(keyCode);
+			stack :
+				currentState : ref<mut EState> = InputData.KeyStates[index],
+				latestState  :     mut EState  = EState:: None
+			;
 
-		stack :
-			currentState : ref<mut EState> = InputData.KeyStates[index],
-			latestState  :     mut EState  = EState:: None
-		;
-
-		if current[index] == previous[index] :
-			
-			if      current[index] == true          : latestState = EState:: Held;
-			else:if currentState   != EState:: Held : latestState = EState:: None;;
-		;
-		else 
-			
-			if   current[index] == false : latestState = EState:: Released;
-			else                         : latestState = EState:: Pressed ;
-		;
+			if Current[index] == Previous[index] :
+				
+				if      Current[index] == true          : latestState = EState:: Held;
+				else:if currentState   != EState:: Held : latestState = EState:: None;;
+			;
+			else 
+				
+				if   Current[index] == false : latestState = EState:: Released;
+				else                         : latestState = EState:: Pressed ;
+			;
+		};
 
 		if lastestState != currentState :
 
@@ -86,7 +84,7 @@ Update :
 
 			loop : if subIndex == KeyEventSubs[index].Num : break ;
 
-				ct : sub : ref<KeyEventCallback> = KeyEventSubs[index].Array[subIndex] ;
+				stack : sub : ref<KeyEventCallback> = KeyEventSubs[index].Array[subIndex] ;
 
 				if sub != null : sub.val ;
 

@@ -1,13 +1,13 @@
 Engien.Execution.bp
 
 
-Exitcode : enum<1> :
+EExitcode : enum<1> :
 
 Failure = 0
 Success = 1
 ;
 
 
-pub : fn : Entrypoint ret ExitCode ; ;
+pub : fn : Entrypoint ret EExitCode ; ;
 
 fn : PrepareModules, PrintStartMessage, UnloadModules ;

@@ -31,8 +31,8 @@ Tab   : bool = false
 ;
 
 Subscriptions : struct :
-	Array : ptr ;
-	Num   : uDM ;
+	Array : ptr = null;
+	Num   : uDM = 0   ;
 ;
 
 SignalState : struct :

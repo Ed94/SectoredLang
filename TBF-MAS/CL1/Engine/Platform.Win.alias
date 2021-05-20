@@ -15,12 +15,20 @@ HandleAPI      : CLibrary = LocateHeader("handleapi.h");
 MinWinDef      : CLibrary = LocateHeader("minwindef.h");
 ProcessEnv     : CLibrary = LocateHeader("processenv.h");
 STDIO          : CLibrary = LocateHeader("stdio.h");
-WinBase        : CLibrary = LocateHeader("WinBase.h");
-WinNT          : CLibrary = LocateHeader("WinNT.h");
-WinUser        : CLibrary = Locateheader("WinUser.h");
-Windows        : CLibrary = LocateHeader("Windows.h");
+WinBase        : CLibrary = LocateHeader("winbase.h");
+WinConTypes    : CLibrary = LocateHeader("wincontypes.h");
+WinDef         : CLibrary = LocateHeader("windef.h");
+WinNT          : CLibrary = LocateHeader("winNT.h");
+WinUser        : CLibrary = Locateheader("winuser.h");
+Windows        : CLibrary = LocateHeader("windows.h");
 
 DWORD : ConIO.Typedef_ToBultin("DWORD");
+
+Handle : WinNT:: HANDLE;
+
+(Handle) :
+	Window : WinDef:: HWND;
+;
 
 (StdHandle) :
 	ct :
@@ -34,6 +42,30 @@ DWORD : ConIO.Typedef_ToBultin("DWORD");
 ;
 
 (Console) : 
+
+	Coord : WinConTypes:: COORD;
+
+	SmallRect : WinConTypes:: SMALL_RECT;
+
+	ScreenBufferInfo : ConsoleAPI2:: Struct:: Define("CONSOLE_SCREEN_BUFFER_INFO") :
+	{	
+		Size           : dwSize;
+		CursorPosition : dwCursorPosition;
+		Attributes     : wAttributes;
+		Window         : srWindow;
+		MaxWinSize     : dwMaximumWindowSize;
+	};
+
+	Cell : ConsoleAPI2:: Struct:: Define("CHAR_INFO") :
+	{
+		Char : union :
+			Utf   : Unicode,
+			Ascii : AsciiChar
+		;
+
+		Attributes : Attributes;
+	};
+
 	ct (FileName) :
 	{
 		In   : [] char8s = "CONIN$";
@@ -87,19 +119,25 @@ EVirtualKey : enum<u16> :
 ;
 
 ECellAttributeFlag : enum<u16> :
-	FG_Red       : ConsoleAPI2:: Macro:: Translate("FOREGROUND_RED");
-	FG_Green     : ConsoleAPI2:: Macro:: Translate("FOREGROUND_GREEN");
-	FG_Blue      : ConsoleAPI2:: Macro:: Translate("FOREGROUND_BLUE");
-	FG_Intensity : ConsoleAPI2:: Macro:: Translate("FOREGROUND_INTENSITY");
-	BG_Red       : ConsoleAPI2:: Macro:: Translate("BACKGROUND_RED");
-	BG_Green     : ConsoleAPI2:: Macro:: Translate("BACKGROUND_GREEN");
-	BG_Blue      : ConsoleAPI2:: Macro:: Translate("BACKGROUND_BLUE");
-	BG_Intensity : ConsoleAPI2:: Macro:: Translate("BACKGROUND_INTENSITY");
+
+	(FG) :
+	Red       : ConsoleAPI2:: Macro:: Translate("FOREGROUND_RED");
+	Green     : ConsoleAPI2:: Macro:: Translate("FOREGROUND_GREEN");
+	Blue      : ConsoleAPI2:: Macro:: Translate("FOREGROUND_BLUE");
+	Intensity : ConsoleAPI2:: Macro:: Translate("FOREGROUND_INTENSITY");
+	;
+
+	(BG) :
+	Red       : ConsoleAPI2:: Macro:: Translate("BACKGROUND_RED");
+	Green     : ConsoleAPI2:: Macro:: Translate("BACKGROUND_GREEN");
+	Blue      : ConsoleAPI2:: Macro:: Translate("BACKGROUND_BLUE");
+	Intensity : ConsoleAPI2:: Macro:: Translate("BACKGROUND_INTENSITY");
+	;
 ;
 
 PStr       : WinNT:: Macro:: Translate("PSTR");
 InstHandle : WinNT:: Macro:: Translate("HINSTANCE");
-ErrorNo    : CoreCRT:: Tyep:: Translate("errno_t");
+ErrorNo    : CoreCRT:: Type:: Translate("errno_t");
 
 fn : 
 

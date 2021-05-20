@@ -1,0 +1,6 @@
+file : Engine.mial ;
+
+
+bp : pub :
+	sym : LoadGame ;
+;;

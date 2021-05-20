@@ -2,6 +2,9 @@ Engine.State.Intro.source
 
 
 alias :
+ECellAttributeFlags : Platform::ECellAttributeFlags;
+Console : Platform:: Console;
+
 Timer : Timing:: Timer;
 ;
 
@@ -19,18 +22,18 @@ static :
 	Timer_Till_FadeOut
 	: mut Timer;
 
-	Intro_DoneOnce : mut bool = false;
+	DoneOnce : mut bool = false;
 
 	ct : 
-	IntroTitle    : WCStr = "Trial By Fire Engine",
-	EngineVersion         = "Type C Phase 14"      ;
+	Title         : str<ascii> = "Trial By Fire Engine",
+	EngineVersion              = "Type C Phase 14"      ;
 	;
 
 	RenderTitle, 
 	RenderVersion 
 	: mut bool = false ;
 
-	IntroTitle_RenderCells, 
+	Title_RenderCells, 
 	Version_RenderCells
 	: mut ArrayD<Cell>;
 ;
@@ -43,51 +46,63 @@ fn :
 	{
 		stack : cellIndex : uDM = 0; ;
 
-		loop : if cellIndex < IntroTitle_RenderCell.Num : break ;
+		loop : if cellIndex < Title_RenderCell.Num : break ;
 
-			IntroTitle_RenderCells[cellIndex].Attributes = ECellAttributeFlag::FG_Red;
+			Title_RenderCells[cellIndex].Attributes = ECellAttributeFlag:: FG:: Red;
 
 			cellIndex++;
 		;
 	};
 
-	void ChangeEngineVerTo_Grey()
+	ChangeEngineVerTo_Grey :
 	{
-		for (size_t cellIndex = 0; cellIndex < EngineVersion_Length; cellIndex++)
-		{
-			Version_RenderCells[cellIndex].Attributes = FOREGROUND_INTENSITY;
-		}
+		stack : cellIndex : uDM = 0 ; ;
+
+		loop : if cellIndex < Version_RenderCells.Num : break ;
+
+			Version_RenderCells[cellIndex].Attributes = ECellAttributeFlag:: FG:: Intensity;
+
+			cellIndex++;
+		;
 	}
 
-	void ChangeTitleTo_White()
+	ChangeTitleTo_White :
 	{
-		for (size_t cellIndex = 0; cellIndex < Title_Length; cellIndex++)
-		{
-			IntroTitle_RenderCells[cellIndex].Attributes = Console_WhiteCell;
-		}
+		stack : cellIndex : uDM = 0; ;
+
+		loop : if cellIndex < Title_RenderCells.Num : break ;
+
+			Title_RenderCells[cellIndex].Attributes = Console:: WhiteCell;
+
+			cellIndex++;
+		;
 	}
 
-	void ChangeEngineVerTo_White()
+	ChangeEngineVerTo_White :
 	{
-		for (size_t cellIndex = 0; cellIndex < EngineVersion_Length; cellIndex++)
-		{
-			Version_RenderCells[cellIndex].Attributes = Console_WhiteCell;
-		}
+		stack : cellIndex : uDM = 0; ;
+
+		loop : if cellIndex < Version_RenderCells.Num : break ;
+
+			Version_RenderCells[cellIndex].Attributes = Console:: WhiteCell;
+
+			cellIndex++;
+		;
 	}
 
 
 	// Class Public
 
-	void IntroState_Load(void)
+	IntroState_Load : 
 	{
-		Renderer_WriteToLog(L"Intro State: Loaded");
+		Renderer:: WriteToLog(L"Intro State: Loaded");
 
-		if (! Intro_DoneOnce)
+		if ! DoneOnce :
 		{
 			IntroTimer.EndTime = 7.0L;
 
-			Timer_TillTitle    .EndTime = 2.0;
-			Timer_TillVersion  .EndTime = 1.2;
+			Timer_TillTitle  .EndTime = 2.0;
+			Timer_TillVersion.EndTime = 1.2;
 
 			Timer_TillIntroFadeToGrey.EndTime = Timer_TillTitle.EndTime + 4.2;
 
@@ -96,11 +111,18 @@ fn :
 			Timer_TillTitle_ToWhite  .EndTime = 0.134;
 			Timer_TillVersion_ToWhite.EndTime = 0.134;
 
-			Title_Length         = wcslen(IntroTitle);
-			EngineVersion_Length = wcslen(EngineVersion) + 1;
+			// Title_Length         = wcslen(IntroTitle);
+			// EngineVersion_Length = wcslen(EngineVersion) + 1;
 
 			IntroTitle_RenderCells = GlobalAllocate(Cell, Title_Length        );
 			Version_RenderCells    = GlobalAllocate(Cell, EngineVersion_Length);
+
+			heap : 
+
+
+			stack : cellIndex : uDM = 0; ;
+
+			loop if cellIndex < Title_Length
 
 			for (size_t cellIndex = 0; cellIndex < Title_Length; cellIndex++)
 			{
@@ -113,7 +135,7 @@ fn :
 			}
 
 			Intro_DoneOnce = true;
-		}
+		};
 		
 		ChangeTitleTo_Grey();
 

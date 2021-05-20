@@ -1,80 +1,54 @@
-#pragma once
+Engine.Renderer.source
 
 
 
-// Includes
+ct :
+	Width  : uDM = 80;
 
-#include "Config.h"
-#include "LAL.h"
-#include "OSPlatform.h"
-#include "Timing.h"
+	Borderline : uDM = 24;
 
+	if  Debug :
+	{
+		(Debug) :
+			Start   : uDM = 25;
+			LogSize : uDM = 18;
 
+			PersistentStart       : uDM = 44;
+			PersistentSectionSize : uDM = 4;
+		;
 
-// Enums
+		Height : uDM = 80;
+	}
+	else :
+		Height : uDM = 24;
+	;
 
-enum Renderer_Constants
-{
-	Renderer_Width                 = 80,
+	GameEnd : uDM = 23;
+;
 
-#ifdef Debug
-	Renderer_Height                = 48,
-
-	Renderer_BorderLine            = 24,
-
-	Renderer_DebugStart            = 25,
-	Renderer_DebugLogSize          = 18,
-
-	Renderer_DebugPersistentStart  = 44,
-	Renderer_PersistentSectionSize = 4 ,
-#else
-	Renderer_Height                = 24,
-#endif
-
-	Renderer_GameEnd               = 23,	
-};
-
-
-
-// Aliases (Typedefs)
-
-typedef CONSOLE_SCREEN_BUFFER_INFO CSBI;
-
-typedef CHAR_INFO Cell;
-
-typedef Cell Line[Renderer_Width];
-
-typedef struct RendererData_Def RendererData;
-typedef struct ScreenInfo_Def   ScreenInfo;
-
-
-typedef struct Vec2D_Int_Def Vec2D_Int;
-
-
-
-// Structures
+alias :
+Cell : Platform:: Cell;
+Line : ArrayS<Cell, Width>;
+;
 
 struct Vec2D_Int_Def { sInt X, Y; };
 
-struct RendererData_Def
-{
-	// Console Data
+Data : struct :
+	WindowHandle : Handle:: Window;
+	OutputHandle : Handle;
 
-	HWND   Window_Handle;
-	HANDLE Output_Handle;
-
-	DWORD      CharactersWritten;
-	COORD      CoordSize;
-	CSBI       CSBI_Instance;
-	DWORD      BufferSize;
-	SMALL_RECT Size;
+	CharactersWritten : u32;
+	CoordSize         : Console:: Coord;
+	ScreenBuffer      : ScreenBufferInfo;
+	BufferSize        : u32;
+	RectSize          : SmallRect;
 
 	CONSOLE_CURSOR_INFO CursorSettings;
 
 	Vec2D_Int ScreenPosition;
 
 	TimerData RefreshTimer;
-};
+;
 
 struct ScreenInfo_Def
 {
