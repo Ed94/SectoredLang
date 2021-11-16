@@ -1,5 +1,0 @@
-Engine.Engine.bp 
-
-
-// This must be specified by the game.
-pub fn : LoadGame -> ptr<State:: StateObj> ;

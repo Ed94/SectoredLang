@@ -1,0 +1,30 @@
+root = true
+
+[*{.h, .c}]
+indent_style = tab
+indent_size = 4
+guidelines = 160
+
+[*{.low.h, .low.c]
+indent_style = tab
+indent_size = 8
+guidelines = 80
+
+[*{.hpp, cpp}]
+indent_style = tab
+indent_size = 4
+guidelines = 160
+
+[*{.low.hpp, .low.cpp}]
+indent_style = tab
+indent_size = 8
+guidelines = 80
+
+[*{.py}]
+indent_style = space
+indent_size = 4
+guidelines = 180
+
+[*]
+end_of_line = lf
+insert_final_newline = true

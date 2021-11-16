@@ -1,0 +1,19 @@
+context : HelloWorld  ;
+module  : compiler    ;
+layer   : 0 ;
+alias   : Standard.Version.2021 ;
+name    : Hello World! ;
+
+dependencies:
+PAL    // Platform Abstraction Layer
+;
+
+alias append :
+ISA : PAL:: ISA;
+
+;
+
+files :
+2_boot : spec ;
+
+entrypoint : Boot ;

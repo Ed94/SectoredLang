@@ -1,7 +1,0 @@
-Engine.Engine.bp
-
-
-// The StateObj.ptr is just a ptr byt width specification for the return.
-// There is no hard-typing the return to StateObj. Its merely a way to indicate,
-// how the data should be implictly allowed to be accessed / manipulated.
-pub : fn : LoadGame ret StateObj.ptr ; ; 

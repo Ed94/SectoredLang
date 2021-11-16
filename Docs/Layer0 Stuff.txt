@@ -1,0 +1,105 @@
+# In layer 0 recusive nesting is prohibited.
+# All nested {Identifier} must have a unique symbol.
+
+# Any Scope
+Comments
+Formmating
+
+# Universal Sectors: 
+{Comments}
+{Formmatting}
+alias
+ct
+in
+meta
+
+# Unit Sectors: 
+Universal Sectors
+{Identifier}
+P_PS Sectors                # () Stack Parameter sets
+AB_PS Sectors               # <> Stack Parameter sets
+append
+expose
+interrupt
+page                        # Not Sure
+proc
+static
+
+# {Identifier} Sectors (Named unit sectors):
+Universal Sectors
+{Identifier}
+P_PS Sectors                # () Stack Parameter sets
+AB_PS Sectors               # <> Parameter sets
+append
+expose
+interrupt
+page
+proc
+static
+# In layer 0: If any of the below, the identifier ceases to be a sector.
+enum
+struct
+{type}
+{specifier} {type}
+
+# <> Prameter Set Scope
+Universal Sectors
+Unit Sectors
+P_PS Sectors                # () Stack Parameter sets
+
+# () Parameter Sets Scope
+Universal Sectors
+AB_PS Sectors               # <> Run-time Generic Parameter sets
+{Identifier}
+expose
+interrupt
+proc
+static
+
+# Execution scope
+Universal Sectors
+::
+.
+{Identifier} {operator} ... # Must be executing an operation
+{if, else}                  # Run-time Conditionals
+stack
+static
+binary
+ternary
+octal
+hex
+label
+loop
+page                # Not Sure
+
+# alias Sector
+{identifier} : {symbol}
+{operator, .operator} : {operator}
+{Comments}
+{Formmatting}
+ct
+expose
+in
+meta
+proc
+
+# ct Sector
+{Comments}
+{Formmatting}
+alias
+in 
+meta
+{if, else}          # Compile-time Conditionals
+{Identifier}        # Compile-time identifier specification
+AB_PS Sectors       # Compile-time <> Generic Parameter sets
+P_PS Sectors        # Compile-time Evaluated () Parameter sets
+proc                # Compile-time Evaluted procedures (must return a type)
+
+
+
+
+
+
+
+
+

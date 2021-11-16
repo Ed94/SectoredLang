@@ -1,5 +1,0 @@
-Engine.Config.bp
-
-// Compile time constant, 
-// flag used to enable debug related features.
-ct : Enabled : bool = false ;

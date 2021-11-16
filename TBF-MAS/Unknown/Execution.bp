@@ -1,9 +1,0 @@
-EExitCode :
-	Failure: 0,
-	Success: 1
-;
-
-EntryPoint -> ExitCode
-
-hide : 
-PrepareModules, PrintStartMessage, UnloadModules

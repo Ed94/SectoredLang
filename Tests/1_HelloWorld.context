@@ -1,0 +1,19 @@
+context : HelloWorld  ;
+module  : Interpreter ;
+layer   : 0 ;
+alias   : Standard.Version.2021 ;
+name    : Hello World! ;
+
+dependencies:
+PAL    // Platform Abstraction Layer
+;
+
+alias append :
+OS      : PAL::OSAL;
+Console : PAL::Console;
+;
+
+files :
+1_HelloWorld : spec ;
+
+entrypoint : Entrypoint ;

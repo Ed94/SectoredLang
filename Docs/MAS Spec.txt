@@ -1,0 +1,427 @@
+MAS (Modular Alias Sectored)
+
+An experimental langauge for figuring out stuff I wanted in langauges
+
+I have tried serveral different ways to break down the langauge this is around my third or forth attempt
+
+A project is an encapsulated unit that specifies a program
+A package is an encapsulated unit that may be used by a project
+Projects can be a package for another project.
+#------------------------------------------------------------------------------------------------------------------
+File/Unit associations :
+.context              Context unit for a project or package. Determines how the related content will be processed
+.bp                   Specifies an outline to a subject unit
+.spec                 Specifies a unit of definitions and descriptions that may be composed into a program
+.alias                Used for external ABI, foreign language support, and custom language model specification
+#------------------------------------------------------------------------------------------------------------------
+Backend Modules :
+These are domain specific compatiable translation modules to handle MAS programs.
+
+Backend Categories :
+ISA            Instruction Set Architecture (x86, ARM, RISC, etc). Machine code signal interface modules
+Assembler      ISA supported assembler modules
+IR             Intermediary representation compiler framework. Universal assembly module
+Compiler       Low (L0) to high (L4) level compiled language. Can use the previous modules to support translation
+Interpreter    Runtime interpreter for the same language specification used of for the compiler
+Meta           Metaprogramming module supporting rudimentary macros, compile time, generics, to advanced 
+               macro syntax systems
+Alias          Full on language model specification language
+#------------------------------------------------------------------------------------------------------------------
+Langauge Feature Layering :
+
+All language/module features can be explicitly disabled or enabled in context specification
+Generalized set of featuers are group into layers from layer 0 to layer 6
+
+
+Layer 0         Low-level features, binary, hex, interrupts, paging, stack, registers, etc.
+Layer 1         C Features
+Layer 2         Memory and execution safety, garbage collection, V-Table generation, etc        
+Layer 3         C++ level of expressability
+Layer 4         Declarative with dependent types
+#------------------------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------
+.context                Context Specification
+
+symbols:
+    context             Provides a designated named context unit for a project
+    modules             States what backend modules to use for program specification
+    layers              Specifies which language layers are implicity allowed. (To allow none, leave empty)
+    explicit layers     Whether or not layers may be explicitly allowed within units
+    alias               Specifies either the model language standard or support for an external language syntax
+    dependencides       States what external packages this context depends on
+    alias append        Allows for in context appending of the current alias set (intended for small additions)
+    units/files         Used to specify what units or files are associated with the context
+    entrypoint          Specifies the execution entrypoint (if the context is a program)
+#------------------------------------------------------------------------------------------------------------------
+.bp                     Blueprint
+
+Serve a few purposes :
+
+    An Outline              Blueprints provide a clean outline for unit/s encapsulated as subject
+    Conflict Avoidance      In conjunction with contexts and alias sets, blueprints prevent circular 
+                            dependency issues or issues with symbol resolution
+    Package Optimization    Allow the backend to cache and process packing and context efficiently
+    Unit/s sectoring        Acts as a namespace for a set of implementation
+
+Note: While it is ideal, blueprints could also be generated if desired (intended feature later on)
+
+A blueprint's syntax closely follows the language model used for spec units
+#------------------------------------------------------------------------------------------------------------------
+.spec                   Specification
+
+Where a unit of implementation for a subject or context is defined
+There can be multiple units for each bp (blueprint)
+#====================================================================================================================
+#\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+#====================================================================================================================
+Language Model Specification :
+
+Statically Typed
+
+Identifier lazy evalutation, not based on order of introduction of definition. (Via backend multi-pass)
+
+Tokens Types :
+#--------------------------------------------------------------------------------------------------------------------
+Comment
+Formatting
+Parameters
+Literal
+    Digit
+    Character
+    String
+Sector
+Specifier
+Statement
+Operator
+#--------------------------------------------------------------------------------------------------------------------
+
+Universal Context:
+#--------------------------------------------------------------------------------------------------------------------
+                                                        Comments
+//              Comment                 cmt_SS
+/-              Start Comment           cmt_SD
+-/              End Comment             cmt_DS
+#------------------------------------------------------
+                                                        Formatting (Ignored by the compiler)
+" ..."          Whitespace String       fmt_WSS
+\n              NewLine                 fmt_NL
+{               Open Brace              fmt_OB
+}               Close Brace             fmt_CB
+EOF             End of file             fmt_EOF
+#------------------------------------------------------
+                                                        Parameters
+(               Parenthesis Start        params_PSTART
+)               Parenthesis End          params_PEND
+<               Angle Bracket Start      params_ABSTART
+>               Angle Bracket End        params_ABEND
+[               Square Bracket Start     params_SBSTART
+]               Square Bracket End       params_SBEND
+#------------------------------------------------------
+                                                        Operators
+.               Member Resolution       op_SMA
+->              Map Resolution          op_MAP
+cast            Type cast               op_CAST
+typeof          Type Accessor           op_TYPEOF
+[symbol]        Access Element          op_GetElement
+#------------------------------------------------------
+                                                        Literals
+'               Character delimiter     literal_CD
+0b{0-1}         Binary                  literal_BINARY
+0t{0-2}         Ternary                 literal_TERNARY
+0{0-7}          Octal                   literal_OCTAL
+0x{0-F}         Hex                     literal_HEX
+{0-9}...        Decimal Digits          literal_Digit                        
+"..."           String                  literal_String
+#------------------------------------------------------
+                                                        Sectors
+alias           Aliasing                sec_ALIAS
+append          Symbol Appending        sec_APPEND
+ct              Compile Time            sec_CT
+else            Coniditonal Else        sec_ELSE
+enum            Enumeration             sec_ENUM
+expose          Expose Definitions      sec_EXPOSE
+{Identifer}     Symbol Definitions      sec_DEFSYM
+if              Conditional If          sec_IF
+in              Expose Member Symbols   sec_IN
+layer           Explicit layer use      sec_LAYER
+meta            Metaprogramming         sec_META
+ro              Read-only               sec_RO
+mut             Mutable                 sec_mut
+struct          Data Structure Type     sec_STRUCT             
+#-------------------------------------------------------
+                                                        Statements
+:               start def block         def_START
+;               end   def block         def_END
+' '             Whitespace delimiter    def_WSD
+,               Symbol delimiter        def_CD
+#-------------------------------------------------------
+                                                        Symbols
+{Identifier}    User defined symbol     sym_User
+type            Top Type                sym_TTYPE
+#====================================================================================================================
+Universal Grammar:
+#--------------------------------------------------------------------------------------------------------------------
+...                             Symbol pattern generator
+
+identifier : body ;             Symbol defining statement
+identifier : symbol ;           Symbol associated with identifier
+
+(symbol, ...)                   Parenthesized expression symbol defining statement
+<symbol, ...>                   Angle bracketed expression symbol defining statement
+[symbol, ...]                   Square bracketed expression symbol defining statement
+
+symbol[symbol]                  Access element of symbol
+symbol::symbol                  Access symbol associated with symbol
+
+specifier {(..., ...)} symbol   Specify specifier with optional parameterized flags for symbol
+
+symbol -> symbol                Symbol mapping to other symbol
+
+{symbol} identifier             specify symbol for one identifier
+{symbol} : body ;               specify symbol for body
+
+typeof(identifier)              Accessor to associated type of identifier
+#\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+#====================================================================================================================
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Layer 0
+
+APS : 1
+User identifier sector nesting is not allowed.
+
+Tokens :
+#------------------------------------------------------
+                                                        Operators
+# Inference
+alignof         Alignment Accessor      op_ALIGNOF
+identifier      Identifier              op_IDENTIFIER
+offsetof        Member Offset           op_OFFSETOF
+posof           Member Position         op_POSOF
+sizeof          Symbol memory           op_SIZEOF
+# Indirection
+ptr             Pointer accessor        op_PTR
+val             Value Accessor          op_VAL
+# Execution
+ret             Return                  op_RETURN
+pop             Pop current stack       op_POP
+push            Push current stack      op_PUSH
+goto            Jump to Label           op_GOTO
+continue        Jump to start of loop   op_CONTINUE
+break           Jump out of block       op_BREAK
+{PI};           # Procedure Identifier
+{PI}<...>(...); Call Procedure          op_CALLPROC
+# Logical
+!               Logical NOT             op_LNOT
+&&              Logical And             op_LAND
+||              Logical OR              op_LOR    
+&               Bitwise And             op_BAND
+|               Bitwise Or              op_BOR
+^               Bitwise XOr             op_BXOR
+~               Bitwise Not             op_BNOT
+<<              Bitwise Shift Left      op_BSL
+>>              Bitwise Shift Right     op_BSR
+# Arithmetic
++               Addition                op_ADD
+-               Subtraction             op_SUBTRACT
+*               Multiply                op_MULTIPLY
+/               Divide                  op_DIVIDE
+%               Modulo                  op_MODULO
+++              Increment               op_INCREMENT
+--              Decrement               op_DECREMENT
+==              Equals                  op_EQUAL
+!=              Not Equal               op_NOTEQUAL
+>=              Greater Equal           op_GREATEREQUAL
+<=              Lesser Equal            op_LESSEREQUAL
+# Assignment
+=               Assignment              op_ASSIGN
+&=              Assign Bit And          op_ABAND
+|=              Assign Bit Or           op_ABOR
+^=              Assign Bit XOr          op_ABXOR
+~=              Assign Bit Not          op_ABNOT
+<<=             Assign Bit Shift Left   op_ABSL
+>>=             Assign Bit Shift Right  op_ABSR
++=              Assign Add              op_AADD
+-=              Assign Subtract         op_ASUBTRACT
+*=              Assign Multiple         op_AMULTIPLY
+/=              Assign Divide           op_ADIVIDE
+%=              Assign Modulo           op_AMODULO
+#-------------------------------------------------------
+                                                        Sectors
+binary          Binary  block           sec_BINARY
+ternay          Ternary block           sec_TERNARY
+octal           Octal   block           sec_OCTAL
+hex             Hex     block           sec_HEX
+inline          Redefine inplace        sec_INLINE
+interrupt       Interrupt               sec_INTERRUPT
+label           Label                   sec_LABEL
+loop            Loop execution          sec_LOOP
+page            Paging Segments         sec_MEMPAGE
+proc            Procedure               sec_PROC
+stack           Stack  Segment          sec_STACK
+static          Static Segment          sec_STATIC
+#-------------------------------------------------------
+                                                        Specifiers
+align           Alignment               specifier_ALIGN
+register        Register Type           specifier_REGISTER
+strict          Strict reference        specifier_STRICT
+volatile        Volatile reference      specifier_VOLATILE
+#-------------------------------------------------------
+                                                        Symbols
+ptr             Address Pointer                     sym_PTR
+byte            Smallest addressable unit of bits   sym_BYTE
+word            Machine data model width            sym_WORD
+#====================================================================================================================
+Grammar :
+#-------------------------------------------------------
+ret   symbol;                   Return a valid symbol for the context   
+label identifier;               Deifne label with identifier
+goto  identifier;               Jump to identitfier
+
+alignof(identifier)             Alignment of struct member
+offsetof(identifier)            Offset of struct member
+posof(identifier)               Position of struct member
+sizeof(identifier)              Size of struct or a type symbol
+
+ptr type                        Defines a pointer to a type
+symbol.ptr                      Accessor to pointer of a symbol
+symbol.val                      Value of pointer type associated symbol
+
+identfier {assign op} value     Assign value to identifier
+value op value                  perform operation on value (delimiter)
+op(value, value)                perform operation on values (functional)
+
+sizeof(symbol) * width          Specify a datatype of set width (where width is a digit literal)
+#\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+#====================================================================================================================
+
+# ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+Not fleshed out
+#\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Layer 1
+
+By default all data is mutable
+User identifier sector nesting is not allowed.
+
+Removed:
+#-------------------------------------------------------
+binary
+ternary
+hex
+interrupt
+page
+pop
+push
+#====================================================================================================================
+
+Tokens :
+#------------------------------------------------------
+                                                        Parameters
+#------------------------------------------------------
+                                                        Operators
+::              Scope Resolution        op_SSA
+allocate        allocate heap           sec_ALLOC
+deallocate      deallocate heap         sec_DEALLOC
+#------------------------------------------------------
+                                                        Sector
+heap            Heap Memory block       sec_HEAP
+do              do loop                 sec_DO
+for             For loop                sec_FOR
+#-------------------------------------------------------
+                                                        Specifiers
+#-------------------------------------------------------
+                                                        Statements
+#-------------------------------------------------------
+                                                        Symbols
+#====================================================================================================================
+Grammar :
+#-------------------------------------------------------
+#\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+#===================================================================================================================
+Layer 2
+
+By default all data is read-only.
+User identifier sector nesting is allowed with limitations.
+
+Removed:
+label
+goto
+
+Tokens :
+#------------------------------------------------------
+                                                        Parameters
+#------------------------------------------------------
+                                                        Operators
+#------------------------------------------------------
+                                                        Sector
+interface   Dispatch Specification      sec_INTERFACE
+gc          Garbage Collector           sec_GC
+zone        Zone Memory                 sec_MEMZONE
+#-------------------------------------------------------
+                                                        Specifiers
+ref         References                  sec_ref                                                        
+trait       Static Dispatch             sec_TRAIT
+virtual     Dynamic Dispatch            sec_VIRTUAL
+#-------------------------------------------------------
+                                                        Statements
+#-------------------------------------------------------
+                                                        Symbols
+#====================================================================================================================
+Grammar :
+#-------------------------------------------------------
+#\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+#====================================================================================================================
+Layer 3
+
+By default all data is read-only.
+There are no restrictions on user identifier sector nesting.
+
+Removed:
+
+#====================================================================================================================
+
+Tokens :
+#------------------------------------------------------
+                                                        Parameters
+#------------------------------------------------------
+                                                        Operators
+#------------------------------------------------------
+                                                        Sector
+#-------------------------------------------------------
+                                                        Specifiers
+#-------------------------------------------------------
+                                                        Statements
+#-------------------------------------------------------
+                                                        Symbols
+#====================================================================================================================
+Grammar :
+#-------------------------------------------------------
+#\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+#====================================================================================================================
+Layer 4
+
+There is no imperative execution bodies.
+Dependent typing
+There are no restrictions on symbol-statement body nesting.
+
+Tokens :
+#------------------------------------------------------
+                                                        Parameters
+#------------------------------------------------------
+                                                        Operators
+#------------------------------------------------------
+                                                        Sector
+fn          Function                    sec_FN
+#-------------------------------------------------------
+                                                        Specifiers
+#-------------------------------------------------------
+                                                        Statements
+#-------------------------------------------------------
+                                                        Symbols
+#====================================================================================================================
+Grammar :
+#-------------------------------------------------------
+#\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+#====================================================================================================================
