@@ -20,43 +20,45 @@ typedef          char32_t c32;
 
 typedef char
    nchar,
-*  nStr,
-** nStrPtr,
-*  nStrArray[]
+*  nstr,
+** nstrPtr,
+*  nstrArray[]
 ;
 
 typedef const char 
-*  ro_nStr,
-** ro_nStrPtr,
-*  ro_nStrArray[]
+*  ro_nstr,
+** ro_nstrPtr,
+*  ro_nstrArray[]
 ;
 
 ForceInline
-bool nChar_IsAlphaNumeric(nChar _char)
+bool nchar_IsAlphaNumeric(nchar _char)
 {
-	return isalnum(_char);
+		return isalnum(_char);
 }
 
 ForceInline
-nStr nCharTo_nStr(nChar _char)
+nstr ncharTo_nStr(nchar _char)
 {
-	nStr converted = GlobalAlloc(_char, 2);
-	
-	converted[0] = _char;
-	converted[1] = '\0';
+		nstr converted = Mem_GlobalAlloc(nchar, 2);
+		
+		converted[0] = _char;
+		converted[1] = '\0';
+		
+		return converted;
 }
 
 ForceInline 
-s32 nStr_Compare(ro_nStr _str1, ro_nStr _str2)
+s32 nstr_Compare(ro_nstr _str1, ro_nstr _str2)
 {
 		return strcmp(_str1, _str2);
 }
 
 ForceInline
-ErrorType nStr_Concat
+ErrorType nstr_Concat
 (
-	nStr    restrict _appendStr_out, uDM _appendStrSize,
-	ro_nStr restrict _copyStr_in,    uDM _copyStrSize
+	nstr    restrict _appendStr_out, uDM _appendStrSize,
+	ro_nstr restrict _copyStr_in,    uDM _copyStrSize
 )
 {
 		return strncat_s
@@ -69,17 +71,17 @@ ErrorType nStr_Concat
 }
 
 ForceInline
-ErrorType
+ErrorType nstr_Copy
 (
-	nStr restrict    _self,      uDM _selfSize,
-	ro_nStr restrict _source_in, uDM _sourceSize
+	nstr restrict    _self,      uDM _selfSize,
+	ro_nstr restrict _source_in
 )
 {
-	return strcpy_s(_self, _selfSize, _source_in, _sourceSize);
+		return strcpy_s(_self, _selfSize, _source_in);
 }
 
 ForceInline
-s32 nStr_Format(nStr restrict _string_out, uDM _stringLength, ro_nStr restrict _format, ...)
+s32 nstr_Format(nstr restrict _string_out, uDM _stringLength, ro_nstr restrict _format, ...)
 {
 		s32     result;
 		va_list argList;
@@ -92,19 +94,19 @@ s32 nStr_Format(nStr restrict _string_out, uDM _stringLength, ro_nStr restrict _
 }
 
 ForceInline
-s32 nStr_FormatV(nStr restrict _string_out, uDM _stringLength, ro_nStr restrict _format, va_list _argList)
+s32 nstr_FormatV(nstr restrict _string_out, uDM _stringLength, ro_nstr restrict _format, va_list _argList)
 {
-return vsprintf_s(_string_out, _stringLength, _format, _argList);
+		return vsprintf_s(_string_out, _stringLength, _format, _argList);
 }
 
 ForceInline
-uDM nStr_Length(ro_nStr _self)
+uDM nstr_Length(ro_nstr _self)
 {
-	return strlen(_self);
+		return strlen(_self);
 }
 
 ForceInline 
-s32 nStr_StdWrite(IO_StdStream* restrict _stream_in, ro_nStr _format, ...)
+s32 nStr_StdWrite(IO_StdStream* restrict _stream_in, ro_nstr _format, ...)
 {
 		s32     result;
 		va_list argList;
@@ -117,7 +119,7 @@ s32 nStr_StdWrite(IO_StdStream* restrict _stream_in, ro_nStr _format, ...)
 }
 
 ForceInline 
-s32 nStr_StdWriteV(IO_StdStream* restrict _stream_in, ro_nStr _format, va_list _argList)
+s32 nstr_StdWriteV(IO_StdStream* restrict _stream_in, ro_nstr _format, va_list _argList)
 {
 		return vfprintf_s(_stream_in, _format, _argList);
 }
@@ -128,15 +130,15 @@ s32 nStr_StdWriteV(IO_StdStream* restrict _stream_in, ro_nStr _format, va_list _
 
 typedef wchar_t
    wc,
-*  wStr,
-** wStrPtr,
-*  wStrArray[]
+*  wstr,
+** wstrPtr,
+*  wstrArray[]
 ;
 typedef const wchar_t
    ro_wc,
-*  ro_wStr,
-** ro_wStrPtr,
-*  ro_wStrArray[]
+*  ro_wstr,
+** ro_wstrPtr,
+*  ro_wstrArray[]
 ;
 
 #pragma endregion Wide
@@ -157,35 +159,35 @@ enum Str_CompareResult
 #define sl
 
 typedef nchar
-   sChar,
+   schar,
 *  str,
 ** strPtr,
 *  strArray
 ;
 
 typedef const nchar
-   ro_sChar,
+   ro_schar,
 *  ro_str,
 ** ro_strPtr,
 *  ro_strArray
 ;
 
 ForceInline
-bool sChar_IsAlphaNumeric(sChar _char)
+bool schar_IsAlphaNumeric(schar _char)
 {
-	return nChar_IsAlphaNumeric(_char);
+	return nchar_IsAlphaNumeric(_char);
 }
 
 ForceInline
-str sCharTo_str(sChar _char)
+str scharTo_str(schar _char)
 {
-	return nCharTo_nStr(_char);
+	return ncharTo_nStr(_char);
 }
 
 ForceInline 
 s32 str_Compare(ro_str _str1, ro_str _str2)
 {
-		return nStr_Compare(_str1, _str2);
+		return nstr_Compare(_str1, _str2);
 }
 
 ForceInline
@@ -195,7 +197,7 @@ ErrorType str_Concat
    ro_str restrict _copyStr_in,    uDM _copyStrSize
 )
 {
-		return nStr_Concat
+		return nstr_Concat
 		(
 			_appendStr_out, 
 			_appendStrSize, 
@@ -208,16 +210,16 @@ ForceInline
 ErrorType str_Copy
 (
 	str restrict    _self,      uDM _selfSize,
-	ro_str restrict _source_in, uDM _sourceSize
+	ro_str restrict _source_in
 )
 {
-		return nStr_Copy(_self, _selfSize, _source_in, _sourceSize);
+		return nstr_Copy(_self, _selfSize, _source_in);
 }
 
 ForceInline
 s32 str_FormatV(str restrict _string_out, uDM _stringLength, ro_str restrict _format, va_list _argList)
 {
-		return nStr_FormatV(_string_out, _stringLength, _format, _argList);
+		return nstr_FormatV(_string_out, _stringLength, _format, _argList);
 }
 
 ForceInline
@@ -236,23 +238,23 @@ s32 str_Format(str restrict _string_out, uDM _stringLength, ro_str restrict _for
 ForceInline
 uDM str_Length(ro_str _self)
 {
-	nStr_Length(_self);
+		return nstr_Length(_self);
 }
 
 ForceInline 
-s32 str_StdWriteV(IO_StdStream* restrict _stream_in, ro_nStr _format, va_list _argList)
+s32 str_StdWriteV(IO_StdStream* restrict _stream_in, ro_nstr _format, va_list _argList)
 {
-		return nStr_StdWriteV(_stream_in, _format, _argList);
+		return nstr_StdWriteV(_stream_in, _format, _argList);
 }
 
 ForceInline 
-s32 str_StdWrite(IO_StdStream* restrict _stream_in, ro_nStr _format, ...)
+s32 str_StdWrite(IO_StdStream* restrict _stream_in, ro_nstr _format, ...)
 {
 		s32     result;
 		va_list argList;
 
 		va_start(argList, _format);
-				result = nStr_StdWriteV(_stream_in, _format, argList);
+				result = nstr_StdWriteV(_stream_in, _format, argList);
 		va_end(argList);
 
 		return result;
@@ -299,10 +301,10 @@ String* strTo_String(ro_str _str)
 #ifdef LAL_zpl
 		return (String*)zpl_string_make(zpl_heap(), _str);
 #else
-		String* newString = GlobalAlloc(String, 1);
+		String* newString = Mem_GlobalAlloc(String, 1);
 		
 		newString->Length = str_Length(_str);
-		str_Copy(newString->rStr, newString->Length, _str, newString->Length);
+		str_Copy(newString->rStr, newString->Length, _str);
 		
 		return newString;
 #endif
@@ -310,7 +312,7 @@ String* strTo_String(ro_str _str)
 
 // Get raw character string from String.
 ForceInline
-str String_str(String* _string_in)
+str StringTo_str(String* _string_in)
 {
 #ifdef LAL_zpl
 		return _string_in->zStr;
@@ -320,7 +322,7 @@ str String_str(String* _string_in)
 }
 
 ForceInline
-ro_str String_ro_str(const String* _string_in)
+ro_str StringTo_ro_str(const String* _string_in)
 {
 #ifdef LAL_zpl
 		return _string_in->zStr;
@@ -339,7 +341,7 @@ String_Compare(const String* restrict _string_in, const String* restrict _other_
 #ifdef LAL_zpl
 		s32 result = zpl_strcmp(_string_in->zStr, _other_in->zStr);
 #else
-		s32 result = str_Compare(String_str(_string_in), String_str(_other_in));
+		s32 result = str_Compare(_string_in->rStr, _other_in->rStr);
 #endif
 		if (result < 0)
 				return Str_Compare_FirstLower;
@@ -359,11 +361,28 @@ bool
 String_IsEqual(String* restrict _string_in, String* restrict _other_in);
 
 ForceInline
+str* String_str(String* _string)
+{
+#ifdef LAL_zpl
+#else
+	return getPtr(_string->rStr);
+#endif
+}
+
+ForceInline
 uDM String_Length(const String* _string)
 {
 #ifdef LAL_zpl
 #else
 	return _string->Length;
+#endif
+}
+
+ForceInline 
+void String_SetLength(String * _string, uDM _length)
+{
+#ifndef LAL_zpl
+	_string->Length = _length;
 #endif
 }
 

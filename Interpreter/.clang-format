@@ -1,6 +1,5 @@
 ---
-Language:        Cpp
-BasedOnStyle:    Google
+Language:        C
 ColumnLimit:     80
-IndentWidth:     2
-Standard:        Cpp11
+IndentWidth:     4
+Standard:        C7

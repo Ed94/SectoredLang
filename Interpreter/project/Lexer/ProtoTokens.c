@@ -4,7 +4,7 @@
 Token* 
 Token_Init(ETokenType _type, str _value)
 {
-	Token* newToken = GlobalAllocClear(Token, 1);
+	Token* newToken = Mem_GlobalAllocClear(Token, 1);
 	
 	newToken->Type  = _type;
 	newToken->Value = _value;

@@ -3,8 +3,9 @@
 #include "LAL_Exception.h"
 
 
-NoLink  GlobalMemory =
-{ NULL, 0U };
+NoLink AllocTable 
+GlobalMemory =
+{ 0U, nullptr };
 
 
 // Memory Allocation Array
@@ -32,7 +33,7 @@ MemBlock* AllocTable_Add(AllocTable* _memoryArray)
 	{
 		MemBlockPtr* resizeIntermediary = Reallocate
 		(
-			struct MemBlock*, 
+			MemBlock*, 
 			_memoryArray->Array, 
 			(_memoryArray->Length + 1) 
 		);
@@ -48,7 +49,7 @@ MemBlock* AllocTable_Add(AllocTable* _memoryArray)
 		}
 	}
 	
-	_memoryArray->Array[LastEntry] = Mem_Alloc(MemBlock*, 1);
+	_memoryArray->Array[LastEntry] = Mem_Alloc(MemBlock, 1);
 
 	return _memoryArray->Array[LastEntry];
 }
@@ -63,7 +64,7 @@ MemBlock* AllocTable_LastEntry(AllocTable* _memoryArray)
 
 void* Internal_ScopedAlloc(AllocTable* _scopedMemory, uDM _sizeOfAllocation)
 {
-	MemBlock* newBlock = MemoryBlockArray_Add(_scopedMemory);
+	MemBlock* newBlock = AllocTable_Add(_scopedMemory);
 
 	newBlock->Size     = _sizeOfAllocation;
 	newBlock->Location = Mem_Alloc(byte, _sizeOfAllocation);
@@ -74,13 +75,14 @@ void* Internal_ScopedAlloc(AllocTable* _scopedMemory, uDM _sizeOfAllocation)
 	}
 	else
 	{
-		Fatal_Throws("Failed to scope allocate memory.");
+		Fatal_Throw("Failed to scope allocate memory.");
+		return nullptr;
 	}
 }
 
 void* Internal_ScopedAllocClear(AllocTable* _scopedMemory, uDM _sizeOfAllocation)
 {
-	MemBlock* newBlock = MemoryBlockArray_Add(_scopedMemory);
+	MemBlock* newBlock = AllocTable_Add(_scopedMemory);
 
 	newBlock->Size     = _sizeOfAllocation;
 	newBlock->Location = Mem_AllocClear(byte, _sizeOfAllocation);
@@ -91,7 +93,8 @@ void* Internal_ScopedAllocClear(AllocTable* _scopedMemory, uDM _sizeOfAllocation
 	}
 	else
 	{
-		Fatal_Throws("Failed to scope allocate memory.");
+		Fatal_Throw("Failed to scope allocate memory.");
+		return nullptr;
 	}
 }
 
@@ -100,11 +103,11 @@ void ScopedDealloc(AllocTable* _scopedMemory)
 {
 	for (uDM index = 0; index < _scopedMemory->Length; index++)
 	{
-		Deallocate(_scopedMemory->Array[index]->Location);
-		Deallocate(_scopedMemory->Array[index]);
+		Mem_Dealloc(_scopedMemory->Array[index]->Location);
+		Mem_Dealloc(_scopedMemory->Array[index]);
 	}
 
-	Deallocate(_scopedMemory->Array);
+	Mem_Dealloc(_scopedMemory->Array);
 
 	return;
 }
@@ -123,6 +126,7 @@ void* Internal_GlobalAlloc(uDM _sizeOfAllocation)
 	else
 	{
 		Fatal_Throw("Failed to globally allocate memory.");
+		return nullptr;
 	}
 }
 
@@ -140,6 +144,7 @@ void* Internal_GlobalAllocClear(uDM _sizeOfAllocation)
 	else
 	{
 		Fatal_Throw("Failed to globally allocate memory.");
+		return nullptr;
 	}
 }
 
@@ -167,7 +172,7 @@ void* Internal_GlobalRealloc(void* _location, uDM _sizeForReallocation)
 	return NULL;
 }
 
-void GlobalDealloc(void)
+void Mem_GlobalDealloc(void)
 {
 	for (size_t index = 0; index < GlobalMemory.Length; index++)
 	{

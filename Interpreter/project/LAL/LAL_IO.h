@@ -184,10 +184,10 @@ s32 IO_Flush(IO_Stream* _stream_in, enum IO_Flush_Method _method)
 ForceInline 
 ErrorType IO_Open(IO_Stream_RPtr* restrict _stream_out, const String* restrict _path, enum IO_AccessMode _accessMode)
 {
-		ro_nStr accessModeString = LAL_IO_getAccessModeString()[_accessMode];
+		ro_nstr accessModeString = LAL_IO_getAccessModeString()[_accessMode];
 		
 #ifdef LAL_zlib
-		dref(_stream_out) = gzopen(StringTo_ro_str(_path), accessModeString);
+		dref(_stream_out) = gzopen(String_ro_str(_path), accessModeString);
 		
 		if (_stream_out)
 		{
@@ -198,7 +198,7 @@ ErrorType IO_Open(IO_Stream_RPtr* restrict _stream_out, const String* restrict _
 		
 // Use OS_Vendor STL
 #else
-		return (ErrorType)fopen_s(_stream_out, _path, accessModeString);
+		return (ErrorType)fopen_s(_stream_out, StringTo_ro_str(_path), accessModeString);
 #endif
 }
 
@@ -222,10 +222,10 @@ uDM IO_Read(IO_Stream* restrict _stream_in, void* restrict _buffer_out, uDM _siz
 #endif
 }
 
-ErroType IO_ReadLine(IO_Stream* restrict _stream_in, str* restrict _line_out, uDM _length);
+ErrorType IO_ReadLine(IO_Stream* restrict _stream_in, str* restrict _line_out, uDM* _length_out);
 
 ForceInline
-nStr IO_Read_str(IO_Stream* restrict _stream_in, str restrict _string, s32 _count)
+nstr IO_Read_str(IO_Stream* restrict _stream_in, str restrict _string, s32 _count)
 {
 #ifdef LAL_zlib
 		return gzgets(_stream_in, _string, _count);

@@ -2,17 +2,17 @@
 
 
 struct Lexer
-Lexer = {};
+LexerObj = {};
 
 
 #define NullTerminator  '\0'
 #define Whitespace      ' '
 
 
-#define Index Lexer.Index
-#define Contents Lexer.Contents
-#define ContentSize Lexer.ContentSize
-#define CurrentChar Lexer.CurrentChar
+#define Index LexerObj.Index
+#define Contents LexerObj.Contents
+#define ContentSize LexerObj.ContentSize
+#define CurrentChar LexerObj.CurrentChar
 
 NoLink ForceInline
 bool IsEndOfContent()
@@ -23,7 +23,7 @@ bool IsEndOfContent()
 NoLink ForceInline
 bool IsSymbol()
 {
-	return CurrentChar == '_' || sChar_IsAlpha(CurrentChar);
+	return CurrentChar == '_' || schar_IsAlpha(CurrentChar);
 }
 
 NoLink ForceInline 
@@ -106,7 +106,7 @@ Lexer_NextToken()
 		}
 
 		// Single symbol tokens handling
-		return Lexer_AdvWithToken(Token_Init(Type, sCharTo_str(CurrentChar)));
+		return Lexer_AdvWithToken(Token_Init(Type, scharTo_str(CurrentChar)));
 	}
 }
 
@@ -124,14 +124,14 @@ Token* Lexer_CollectSymbol()
 	
 	uDM collectLength = 0;
 	
-	while (CurrentChar == '_' || sChar_IsAlphaNumeric(CurrentChar))
+	while (CurrentChar == '_' || schar_IsAlphaNumeric(CurrentChar))
 	{
 		collectLength++;
 	}
 	
 	if (collectLength)
 	{
-		str collectedStr = GlobalAllocClear(sChar, collectLength);
+		str collectedStr = Mem_GlobalAllocClear(schar, collectLength);
 		
 		str_Copy(collectedStr, collectLength, Contents[Index], collectLength);
 		
@@ -151,7 +151,7 @@ Token* Lexer_CollectStr()
 	Lexer_Advance();
 	
 	uDM collectLength = str_Length(Contents[Index]);
-	str collectedStr = GlobalAllocClear(sChar, collectLength);
+	str collectedStr = Mem_GlobalAllocClear(schar, collectLength);
 	
 	str_Copy(collectedStr, collectLength, Contents[Index], collectLength);
 	

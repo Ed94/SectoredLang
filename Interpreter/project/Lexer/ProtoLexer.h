@@ -9,7 +9,7 @@ struct Lexer
 	u32   Index;
 	str   Contents;	
 	uDM   ContentSize;
-	sChar CurrentChar;
+	schar CurrentChar;
 };
 
 typedef struct Lexer

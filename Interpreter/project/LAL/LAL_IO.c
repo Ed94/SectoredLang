@@ -4,7 +4,7 @@
 #include "LAL_String.h"
 
 ErrorType 
-IO_ReadLine(IO_Stream* restrict _stream_in, str* restrict _line_out, uDM* _length_out);
+IO_ReadLine(IO_Stream* restrict _stream_in, str* restrict _line_out, uDM* _length_out)
 {
 	#define line    dref(_line_out)
 	#define length  dref(_length_out)
@@ -12,7 +12,7 @@ IO_ReadLine(IO_Stream* restrict _stream_in, str* restrict _line_out, uDM* _lengt
 	uDM pos;
     u32 currentChar;
 
-    if (lineptr == nullptr || stream == nullptr || _length_out == nullptr) 
+    if (_line_out == nullptr || _stream_in == nullptr || _length_out == nullptr) 
     {
         return EINVAL;
     }
@@ -24,7 +24,7 @@ IO_ReadLine(IO_Stream* restrict _stream_in, str* restrict _line_out, uDM* _lengt
 
     if (line == nullptr) 
     {
-        line = GlobalAlloc(128);
+        line = Mem_GlobalAlloc(schar, 128);
 
         if (line == nullptr) 
             return -1;
@@ -43,7 +43,7 @@ IO_ReadLine(IO_Stream* restrict _stream_in, str* restrict _line_out, uDM* _lengt
             if (newSize < 128) 
                 newSize = 128;
 
-            str newLine = GlobalRealloc(line, newSize);
+            str newLine = Mem_GlobalRealloc(schar, line, newSize);
 
             if (newLine == nullptr)
                 return -1;
@@ -52,15 +52,19 @@ IO_ReadLine(IO_Stream* restrict _stream_in, str* restrict _line_out, uDM* _lengt
             line   = newLine;
         }
 
-        (cast(byte*)(dref(_line_out)))[pos ++] = currentChar;
+#define line_bytebuffer (cast(byte*)(dref(_line_out)))
 
-        if (c == '\n')
+        line_bytebuffer[pos ++] = currentChar;
+
+#undef  line_byteBuffer
+
+        if (currentChar == '\n')
             break;
             
         currentChar = getc(_stream_in);
     }
 
-    (dref(lineptr))[pos] = '\0';
+    line[pos] = '\0';
 
     return 0;
     
@@ -78,13 +82,13 @@ IO_OpenZ
 	enum IO_CompressStrat    _strategy
 )
 {
-		sChar  accessMode[8];
+		schar  accessMode[8];
 		ro_str accessModeBase = LAL_IO_getAccessModeString()[_accessMode];
 		ro_str strategyStr    = LAL_IO_getStrategyString  ()[_strategy];
 		
 		str_Format(accessMode, sizeof(accessMode), "%s%o%s", accessModeBase, _compressLevel, strategyStr);
 		
-		#ifdef LAL_zlib
+#ifdef LAL_zlib
 		dref(_stream_out) = gzopen(StringTo_ro_str(_path), accessMode);
 		
 		if (_stream_out)
@@ -93,6 +97,6 @@ IO_OpenZ
 		}
 		
 		return Exception_GetLastError();	
-		
-		#endif
+#endif
+        return -1;
 }

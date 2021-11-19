@@ -1,5 +1,6 @@
 #pragma once
 
+#include "LAL_Declarations.h"
 #include "LAL_FundamentalTypes.h"
 #include "LAL_Types.h"
 
@@ -94,13 +95,13 @@ struct MemBlock
 typedef struct MemBlock
 	MemBlock,
 *   MemBlockPtr,
-*   MemBlockArray
+**  MemBlockArray
 ;
 
 struct AllocTable
 {
 	uDM             Length;
-	MemBlockArray   Array[];
+	MemBlockArray   Array;
 };
 
 typedef struct AllocTable
@@ -108,26 +109,26 @@ AllocTable;
 
 void* Internal_Mem_ScopedAlloc     (struct AllocTable* _scopedAllocations,           uDM _sizeOfAllocation);
 void* Internal_Mem_ScopedAllocClear(struct AllocTable* _scopedAllocations, uDM _num, uDM _sizeOfAllocation);
-void  ScopedDeallocate             (struct AllocTable* _scopedAllocations);
+void  Mem_ScopedDeallocate         (struct AllocTable* _scopedAllocations);
 
 void* Internal_GlobalAlloc     (                 uDM _sizeOfAllocation   );
 void* Internal_GlobalAllocClear(                 uDM _sizeOfAllocation   );
 void* Internal_GlobalRealloc   (void* _location, uDM _sizeForReallocation);
-void  GlobalDealloc            (void);
+void  Mem_GlobalDealloc        (void);
 
-#define GlobalAlloc(_type, _numberToAllocate) \
+#define Mem_GlobalAlloc(_type, _numberToAllocate) \
 (_type*)Internal_GlobalAlloc(sizeof(_type) * _numberToAllocate)
 
-#define GlobalAllocClear(_type, _numberToAllocate) \
+#define Mem_GlobalAllocClear(_type, _numberToAllocate) \
 (_type*)Internal_GlobalAllocClear(_numberToAllocate * sizeof(_type))
 
-#define GlobalRealloc(_type, _address, _numberToReallocate) \
+#define Mem_GlobalRealloc(_type, _address, _numberToReallocate) \
 (_type*)Internal_GlobalRealloc(_address, sizeof(_type) * _numberToReallocate)
 
-#define ScopedAlloc(_type, _numberToAllocate)  \
+#define Mem_ScopedAlloc(_type, _numberToAllocate)  \
 (_type*)Internal_ScopedAlloc(getPtr(scopedMemory), sizeof(_type) * _numberToAllocate)
 
-#define ScopedAllocClear(_type, _numberToAllocate)  \
+#define Mem_ScopedAllocClear(_type, _numberToAllocate)  \
 (_type*)Internal_ScopedAllocClear(getPtr(scopedMemory), _numberToAllocate * sizeof(_type))
 
 #define SmartScope                  \

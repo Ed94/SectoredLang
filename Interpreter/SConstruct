@@ -1,0 +1,191 @@
+#!/usr/bin/env python
+
+# Version Enforcement
+EnsureSConsVersion(3, 0, 0)
+EnsurePythonVersion(3, 6)
+
+# System Modules
+import atexit
+import glob
+import os
+import pickle
+import sys
+import time
+
+
+Platforms           = []
+Platform_Options    = {}
+Platform_Flags      = {}
+
+clang    = "clang"
+clang_cl = "clang-cl"
+gcc      = "gcc"
+msvc     = "cl"
+
+#region Translation Units to compile
+
+ProjDir     = "./project/"
+Directories = [
+	ProjDir + "Core",
+	ProjDir + "LAL",
+	ProjDir + "Lexer",
+	ProjDir + "PAL",
+	ProjDir + "PAL/OSAL",
+	ProjDir + "Parser",
+	ProjDir + "Shell",
+]
+
+SourceFiles = []
+for directory in Directories :
+	searchStr = directory + "/*.c"
+	files     = Glob(searchStr)
+
+	SourceFiles.append(files) 
+# print(SourceFiles)
+
+# Currenlty not used, but is the entrypoint specification unit.
+EntrypointFile = "./project/PAL/OSAL/OSAL_Entrypoint.c"
+
+#endregion Translation Units to compile
+
+
+
+
+# Build Environment
+
+ar_Flags        = []
+C_Compiler      = clang
+C_Defines       = []
+C_Flags         = [
+	"-std=c17", 
+	"-Wall", 
+	"-Wno-unused-function",
+	"-Wno-unused-variable",
+	"-Wno-incompatible-pointer-types-discards-qualifiers"
+]
+# Cpp_Defines 	= {}
+# Cpp_Flags 		= ['-Wall']#, '-Werror']
+# Cxx_Flags 		= ['-std=c++17']
+
+# print("CC is: " + Env.subst('$CC'))
+# print("CCCOM is: " + Env['CCCOM'])
+
+Env = Environment();
+
+if (C_Compiler == clang) :
+	Env.Tool("clang")
+
+Env.PrependENVPath("PATH", os.getenv("PATH"))
+
+# Configuration
+Env.Replace \
+(
+	ARFLAGS = ar_Flags,
+	CCFLAGS = C_Flags,
+	CPPPATH = Directories
+)
+
+
+
+
+
+
+
+
+
+#region Release Env
+
+# EnvRelease = Env.clone()
+
+#endregion Release Env
+
+
+
+#region Debug Env
+
+# EnvDebug = Env.clone()
+
+#endregion Debug Env
+
+
+
+
+
+
+
+
+
+# Name of the program binary
+targetName  = "masi"
+buildPath   = "/build/"
+
+
+
+
+
+
+
+
+
+
+
+
+Env.Append
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+#region Environment Specific
+
+# Platform Specific stuff
+# if platform.system() == 'Linux':
+
+# Dump the environment configuraiton
+# print(Env.Dump())
+
+#endregion Environment Specific
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#region Building
+
+# See https://www.scons.org/doc/0.92/HTML/scons-user/x595.html
+SetOption('implicit_cache', 1)
+
+# Build default target
+defaultTarget = Env.Program(targetName, SourceFiles)
+
+# Set the default target as the default build target
+Default(defaultTarget)
+
+# Arrange for the program to be copied into a destination directory
+Env.Install(buildPath, defaultTarget)
+
+# Setup a cli arg for specifing the build (install) path.
+Env.Alias('default', buildPath)
+
+#endregion Building

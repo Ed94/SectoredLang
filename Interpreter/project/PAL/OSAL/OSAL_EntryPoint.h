@@ -13,12 +13,12 @@ enum EOS_ExitCode
 };
 
 
-typedef nStr     
+typedef nstr     
   OS_EnvArg,
 * OS_EnvArgPtr
 ;
 
-typedef const nStr
+typedef const nstr
   OS_ro_EnvArg,
 * OS_ro_EnvArgPtr
 ;

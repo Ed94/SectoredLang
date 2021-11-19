@@ -1,6 +1,9 @@
 #ifndef LAL_Declarations_Def
 
 
+// Casting: Just a way to explicit state its a cast.
+#define cast
+
 // Statics:
 
 // Creates a static duration variable only accessible to the file. (Global scope/File scope only)

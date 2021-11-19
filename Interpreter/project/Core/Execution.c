@@ -1,7 +1,9 @@
 #include "LAL.h"
 #include "OSAL.h"
-#include "Core/Dev_Log.h"
-#include "Shell/Shell.h"
+// Core
+#include "Dev_Log.h"
+// Shell
+// #include "Shell/Shell.h"
 
 
 #pragma region StaticData
@@ -70,13 +72,14 @@ void RunShell(void)
 	Log(">");
 	
 	String line;
-	#define linePtr getPtr(line)
+	uDM length;
+#define linePtr getPtr(line)
+	IO_ReadLine(IO_StdIn, String_str(linePtr), getPtr(length)); 
+
+	String_SetLength(getPtr(line), length);
 	
-	IO_ReadLine(IO_StdIn, String_str(linePtr), String_Length(linePtr));
-	
-	Log(String_str(linePtr));
-	
-	#undef linePtr;
+	Log(StringTo_str(linePtr));
+#undef linePtr
 }
 
 OS_ExitVal 
@@ -105,7 +108,7 @@ OSAL_EntryPoint()
 	Log(sl"\nPress enter to exit.\n");
 	getchar();
 	
-	GlobalDealloc();
+	Mem_GlobalDealloc();
 	
 	return OS_ExitCode_Success;
 }
