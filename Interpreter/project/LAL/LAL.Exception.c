@@ -1,7 +1,7 @@
-#include "LAL_Exception.h"
+#include "LAL.Exception.h"
 
-#include "LAL_IO.h"
-#include "LAL_Memory.h"
+#include "LAL.IO.h"
+#include "LAL.Memory.h"
 
 
 void Exception_Throw(str _message)

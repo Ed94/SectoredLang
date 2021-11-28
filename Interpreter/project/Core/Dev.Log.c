@@ -1,9 +1,9 @@
-#include "Dev_Log.h"
+#include "Dev.Log.h"
 
 
 void Log(ro_str _message)
 {
-	IO_StdWrite(IO_StdOut, "%s", _message);
+	IO_StdWrite(IO_StdOut, "%s\n", _message);
 }
 
 void LogF(ro_str _message, ...)

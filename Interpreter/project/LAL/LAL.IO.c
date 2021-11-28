@@ -1,33 +1,42 @@
-#include "LAL_IO.h"
+#include "LAL.IO.h"
 
+#include "LAL.String.h"
+#include "Dev.Log.h"
 
-#include "LAL_String.h"
 
 ErrorType 
 IO_ReadLine(IO_Stream* restrict _stream_in, str* restrict _line_out, uDM* _length_out)
 {
-	#define line    dref(_line_out)
-	#define length  dref(_length_out)
+	#define line            dref(_line_out)
+	#define length          dref(_length_out)
+    #define line_bytebuffer (cast(byte*)(dref(_line_out)))
 	
 	uDM pos;
     u32 currentChar;
 
     if (_line_out == nullptr || _stream_in == nullptr || _length_out == nullptr) 
     {
+        Exception_Throw("IO_ReadLine: Invalid reference");
         return EINVAL;
     }
 
     currentChar = getc(_stream_in);
     
     if (currentChar == EOF) 
+    {
+        Exception_Throw("IO_ReadLine: Hit EOF");
         return -1;
+    }
 
     if (line == nullptr) 
     {
         line = Mem_GlobalAlloc(schar, 128);
 
         if (line == nullptr) 
+        {
+            Exception_Throw("IO_ReadLine: line is nullptr");
             return -1;
+        }
 
         length = 128;
     }
@@ -46,28 +55,28 @@ IO_ReadLine(IO_Stream* restrict _stream_in, str* restrict _line_out, uDM* _lengt
             str newLine = Mem_GlobalRealloc(schar, line, newSize);
 
             if (newLine == nullptr)
+            {
+                Exception_Throw("IO_ReadLine: newLine is nullptr");
                 return -1;
+            }
 
             length = newSize;
             line   = newLine;
         }
 
-#define line_bytebuffer (cast(byte*)(dref(_line_out)))
-
         line_bytebuffer[pos ++] = currentChar;
-
-#undef  line_byteBuffer
 
         if (currentChar == '\n')
             break;
-            
+
         currentChar = getc(_stream_in);
     }
-
-    line[pos] = '\0';
-
+    
+    line_bytebuffer[pos] = currentChar;
+    
     return 0;
     
+	#undef line_bytebuffer
     #undef line
 	#undef length
 }

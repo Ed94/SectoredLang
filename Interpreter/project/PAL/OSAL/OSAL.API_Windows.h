@@ -8,10 +8,6 @@ OSAL: Windows API
 // Windows
 #ifdef _WIN32
 
-#ifndef WIN_HEADER_GUARD
-#define WIN_HEADER_GUARD
-
-
 #define NOMINMAX              // Prevents the numeric limits error.
 #define WIN32_LEAN_AND_MEAN   // Exclude rarely-used stuff from Windows headers
 
@@ -31,7 +27,6 @@ OSAL: Windows API
 #pragma GCC diagnostic pop
 #endif
 
-#endif
 #endif
 
 

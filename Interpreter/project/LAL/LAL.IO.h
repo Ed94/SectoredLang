@@ -1,12 +1,12 @@
 #ifndef LAL_IO__DEF
 
-#include "LAL_C_STL.h"
-#include "LAL_Declarations.h"
-#include "LAL_FundamentalTypes.h"
-#include "LAL_Exception.h"
-#include "LAL_Memory.h"
-#include "LAL_String.h"
-#include "LAL_Types.h"
+#include "LAL.C_STL.h"
+#include "LAL.Declarations.h"
+#include "LAL.FundamentalTypes.h"
+#include "LAL.Exception.h"
+#include "LAL.Memory.h"
+#include "LAL.String.h"
+#include "LAL.Types.h"
 
 
 #define IO_StdIn    (IO_StdStream*)stdin
@@ -111,14 +111,14 @@ ro_str* LAL_IO_getAccessModeString(void)
 ForceInline
 ro_str* LAL_IO_getStrategyString(void)
 {
-		static ro_str _StrategyModeStrings[] =
-		{
-			"f",
-			"h",
-			"R"
-		};
-		
-		return _StrategyModeStrings;
+	static ro_str _StrategyModeStrings[] =
+	{
+		"f",
+		"h",
+		"R"
+	};
+	
+	return _StrategyModeStrings;
 }
 
 #pragma endregion 
@@ -127,9 +127,9 @@ ForceInline
 s32 IO_Close(IO_Stream* _stream_in)
 {
 #ifdef LAL_zlib
-		return gzclose((gzFile)_stream_in);
+	return gzclose((gzFile)_stream_in);
 #else
-		return fclose(_stream_in);
+	return fclose(_stream_in);
 #endif
 }
 
@@ -137,9 +137,9 @@ ForceInline
 s32 IO_IsEndOfFile(IO_Stream* _stream_in)
 {
 #ifdef LAL_zlib
-		return gzeof((gzFile)_stream_in);
+	return gzeof((gzFile)_stream_in);
 #else
-		return feof(_stream_in);
+	return feof(_stream_in);
 #endif
 }
 
@@ -148,15 +148,15 @@ ForceInline
 ErrorType IO_Error(IO_Stream* restrict _stream_in, ro_str* restrict _message)
 {
 #ifdef LAL_zlib
-		ErrorType error;
+	ErrorType error;
 
-		dref(_message) = gzerror((gzFile)_stream_in, getPtr(error));
-		
-		return error;
+	dref(_message) = gzerror((gzFile)_stream_in, ptrof(error));
+	
+	return error;
 #else
-		_message = nullptr;
+	_message = nullptr;
 
-		return ferror(_stream_in);
+	return ferror(_stream_in);
 #endif
 }
 
@@ -164,9 +164,9 @@ ForceInline
 void IO_ErrorClear(IO_Stream* _stream_in)
 {
 #ifdef LAL_zlib
-		gzclearerr(_stream_in);
+	gzclearerr(_stream_in);
 #else
-		clearerr(_stream_in);
+	clearerr(_stream_in);
 #endif
 }
 
@@ -175,30 +175,30 @@ ForceInline
 s32 IO_Flush(IO_Stream* _stream_in, enum IO_Flush_Method _method)
 {
 #ifdef LAL_zlib
-		return gzflush(_stream_in, _method);
+	return gzflush(_stream_in, _method);
 #else
-		return fflush(_stream_in);
+	return fflush(_stream_in);
 #endif
 }
 
 ForceInline 
 ErrorType IO_Open(IO_Stream_RPtr* restrict _stream_out, const String* restrict _path, enum IO_AccessMode _accessMode)
 {
-		ro_nstr accessModeString = LAL_IO_getAccessModeString()[_accessMode];
-		
+	ro_nstr accessModeString = LAL_IO_getAccessModeString()[_accessMode];
+	
 #ifdef LAL_zlib
-		dref(_stream_out) = gzopen(String_ro_str(_path), accessModeString);
-		
-		if (_stream_out)
-		{
-				return 0;
-		}
-		
-		return Exception_GetLastError();
+	dref(_stream_out) = gzopen(String_ro_str(_path), accessModeString);
+	
+	if (_stream_out)
+	{
+			return 0;
+	}
+	
+	return Exception_GetLastError();
 		
 // Use OS_Vendor STL
 #else
-		return (ErrorType)fopen_s(_stream_out, StringTo_ro_str(_path), accessModeString);
+	return (ErrorType)fopen_s(_stream_out, StringTo_ro_str(_path), accessModeString);
 #endif
 }
 
@@ -216,9 +216,9 @@ ForceInline
 uDM IO_Read(IO_Stream* restrict _stream_in, void* restrict _buffer_out, uDM _size, uDM _count)
 {
 #ifdef LAL_zlib
-		return (uDM)gzread(_stream_in, (void*)_buffer_out, (u32)_size * (u32)_count);
+	return (uDM)gzread(_stream_in, (void*)_buffer_out, (u32)_size * (u32)_count);
 #else
-		return fread((void*)_buffer_out, _size, _count, _stream_in);
+	return fread((void*)_buffer_out, _size, _count, _stream_in);
 #endif
 }
 
@@ -240,41 +240,41 @@ nstr IO_Read_str(IO_Stream* restrict _stream_in, str restrict _string, s32 _coun
 }
 
 #ifdef LAL_zlib
-		#define IO_SetCharMode(_stream_in, _mode) 
+	#define IO_SetCharMode(_stream_in, _mode) 
 #else
 ForceInline
-s32 IO_SetCharMode(IO_Stream* _stream_in, enum IO_CharMode _mode)
-{
+	s32 IO_SetCharMode(IO_Stream* _stream_in, enum IO_CharMode _mode)
+	{
 		return fwide(_stream_in, (int)_mode);
-}
+	}
 #endif
 
 ForceInline
 s32 IO_StdWriteV(IO_StdStream* restrict _stream_in, ro_str restrict _format, va_list _argList)
 {
-		return str_StdWriteV(_stream_in, _format, _argList);
+	return str_StdWriteV(_stream_in, _format, _argList);
 }
 
 ForceInline
 s32 IO_StdWrite(IO_StdStream* restrict _stream_in, ro_str restrict _format, ...)
 {
-		s32     result;
-		va_list argList;
+	s32     result;
+	va_list argList;
 
-		va_start(argList, _format);
-				result = str_StdWriteV(_stream_in, _format, argList);
-		va_end(argList);
-			
-		return result;
+	va_start(argList, _format);
+		result = str_StdWriteV(_stream_in, _format, argList);
+	va_end(argList);
+		
+	return result;
 }
 
 ForceInline
 uDM IO_Write(IO_Stream* restrict _stream_in, void* restrict _buffer_in, uDM _size, uDM _count)
 {
 #ifdef LAL_zlib
-		return (uDM)gzwrite(_stream_in, _buffer_in, (u32)_count * (u32)_size);
+	return (uDM)gzwrite(_stream_in, _buffer_in, (u32)_count * (u32)_size);
 #else
-		return fwrite(_buffer_in, _size, _count, _stream_in);
+	return fwrite(_buffer_in, _size, _count, _stream_in);
 #endif
 }
 
@@ -282,9 +282,9 @@ ForceInline
 s32 IO_Write_CStr(IO_Stream* restrict _stream_in, ro_str restrict _string)
 {
 #ifdef LAL_zlib
-		return gzputs(_stream_in, _string);
+	return gzputs(_stream_in, _string);
 #else
-		return fputs(_string, _stream_in);
+	return fputs(_string, _stream_in);
 #endif
 }
 
@@ -298,7 +298,7 @@ ForceInline\
 uDM TYPE__##_IO_Write \
 (IO_StreamPtr restrict* _stream_in, Ptr(TYPE__) restrict _buffer_out, uDM _count)\
 {\
-		return IO_Read((void*)_buffer_out, sizeof(TYPE__), _count, _stream_in);\
+	return IO_Read((void*)_buffer_out, sizeof(TYPE__), _count, _stream_in);\
 }
 
 #define T_IO_Write(TYPE__)\
@@ -306,7 +306,7 @@ ForceInline\
 uDM TYPE__##_IO_Read\
 (IO_StreamPtr restrict* _stream_in, TYPE__ restrict* _buffer_in, uDM _count)\
 {\
-		return IO_Write((void*)_buffer_in, sizeof(TYPE__), _count, _stream_in);\
+	return IO_Write((void*)_buffer_in, sizeof(TYPE__), _count, _stream_in);\
 }
 
 #pragma endregion Generics

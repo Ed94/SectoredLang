@@ -1,8 +1,8 @@
-#pragma once
+#ifndef LAL_Memory__Def
 
-#include "LAL_Declarations.h"
-#include "LAL_FundamentalTypes.h"
-#include "LAL_Types.h"
+#include "LAL.Declarations.h"
+#include "LAL.FundamentalTypes.h"
+#include "LAL.Types.h"
 
 // Memory Sizes
 #define _1K     1024
@@ -17,24 +17,22 @@
 #define _512K   524288  
 #define _1MB    1048576  
 
+// Addressing Operation Wrappers
+
+#define dref    *
+#define ptr     *
+#define ptrof   &
+
 // Addressing Type
-
-#define Ptr(TYPE__)     TYPE__*
-#define RPtr(TYPE__)    TYPE__* restrict
-
 
 typedef    void*             Void_Ptr;
 typedef    void* restrict    Void_RPtr;
 
-// Addressing Operation Wrappers
-
-#define    dref(__OBJ)      *__OBJ
-#define    getPtr(__OBJ)    &__OBJ
-#define    fnPtr(__NAME)    (*__NAME)
+#define    fnPtr(__NAME)   (*__NAME)
 
 // Addressing Constants
 
-#define     nullptr    (void*)0
+#define    nullptr    (void*)0
 
 
 #pragma region ManualManagement
@@ -42,31 +40,31 @@ typedef    void* restrict    Void_RPtr;
 ForceInline 
 void* Internal_Mem_Alloc(uDM _amount)
 {
-		return malloc(_amount);
+	return malloc(_amount);
 }
 
 ForceInline
 void* Internal_Mem_AllocClear(uDM _num, uDM _amount)
 {
-		return calloc(_num, _amount);
+	return calloc(_num, _amount);
 }
 
 ForceInline
 void Mem_Dealloc(void* _memoryToDeallocate)
 {
-		free(_memoryToDeallocate);
+	free(_memoryToDeallocate);
 }
 
 ForceInline 
 void* Internal_Mem_FormatByFill(void* _memoryAddress, s32  _fillValue, uDM _sizeOfData)
 {
-		return memset(_memoryAddress, _fillValue, _sizeOfData);
+	return memset(_memoryAddress, _fillValue, _sizeOfData);
 }
 
 ForceInline
 void* Internal_Mem_FormatWithData(void* _memoryAddress, const void* _dataSource, uDM _sizeOfData)
 {
-		return memcpy(_memoryAddress, _dataSource, _sizeOfData);
+	return memcpy(_memoryAddress, _dataSource, _sizeOfData);
 }
 
 #define Mem_Alloc(_type, _numberToAllocate) \
@@ -111,25 +109,25 @@ void* Internal_Mem_ScopedAlloc     (struct AllocTable* _scopedAllocations,      
 void* Internal_Mem_ScopedAllocClear(struct AllocTable* _scopedAllocations, uDM _num, uDM _sizeOfAllocation);
 void  Mem_ScopedDeallocate         (struct AllocTable* _scopedAllocations);
 
-void* Internal_GlobalAlloc     (                 uDM _sizeOfAllocation   );
-void* Internal_GlobalAllocClear(                 uDM _sizeOfAllocation   );
-void* Internal_GlobalRealloc   (void* _location, uDM _sizeForReallocation);
+void* Internal_Mem_GlobalAlloc     (                 uDM _sizeOfAllocation   );
+void* Internal_Mem_GlobalAllocClear(                 uDM _sizeOfAllocation   );
+void* Internal_Mem_GlobalRealloc   (void* _location, uDM _sizeForReallocation);
 void  Mem_GlobalDealloc        (void);
 
 #define Mem_GlobalAlloc(_type, _numberToAllocate) \
-(_type*)Internal_GlobalAlloc(sizeof(_type) * _numberToAllocate)
+(_type*)Internal_Mem_GlobalAlloc(sizeof(_type) * _numberToAllocate)
 
 #define Mem_GlobalAllocClear(_type, _numberToAllocate) \
-(_type*)Internal_GlobalAllocClear(_numberToAllocate * sizeof(_type))
+(_type*)Internal_Mem_GlobalAllocClear(_numberToAllocate * sizeof(_type))
 
 #define Mem_GlobalRealloc(_type, _address, _numberToReallocate) \
-(_type*)Internal_GlobalRealloc(_address, sizeof(_type) * _numberToReallocate)
+(_type*)Internal_Mem_GlobalRealloc(_address, sizeof(_type) * _numberToReallocate)
 
 #define Mem_ScopedAlloc(_type, _numberToAllocate)  \
-(_type*)Internal_ScopedAlloc(getPtr(scopedMemory), sizeof(_type) * _numberToAllocate)
+(_type*)Internal_ScopedAlloc(ptrof(scopedMemory), sizeof(_type) * _numberToAllocate)
 
 #define Mem_ScopedAllocClear(_type, _numberToAllocate)  \
-(_type*)Internal_ScopedAllocClear(getPtr(scopedMemory), _numberToAllocate * sizeof(_type))
+(_type*)Internal_ScopedAllocClear(ptrof(scopedMemory), _numberToAllocate * sizeof(_type))
 
 #define SmartScope                  \
 {					                \
@@ -139,8 +137,12 @@ void  Mem_GlobalDealloc        (void);
 #define SmartScope_End                              \
 	if (scopedMemory.Array != NULL)                 \
 	{								                \
-		ScopedDealloc(getPtr(scopedMemory));     \
+		ScopedDealloc(ptrof(scopedMemory));     \
 	}												\
 }
 
 #pragma endregion Rudimentary MemoryManagement
+
+
+#define LAL_Memory__Def
+#endif

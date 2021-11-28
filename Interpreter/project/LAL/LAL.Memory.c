@@ -1,6 +1,6 @@
-#include "LAL_Memory.h"
+#include "LAL.Memory.h"
 
-#include "LAL_Exception.h"
+#include "LAL.Exception.h"
 
 
 NoLink AllocTable 
@@ -112,9 +112,9 @@ void ScopedDealloc(AllocTable* _scopedMemory)
 	return;
 }
 
-void* Internal_GlobalAlloc(uDM _sizeOfAllocation)
+void* Internal_Mem_GlobalAlloc(uDM _sizeOfAllocation)
 {
-	MemBlock* newBlock = AllocTable_Add(getPtr(GlobalMemory));
+	MemBlock* newBlock = AllocTable_Add(ptrof(GlobalMemory));
 		
 	newBlock->Size     = _sizeOfAllocation;
 	newBlock->Location = Mem_Alloc(byte, _sizeOfAllocation);
@@ -130,9 +130,9 @@ void* Internal_GlobalAlloc(uDM _sizeOfAllocation)
 	}
 }
 
-void* Internal_GlobalAllocClear(uDM _sizeOfAllocation)
+void* Internal_Mem_GlobalAllocClear(uDM _sizeOfAllocation)
 {
-	MemBlock* newBlock = AllocTable_Add(getPtr(GlobalMemory));
+	MemBlock* newBlock = AllocTable_Add(ptrof(GlobalMemory));
 		
 	newBlock->Size     = _sizeOfAllocation;
 	newBlock->Location = Mem_AllocClear(byte, _sizeOfAllocation);
@@ -148,7 +148,7 @@ void* Internal_GlobalAllocClear(uDM _sizeOfAllocation)
 	}
 }
 
-void* Internal_GlobalRealloc(void* _location, uDM _sizeForReallocation)
+void* Internal_Mem_GlobalRealloc(void* _location, uDM _sizeForReallocation)
 {
 	for (uDM index = 0; index < GlobalMemory.Length; index++)
 	{

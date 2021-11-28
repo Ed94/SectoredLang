@@ -13,14 +13,55 @@ import sys
 import time
 
 
+
 Platforms           = []
 Platform_Options    = {}
 Platform_Flags      = {}
+
+def lldName() :
+	if os.name == "nt" :
+		return "lld-link"
 
 clang    = "clang"
 clang_cl = "clang-cl"
 gcc      = "gcc"
 msvc     = "cl"
+
+gnu_link = "link"
+lld      = lldName()
+
+#region Standard Library
+
+StdLibDirs  = []
+StdLibs     = []
+StdIncludes = []
+
+if (os.name == "nt") :
+
+	StdLibDirs.extend([
+		r"C:\Program Files (x86)\Windows Kits\10\Lib\10.0.19041.0\ucrt\x64",
+		r"C:\Program Files (x86)\Windows Kits\10\Lib\10.0.19041.0\um\x64",
+		r"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.30.30705\lib\x64"
+	])
+	
+	StdLibs.extend([
+		"libcmt",
+		"libucrt",
+		# libucrtd,
+		"libucrt",
+		# libucrtd,
+	])
+	
+	StdIncludes.extend(
+	[
+		r"C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\shared",
+		r"C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\ucrt",
+		r"C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\um",
+		r"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.30.30705\include"
+	])
+	
+	
+#endregion Standard Library
 
 #region Translation Units to compile
 
@@ -35,6 +76,7 @@ Directories = [
 	ProjDir + "Shell",
 ]
 
+
 SourceFiles = []
 for directory in Directories :
 	searchStr = directory + "/*.c"
@@ -43,11 +85,24 @@ for directory in Directories :
 	SourceFiles.append(files) 
 # print(SourceFiles)
 
+# Directories.extend(StdIncludes)
+
+
 # Currenlty not used, but is the entrypoint specification unit.
 EntrypointFile = "./project/PAL/OSAL/OSAL_Entrypoint.c"
 
 #endregion Translation Units to compile
 
+# region Third-party Libraries
+
+LibraryDirs = []
+LibraryDirs.extend(StdLibDirs)
+
+Libraries = [
+	StdLibs
+]
+
+#endregion 
 
 
 
@@ -61,35 +116,43 @@ C_Flags         = [
 	"-Wall", 
 	"-Wno-unused-function",
 	"-Wno-unused-variable",
+	"-Wno-unknown-pragmas",
 	"-Wno-incompatible-pointer-types-discards-qualifiers"
 ]
 # Cpp_Defines 	= {}
 # Cpp_Flags 		= ['-Wall']#, '-Werror']
 # Cxx_Flags 		= ['-std=c++17']
+Linker          = lld
+Link_Flags      = [
+	
+]
 
 # print("CC is: " + Env.subst('$CC'))
 # print("CCCOM is: " + Env['CCCOM'])
 
 Env = Environment();
 
-if (C_Compiler == clang) :
-	Env.Tool("clang")
+# if (C_Compiler == clang) :
+	# Env.Tool("clang")
+Env.Tool(C_Compiler)
+
 
 Env.PrependENVPath("PATH", os.getenv("PATH"))
+
 
 # Configuration
 Env.Replace \
 (
-	ARFLAGS = ar_Flags,
-	CCFLAGS = C_Flags,
-	CPPPATH = Directories
+	ARFLAGS    = ar_Flags,
+	ARCOMSTR   = "Archiving $TARGET",
+	CCFLAGS    = C_Flags,
+	CPPPATH    = Directories,
+	LIBS       = Libraries,
+	LIBPATH    = LibraryDirs,
+	LINK       = Linker,
+	LINKCOMSTR = "Linking $TARGET",
+	# LINKFLAGS  = Link_Flags
 )
-
-
-
-
-
-
 
 
 
@@ -100,7 +163,6 @@ Env.Replace \
 #endregion Release Env
 
 
-
 #region Debug Env
 
 # EnvDebug = Env.clone()
@@ -109,39 +171,15 @@ Env.Replace \
 
 
 
-
-
-
-
-
-
 # Name of the program binary
 targetName  = "masi"
-buildPath   = "/build/"
+buildPath   = "../build/"
+
+# VariantDir(buildPath, ProjDir)
 
 
 
-
-
-
-
-
-
-
-
-
-Env.Append
-
-
-
-
-
-
-
-
-
-
-
+# Env.Append
 
 
 	
@@ -157,24 +195,11 @@ Env.Append
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #region Building
 
 # See https://www.scons.org/doc/0.92/HTML/scons-user/x595.html
 SetOption('implicit_cache', 1)
+# SetOption('max-drift', 1)
 
 # Build default target
 defaultTarget = Env.Program(targetName, SourceFiles)
@@ -189,3 +214,5 @@ Env.Install(buildPath, defaultTarget)
 Env.Alias('default', buildPath)
 
 #endregion Building
+
+# print(Env.Dump())

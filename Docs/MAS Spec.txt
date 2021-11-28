@@ -102,12 +102,16 @@ Universal Context:
 /-              Start Comment           cmt_SD
 -/              End Comment             cmt_DS
 #------------------------------------------------------
+                                                        Components
+'_'             Underscore              comp_UnderS
+\0              Null Terminator         comp_NULL               
+EOF             End of file             comp_EOF
+#------------------------------------------------------
                                                         Formatting (Ignored by the compiler)
 " ..."          Whitespace String       fmt_WSS
 \n              NewLine                 fmt_NL
 {               Open Brace              fmt_OB
 }               Close Brace             fmt_CB
-EOF             End of file             fmt_EOF
 #------------------------------------------------------
                                                         Parameters
 (               Parenthesis Start        params_PSTART
@@ -138,26 +142,27 @@ alias           Aliasing                sec_ALIAS
 append          Symbol Appending        sec_APPEND
 ct              Compile Time            sec_CT
 else            Coniditonal Else        sec_ELSE
-enum            Enumeration             sec_ENUM
-expose          Expose Definitions      sec_EXPOSE
-{Identifer}     Symbol Definitions      sec_DEFSYM
+enum            Enumeration             sec_ENUM    
+expose          Expose Definitions      sec_Expose
+{Identifer}     Symbol Definitions      sec_DefSym
 if              Conditional If          sec_IF
 in              Expose Member Symbols   sec_IN
-layer           Explicit layer use      sec_LAYER
-meta            Metaprogramming         sec_META
+layer           Explicit layer use      sec_Layer
+meta            Metaprogramming         sec_Meta
 ro              Read-only               sec_RO
-mut             Mutable                 sec_mut
-struct          Data Structure Type     sec_STRUCT             
+mut             Mutable                 sec_MUT
+struct          Data Structure Type     sec_Struct             
 #-------------------------------------------------------
                                                         Statements
-:               start def block         def_START
-;               end   def block         def_END
+:               start def block         def_Start
+;               end   def block         def_End
 ' '             Whitespace delimiter    def_WSD
 ,               Symbol delimiter        def_CD
 #-------------------------------------------------------
                                                         Symbols
 {Identifier}    User defined symbol     sym_User
-type            Top Type                sym_TTYPE
+type            Top Type                sym_TType
+{undefined}     Invalid Token           sym_Invalid
 #====================================================================================================================
 Universal Grammar:
 #--------------------------------------------------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 #ifndef LAL_Exception__Def
 
-#include "LAL_C_STL.h"
-#include "LAL_String.h"
+#include "LAL.C_STL.h"
+#include "LAL.String.h"
 
 
 ForceInline

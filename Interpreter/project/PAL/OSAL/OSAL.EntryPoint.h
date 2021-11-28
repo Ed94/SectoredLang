@@ -3,7 +3,7 @@
 
 #ifndef OSAL_EntryPoint__Def
 
-#include "OSAL_Platform.h"
+#include "OSAL.Platform.h"
 
 
 enum EOS_ExitCode
@@ -13,27 +13,29 @@ enum EOS_ExitCode
 };
 
 
-typedef nstr     
+typedef str   
   OS_EnvArg,
 * OS_EnvArgPtr
 ;
 
-typedef const nstr
+typedef const str
   OS_ro_EnvArg,
 * OS_ro_EnvArgPtr
 ;
 
 
-struct OS_EnvArgsArray
+struct OS_EnvArgs
 {
 	u32	       Count;
 	OS_EnvArg* Arguments;
 };
 
+typedef struct OS_EnvArgs
+OS_EnvArgs;
+
 
 // Get Application's Environmental Arguments.
-const struct 
-OS_EnvArgsArray* 
+const OS_EnvArgs* 
 OSAL_GetEnvArgs(void);
 
 // Application entry point.

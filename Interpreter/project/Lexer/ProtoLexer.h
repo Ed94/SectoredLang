@@ -20,10 +20,20 @@ void Lexer_Init(str _contents);
 void Lexer_Advance();
 void Lexer_SkipWS ();
 
-struct Token* Lexer_NextToken    ();
-struct Token* Lexer_AdvWithToken (Token* _token);
-struct Token* Lexer_CollectSymbol();
-struct Token* Lexer_CollectStr   ();
+Token* Lexer_NextToken    ();
+Token* Lexer_AdvWithToken (Token* _token);
+Token* Lexer_CollectStr   ();
+Token* Lexer_CollectSymbol();
 
 #define ProtoLexer__DEF
 #endif
+	
+
+
+
+
+
+
+
+
+

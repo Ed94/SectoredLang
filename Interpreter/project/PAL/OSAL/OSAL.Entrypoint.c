@@ -1,30 +1,24 @@
-#include "OSAL_EntryPoint.h"
-
-
-#include "OSAL_Platform.h"
+#include "OSAL.EntryPoint.h"
 
 
 #pragma region StaticData
 
-static
-OS_AppHandle 
+static OS_AppHandle 
 AppInstance;
 
-static struct 
-OS_EnvArgsArray
-OS_EnvArgs;
+static OS_EnvArgs
+OS_EnvArguments;
 
 #pragma endregion StaticData
 
 
 #pragma region Public
 
-const struct 
-OS_EnvArgsArray* 
+const OS_EnvArgs* 
 OSAL_GetEnvArgs(void)
 {
 	return 	
-		(const struct OS_EnvArgsArray*)(getPtr(OS_EnvArgs))
+		(const OS_EnvArgs*)(ptrof(OS_EnvArguments))
 	;
 }
 
@@ -76,13 +70,12 @@ WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /* hPrevInstance */, LPSTR /* lpCm
 
 #ifdef LAL_CharWidth_Narrow
 
-int 
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
 	AppInstance = nullptr;
 
-	OS_EnvArgs.Count     = (u32)argc;
-	OS_EnvArgs.Arguments = (OS_EnvArg*)argv;
+	OS_EnvArguments.Count     = (u32)argc;
+	OS_EnvArguments.Arguments = (OS_EnvArg*)argv;
 
 	int result = OSAL_EntryPoint();
 

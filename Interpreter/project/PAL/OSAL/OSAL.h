@@ -1,8 +1,8 @@
 #ifndef OSAL__Def
 
 
-#include "OSAL_Platform.h"
-#include "OSAL_EntryPoint.h"
+#include "OSAL.Platform.h"
+#include "OSAL.EntryPoint.h"
 
 
 #define OSAL__Def

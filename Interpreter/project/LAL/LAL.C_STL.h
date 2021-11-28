@@ -4,7 +4,7 @@
 #ifndef LAL_C_STL__Def
 
 
-#include "LAL_Platform.h"
+#include "LAL.Platform.h"
 
 
 // C STL Libraries

@@ -1,10 +1,10 @@
 #ifndef LAL_String__Def
 
-#include "LAL_C_STL.h"
-#include "LAL_Declarations.h"
-#include "LAL_FundamentalTypes.h"
-#include "LAL_Memory.h"
-#include "LAL_Types.h"
+#include "LAL.C_STL.h"
+#include "LAL.Declarations.h"
+#include "LAL.FundamentalTypes.h"
+#include "LAL.Memory.h"
+#include "LAL.Types.h"
 
 
 // IO Forward
@@ -31,27 +31,33 @@ typedef const char
 *  ro_nstrArray[]
 ;
 
+ForceInline 
+bool nchar_IsAlpha(nchar _char)
+{
+	return isalpha(_char);	
+}
+
 ForceInline
 bool nchar_IsAlphaNumeric(nchar _char)
 {
-		return isalnum(_char);
+	return isalnum(_char);
 }
 
 ForceInline
 nstr ncharTo_nStr(nchar _char)
 {
-		nstr converted = Mem_GlobalAlloc(nchar, 2);
-		
-		converted[0] = _char;
-		converted[1] = '\0';
-		
-		return converted;
+	nstr converted = Mem_GlobalAlloc(nchar, 2);
+	
+	converted[0] = _char;
+	converted[1] = '\0';
+	
+	return converted;
 }
 
 ForceInline 
 s32 nstr_Compare(ro_nstr _str1, ro_nstr _str2)
 {
-		return strcmp(_str1, _str2);
+	return strcmp(_str1, _str2);
 }
 
 ForceInline
@@ -61,13 +67,13 @@ ErrorType nstr_Concat
 	ro_nstr restrict _copyStr_in,    uDM _copyStrSize
 )
 {
-		return strncat_s
-		(
-			_appendStr_out, 
-			_appendStrSize, 
-			_copyStr_in, 
-			_copyStrSize
-		);
+	return strncat_s
+	(
+		_appendStr_out, 
+		_appendStrSize, 
+		_copyStr_in, 
+		_copyStrSize
+	);
 }
 
 ForceInline
@@ -77,51 +83,51 @@ ErrorType nstr_Copy
 	ro_nstr restrict _source_in
 )
 {
-		return strcpy_s(_self, _selfSize, _source_in);
+	return strcpy_s(_self, _selfSize, _source_in);
 }
 
 ForceInline
 s32 nstr_Format(nstr restrict _string_out, uDM _stringLength, ro_nstr restrict _format, ...)
 {
-		s32     result;
-		va_list argList;
+	s32     result;
+	va_list argList;
 
-		va_start(argList, _format);
-				result = vsprintf_s(_string_out, _stringLength, _format, argList);
-		va_end(argList);
+	va_start(argList, _format);
+		result = vsprintf_s(_string_out, _stringLength, _format, argList);
+	va_end(argList);
 
-		return result;
+	return result;
 }
 
 ForceInline
 s32 nstr_FormatV(nstr restrict _string_out, uDM _stringLength, ro_nstr restrict _format, va_list _argList)
 {
-		return vsprintf_s(_string_out, _stringLength, _format, _argList);
+	return vsprintf_s(_string_out, _stringLength, _format, _argList);
 }
 
 ForceInline
 uDM nstr_Length(ro_nstr _self)
 {
-		return strlen(_self);
+	return strlen(_self);
 }
 
 ForceInline 
 s32 nStr_StdWrite(IO_StdStream* restrict _stream_in, ro_nstr _format, ...)
 {
-		s32     result;
-		va_list argList;
+	s32     result;
+	va_list argList;
 
-		va_start(argList, _format);
-				result = vfprintf_s(_stream_in, _format, argList);
-		va_end(argList);
+	va_start(argList, _format);
+		result = vfprintf_s(_stream_in, _format, argList);
+	va_end(argList);
 
-		return result;
+	return result;
 }
 
 ForceInline 
 s32 nstr_StdWriteV(IO_StdStream* restrict _stream_in, ro_nstr _format, va_list _argList)
 {
-		return vfprintf_s(_stream_in, _format, _argList);
+	return vfprintf_s(_stream_in, _format, _argList);
 }
 
 #pragma endregion Narrow
@@ -148,9 +154,9 @@ typedef const wchar_t
 
 enum Str_CompareResult
 {
-		Str_Compare_FirstLower   = -1,
-		Str_Compare_Equal        =  0,
-		Str_Compare_FirstGreater =  1
+	Str_Compare_FirstLower   = -1,
+	Str_Compare_Equal        =  0,
+	Str_Compare_FirstGreater =  1
 };
 
 #ifdef LAL_CharWidth_Narrow
@@ -173,6 +179,12 @@ typedef const nchar
 ;
 
 ForceInline
+bool schar_IsAlpha(schar _char)
+{
+	return nchar_IsAlpha(_char);
+}
+
+ForceInline
 bool schar_IsAlphaNumeric(schar _char)
 {
 	return nchar_IsAlphaNumeric(_char);
@@ -187,7 +199,7 @@ str scharTo_str(schar _char)
 ForceInline 
 s32 str_Compare(ro_str _str1, ro_str _str2)
 {
-		return nstr_Compare(_str1, _str2);
+	return nstr_Compare(_str1, _str2);
 }
 
 ForceInline
@@ -197,13 +209,13 @@ ErrorType str_Concat
    ro_str restrict _copyStr_in,    uDM _copyStrSize
 )
 {
-		return nstr_Concat
-		(
-			_appendStr_out, 
-			_appendStrSize, 
-			_copyStr_in, 
-			_copyStrSize
-		);
+	return nstr_Concat
+	(
+		_appendStr_out, 
+		_appendStrSize, 
+		_copyStr_in, 
+		_copyStrSize
+	);
 }
 
 ForceInline
@@ -213,51 +225,51 @@ ErrorType str_Copy
 	ro_str restrict _source_in
 )
 {
-		return nstr_Copy(_self, _selfSize, _source_in);
+	return nstr_Copy(_self, _selfSize, _source_in);
 }
 
 ForceInline
 s32 str_FormatV(str restrict _string_out, uDM _stringLength, ro_str restrict _format, va_list _argList)
 {
-		return nstr_FormatV(_string_out, _stringLength, _format, _argList);
+	return nstr_FormatV(_string_out, _stringLength, _format, _argList);
 }
 
 ForceInline
 s32 str_Format(str restrict _string_out, uDM _stringLength, ro_str restrict _format, ...)
 {
-		s32     result;
-		va_list argList;
+	s32     result;
+	va_list argList;
 
-		va_start(argList, _format);
-				result = str_FormatV(_string_out, _stringLength, _format, argList);
-		va_end(argList);
+	va_start(argList, _format);
+		result = str_FormatV(_string_out, _stringLength, _format, argList);
+	va_end(argList);
 
-		return result;
+	return result;
 }
 
 ForceInline
 uDM str_Length(ro_str _self)
 {
-		return nstr_Length(_self);
+	return nstr_Length(_self);
 }
 
 ForceInline 
 s32 str_StdWriteV(IO_StdStream* restrict _stream_in, ro_nstr _format, va_list _argList)
 {
-		return nstr_StdWriteV(_stream_in, _format, _argList);
+	return nstr_StdWriteV(_stream_in, _format, _argList);
 }
 
 ForceInline 
 s32 str_StdWrite(IO_StdStream* restrict _stream_in, ro_nstr _format, ...)
 {
-		s32     result;
-		va_list argList;
+	s32     result;
+	va_list argList;
 
-		va_start(argList, _format);
-				result = nstr_StdWriteV(_stream_in, _format, argList);
-		va_end(argList);
+	va_start(argList, _format);
+		result = nstr_StdWriteV(_stream_in, _format, argList);
+	va_end(argList);
 
-		return result;
+	return result;
 }
 
 struct String;
@@ -295,18 +307,17 @@ typedef struct String
 #define sl L
 #endif
 
+String* String_Create(ro_str _content);
+
 ForceInline
 String* strTo_String(ro_str _str)
 {
 #ifdef LAL_zpl
-		return (String*)zpl_string_make(zpl_heap(), _str);
+	return (String*)zpl_string_make(zpl_heap(), _str);
 #else
-		String* newString = Mem_GlobalAlloc(String, 1);
-		
-		newString->Length = str_Length(_str);
-		str_Copy(newString->rStr, newString->Length, _str);
-		
-		return newString;
+	String* newString = String_Create(_str);
+	
+	return newString;
 #endif
 }
 
@@ -315,9 +326,9 @@ ForceInline
 str StringTo_str(String* _string_in)
 {
 #ifdef LAL_zpl
-		return _string_in->zStr;
+	return _string_in->zStr;
 #else
-		return _string_in->rStr;
+	return _string_in->rStr;
 #endif
 }
 
@@ -325,14 +336,14 @@ ForceInline
 ro_str StringTo_ro_str(const String* _string_in)
 {
 #ifdef LAL_zpl
-		return _string_in->zStr;
+	return _string_in->zStr;
 #else
-		return _string_in->rStr;
+	return _string_in->rStr;
 #endif 
 }
 
 // Creates a string allocation with the provided string as its initial content
-// String* String_Create(ro_str _content);
+String* String_Create(ro_str _content);
 
 ForceInline
 enum Str_CompareResult 
@@ -343,12 +354,12 @@ String_Compare(const String* restrict _string_in, const String* restrict _other_
 #else
 		s32 result = str_Compare(_string_in->rStr, _other_in->rStr);
 #endif
-		if (result < 0)
-				return Str_Compare_FirstLower;
-		if (result > 0)
-				return Str_Compare_FirstGreater;
-		else 
-				return Str_Compare_Equal;
+	if (result < 0)
+		return Str_Compare_FirstLower;
+	if (result > 0)
+		return Str_Compare_FirstGreater;
+	else 
+		return Str_Compare_Equal;
 }
 
 ForceInline
@@ -365,7 +376,7 @@ str* String_str(String* _string)
 {
 #ifdef LAL_zpl
 #else
-	return getPtr(_string->rStr);
+	return ptrof _string->rStr;
 #endif
 }
 
@@ -374,15 +385,17 @@ uDM String_Length(const String* _string)
 {
 #ifdef LAL_zpl
 #else
-	return _string->Length;
+		return _string->Length;
 #endif
 }
 
+bool String_Reserve(String* _string, uDM _amount);
+
 ForceInline 
-void String_SetLength(String * _string, uDM _length)
+void String_SetLength(String* _string, uDM _length)
 {
 #ifndef LAL_zpl
-	_string->Length = _length;
+		_string->Length = _length;
 #endif
 }
 

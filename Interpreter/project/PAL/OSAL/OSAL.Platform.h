@@ -4,15 +4,20 @@ Operating System Abstraction Layer: Platform Definitions
 
 #ifndef OSAL_Platform__Def
 
-#include "LAL.h"
+#ifdef LAL_Def
+					static_assert("Must not have LAL defined yet.")
+#endif
 
 #ifdef _WIN32
-					#include "OSAL_API_Windows.h"
+					#include "OSAL.API_Windows.h"
 #endif
 #ifdef __MACH__
 #endif
 #ifdef __linux__
 #endif 
+
+
+#include "LAL.h"
 
 
 enum EOS

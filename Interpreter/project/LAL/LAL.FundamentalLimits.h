@@ -4,8 +4,8 @@ C Fundamental Limits
 
 #pragma once
 
-#include "LAL_C_STL.h"
-#include "LAL_FundamentalTypes.h"
+#include "LAL.C_STL.h"
+#include "LAL.FundamentalTypes.h"
 
 
 typedef intmax_t

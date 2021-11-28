@@ -9,8 +9,8 @@ LexerObj = {};
 #define Whitespace      ' '
 
 
-#define Index LexerObj.Index
-#define Contents LexerObj.Contents
+#define Index       LexerObj.Index
+#define Contents    LexerObj.Contents
 #define ContentSize LexerObj.ContentSize
 #define CurrentChar LexerObj.CurrentChar
 
@@ -73,7 +73,7 @@ Lexer_NextToken()
 		enum TokenType
 		Type = EToken_Invalid;
 		
-		if (IsSymbol(CurrentChar))
+		if (IsSymbol())
 		{
 			return Lexer_CollectSymbol();
 		}
@@ -101,13 +101,16 @@ Lexer_NextToken()
 			break;
 
 			case Tok_Literal_String_DLim:
-				return Lexer_CollectStr;
+				return Lexer_CollectStr();
 			break;
 		}
 
 		// Single symbol tokens handling
 		return Lexer_AdvWithToken(Token_Init(Type, scharTo_str(CurrentChar)));
 	}
+	
+	Fatal_NoEntry("Lexer_NextToken");
+	return nullptr;
 }
 
 Token*
@@ -116,6 +119,18 @@ Lexer_AdvWithToken(Token* _token)
 	Lexer_Advance();
 	
 	return _token;
+}
+
+Token* Lexer_CollectStr()
+{
+	Lexer_Advance();
+	
+	uDM collectLength   = str_Length(ptrof(Contents[Index]));
+	str collectedStr    = Mem_GlobalAllocClear(schar, collectLength);
+	
+	str_Copy(collectedStr, collectLength, ptrof(Contents[Index]));
+	
+	return Token_Init(Literal_String, collectedStr);
 }
 
 Token* Lexer_CollectSymbol()
@@ -133,7 +148,7 @@ Token* Lexer_CollectSymbol()
 	{
 		str collectedStr = Mem_GlobalAllocClear(schar, collectLength);
 		
-		str_Copy(collectedStr, collectLength, Contents[Index], collectLength);
+		str_Copy(collectedStr, collectLength, ptrof(Contents[Index]));
 		
 		Lexer_Advance();
 		
@@ -144,18 +159,6 @@ Token* Lexer_CollectSymbol()
 		Fatal_Throw("Could not collect valid identifier, string length was null");
 		return nullptr;
 	}
-}
-
-Token* Lexer_CollectStr()
-{
-	Lexer_Advance();
-	
-	uDM collectLength = str_Length(Contents[Index]);
-	str collectedStr = Mem_GlobalAllocClear(schar, collectLength);
-	
-	str_Copy(collectedStr, collectLength, Contents[Index], collectLength);
-	
-	return Token_Init(Literal_String, collectedStr);
 }
 
 #pragma endregion Public

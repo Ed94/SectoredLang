@@ -40,7 +40,7 @@ typedef struct Token
 Token;
 
 
-struct Token* Token_Init(ETokenType _type, str _value);
+Token* Token_Init(ETokenType _type, str _value);
 
 
 #define ProtoTokens__Def

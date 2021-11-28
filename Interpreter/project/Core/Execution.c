@@ -1,15 +1,15 @@
-#include "LAL.h"
 #include "OSAL.h"
+#include "LAL.h"
 // Core
-#include "Dev_Log.h"
+#include "Dev.Log.h"
 // Shell
-// #include "Shell/Shell.h"
+#include "Shell.h"
 
 
 #pragma region StaticData
 
 static const 
-struct OS_EnvArgsArray* 
+OS_EnvArgs* 
 EnvArgsArray = nullptr;
 
 #pragma endregion StaticData
@@ -23,63 +23,63 @@ void RunShell                 (void);
 
 void Console_PrintTitle(void)
 {
-	Log(sl"MAS Interpreter\n"); 
+	Log(sl"MAS Interpreter"); 
 	Log(sl"Type: C");
+	Log(sl"");
 
-	Log(sl"\n\n");
-
-	Log(sl"App Env Arguments:\n");
+	Log(sl"App Env Arguments:");
 }
 
 void Console_PrintEnvArguments(void)
 {
 	for (uDM index = 0; index < EnvArgsArray->Count; index++)
 	{
-		LogF(sl"%lld : %s\n", index, EnvArgsArray->Arguments[index]);
+		LogF(sl"%lld : %s", index, EnvArgsArray->Arguments[index]);
 	}
 
-	Log(sl"\n");
+	Log(sl"");
 }
 
 void ProcessFile(void)
 {
-	String* filePath = strTo_String(EnvArgsArray->Arguments[1]);
+	String* 
+	filePath = strTo_String(EnvArgsArray->Arguments[1]);
 
-	LogF(sl"Opening File: %s\n", filePath);
+	LogF(sl"Opening File: %s\n", dref String_str(filePath));
 	
-	IO_Stream* FileStream = nullptr;
+	IO_Stream* 
+	FileStream = nullptr;
 	
-	ErrorType ResultCode = IO_Open(getPtr(FileStream), filePath, IO_AccessMode_Read);
+	ErrorType 
+	ResultCode = IO_Open(ptrof FileStream, filePath, IO_AccessMode_Read);
 
-	if (! ResultCode)
+	if (ResultCode != 0)
 	{
-		Exception_Throw(sl"Failed to open the file.\n\n");
-		
+		Exception_Throw(sl"Failed to open the file.\n");
 		return;
 	}
 	
 	Log(sl"File successfuly opened\n");	
-}
+	
+	String 
+		streamBuffer    = {}, 
+	ptr streamBufferPtr = ptrof streamBuffer;
+	
+	bool 
+	result = String_Reserve(ptrof streamBuffer, _4K);
+	
+	if (! result)
+	{
+		Exception_Throw("Not able to reserve string.\n");
+		return;
+	}
+	
+	str rawBuffer = dref String_str(streamBufferPtr);
+	
+	IO_Read(FileStream, rawBuffer, 1, 128);
 
-void RunShell(void)
-{
-	Log("Running shell...");
-	
-	Log(sl"\n\n");
-	
-	Log("MAS Interpreter Shell\n");
-	
-	Log(">");
-	
-	String line;
-	uDM length;
-#define linePtr getPtr(line)
-	IO_ReadLine(IO_StdIn, String_str(linePtr), getPtr(length)); 
-
-	String_SetLength(getPtr(line), length);
-	
-	Log(StringTo_str(linePtr));
-#undef linePtr
+	Log(sl"Contents:\n");
+	LogF("%s\n", rawBuffer);
 }
 
 OS_ExitVal 
@@ -93,19 +93,21 @@ OSAL_EntryPoint()
 
 	if (EnvArgsArray->Count < 2)
 	{
-		Log(sl"No context file (<NameOfFile>.context>) was not provided.\n");
-		Log(sl"\n\n");
+		Log(sl"No context file (<NameOfFile>.context>) was not provided.");
+		Log(sl"\n");
 	}
 	else
 	{
-		Log("Checking first argument for file.\n");
+		Log("Checking first argument for file.");
 	
 		ProcessFile();
+		
+		Log("Finished processing file...");
 	}
 	
 	RunShell();
 
-	Log(sl"\nPress enter to exit.\n");
+	Log(sl"Press enter to exit.");
 	getchar();
 	
 	Mem_GlobalDealloc();

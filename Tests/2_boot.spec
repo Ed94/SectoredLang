@@ -72,7 +72,7 @@ proc :
 		loop :; 
 	;
 	
-	ct Is_x86-64 : bool = ISA::Arch == ISA::x86-64;
+	ct Is_x86-64 : bool = ISA::Arch == ISA::x86-64;;
 	
 	Trampoline :
 		ct if Is_x86-64 : 
