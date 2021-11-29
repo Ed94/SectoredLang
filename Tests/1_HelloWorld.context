@@ -8,7 +8,7 @@ dependencies:
 PAL    // Platform Abstraction Layer
 ;
 
-alias append :
+alias :
 OS      : PAL::OSAL;
 Console : PAL::Console;
 ;

@@ -76,6 +76,8 @@ proc Something :
 
 // Definition Generators
 
+meta :
+
 // 1
 <AType : type> :
 ...
@@ -104,6 +106,8 @@ proc Something :
 ;
 ...
 ;
+
+; // meta
 
 // All 3 produce a generator to make a function symbol conforming to: Something__ptr_{type}__ptr_{type}
 

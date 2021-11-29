@@ -174,7 +174,7 @@ void* Internal_Mem_GlobalRealloc(void* _location, uDM _sizeForReallocation)
 
 void Mem_GlobalDealloc(void)
 {
-	for (size_t index = 0; index < GlobalMemory.Length; index++)
+	for (uDM index = 0; index < GlobalMemory.Length; index++)
 	{
 		Mem_Dealloc(GlobalMemory.Array[index]->Location);
 

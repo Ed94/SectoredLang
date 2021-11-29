@@ -41,6 +41,5 @@ OSAL_GetEnvArgs(void);
 // Application entry point.
 OS_ExitVal OSAL_EntryPoint(void);
 
-
 #define OSAL_Entrypoint__Def
 #endif

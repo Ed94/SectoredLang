@@ -46,7 +46,7 @@ bool nchar_IsAlphaNumeric(nchar _char)
 ForceInline
 nstr ncharTo_nStr(nchar _char)
 {
-	nstr converted = Mem_GlobalAlloc(nchar, 2);
+	nstr converted = Mem_GlobalAlloc(nchar, 3);
 	
 	converted[0] = _char;
 	converted[1] = '\0';
@@ -245,6 +245,19 @@ s32 str_Format(str restrict _string_out, uDM _stringLength, ro_str restrict _for
 	va_end(argList);
 
 	return result;
+}
+
+ForceInline
+uDM str_Hash(str _str)
+{
+    uDM hash = 5381;
+    
+    u32 character;
+
+    while ((character = dref _str++))
+        hash = ((hash << 5) + hash) + character;
+
+    return hash;
 }
 
 ForceInline

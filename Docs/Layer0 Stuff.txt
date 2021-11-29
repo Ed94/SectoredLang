@@ -10,7 +10,6 @@ Formmating
 {Formmatting}
 alias
 ct
-in
 meta
 
 # Unit Sectors: 
@@ -20,7 +19,7 @@ P_PS Sectors                # () Stack Parameter sets
 AB_PS Sectors               # <> Stack Parameter sets
 append
 expose
-interrupt
+interrupt                   # Not Sure
 page                        # Not Sure
 proc
 static

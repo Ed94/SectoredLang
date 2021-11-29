@@ -1,0 +1,20 @@
+// Universal
+
+		Entry(Params_PStart)
+		Entry(Params_PEnd)
+	
+		Entry(OP_Assign)
+
+		Entry(Literal_String)
+		
+		Entry(Def_Start)
+		Entry(Def_End)
+		
+		Entry(Sym_TType)
+		Entry(Sym_User)
+		
+// Layer 0
+        Entry(Sec_Static)
+        
+        Entry(Sym_Ptr)
+        Entry(Sym_Byte)

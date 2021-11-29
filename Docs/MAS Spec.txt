@@ -23,9 +23,18 @@ Assembler      ISA supported assembler modules
 IR             Intermediary representation compiler framework. Universal assembly module
 Compiler       Low (L0) to high (L4) level compiled language. Can use the previous modules to support translation
 Interpreter    Runtime interpreter for the same language specification used of for the compiler
-Meta           Metaprogramming module supporting rudimentary macros, compile time, generics, to advanced 
-               macro syntax systems
-Alias          Full on language model specification language
+
+Meta           Metaprogramming module supporting rudimentary macros, to advanced macro syntax systems. 
+               Handles directives to tooling. These directives unlike alias are more related to traditional pragmas
+               of the backend or things related to how the code is handled.
+               Templating and generics must be done with a meta specifier.
+               
+Alias          Provides similar to functionality to using statements or typedefs in c++ along with being able to 
+               specify ammendments the backend language modules such as the lexer, parser, and symbol table.
+               As such things related to the langauge model can be changed. 
+               (So long as the alias backend allows for it)
+               
+Note: I'm not entirely aware where I'm going to put generics/templating, but most likely with be in meta specified.
 #------------------------------------------------------------------------------------------------------------------
 Langauge Feature Layering :
 
@@ -49,7 +58,7 @@ symbols:
     explicit layers     Whether or not layers may be explicitly allowed within units
     alias               Specifies either the model language standard or support for an external language syntax
     dependencides       States what external packages this context depends on
-    alias append        Allows for in context appending of the current alias set (intended for small additions)
+    alias               Allows for in context appending of the current alias set (intended for small additions)
     units/files         Used to specify what units or files are associated with the context
     entrypoint          Specifies the execution entrypoint (if the context is a program)
 #------------------------------------------------------------------------------------------------------------------
@@ -71,6 +80,32 @@ A blueprint's syntax closely follows the language model used for spec units
 
 Where a unit of implementation for a subject or context is defined
 There can be multiple units for each bp (blueprint)
+#------------------------------------------------------------------------------------------------------------------
+.gen.*                  Generated Specification
+
+These are generated units that have completed the meta and/or ct pass.
+These files are optionally outputted to the filesystem.
+These files are mainly intended to be rendered or debugged in a mas compatiable editor.
+
+The purpose is to provide an visual of how meta-programming (alias, meta, ct) features are generated in a clear way.
+#------------------------------------------------------------------------------------------------------------------
+.db                     Database
+
+This is a full image of a processed context.
+Which includes the structured table organized by the context and subject units.
+Contains all unit defined symbols and their properites along with AST of execution specification.
+These are meant to be saved to cache previous passes or as an intermediary between tools.
+
+Should be viewable using a database viewer.
+#------------------------------------------------------------------------------------------------------------------
+.ast                    Abstract Syntax There
+
+This is a metadesk (hopefully) formatted ast file that contains the raw parsed ast of a context. 
+This can be used as intermediary between tools or as a way to store the "live" source code.
+Unit text files can be generated from the ast.
+
+This is meant to be the live "code" the user writes source code in with a toolchain. ASTs should be rendered live
+in "tiled" or "tokened" text.
 #====================================================================================================================
 #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 #====================================================================================================================
@@ -83,6 +118,7 @@ Identifier lazy evalutation, not based on order of introduction of definition. (
 Tokens Types :
 #--------------------------------------------------------------------------------------------------------------------
 Comment
+Components
 Formatting
 Parameters
 Literal
@@ -103,9 +139,11 @@ Universal Context:
 -/              End Comment             cmt_DS
 #------------------------------------------------------
                                                         Components
+' '             Whitespace              comp_WS
 '_'             Underscore              comp_UnderS
-\0              Null Terminator         comp_NULL               
+\0              Null Terminator         comp_Null             
 EOF             End of file             comp_EOF
+'"'             Stirng Dilimiter        comp_SDilim
 #------------------------------------------------------
                                                         Formatting (Ignored by the compiler)
 " ..."          Whitespace String       fmt_WSS
@@ -114,50 +152,49 @@ EOF             End of file             comp_EOF
 }               Close Brace             fmt_CB
 #------------------------------------------------------
                                                         Parameters
-(               Parenthesis Start        params_PSTART
-)               Parenthesis End          params_PEND
-<               Angle Bracket Start      params_ABSTART
->               Angle Bracket End        params_ABEND
-[               Square Bracket Start     params_SBSTART
-]               Square Bracket End       params_SBEND
+(               Parenthesis Start        params_PStart
+)               Parenthesis End          params_PEnd
+<               Angle Bracket Start      params_ABStart
+>               Angle Bracket End        params_ABEnd
+[               Square Bracket Start     params_SBStart
+]               Square Bracket End       params_SBEnd
 #------------------------------------------------------
                                                         Operators
 .               Member Resolution       op_SMA
-->              Map Resolution          op_MAP
-cast            Type cast               op_CAST
-typeof          Type Accessor           op_TYPEOF
+->              Map Resolution          op_Map
+cast            Type cast               op_Cast
+typeof          Type Accessor           op_TypeOf
 [symbol]        Access Element          op_GetElement
 #------------------------------------------------------
                                                         Literals
-'               Character delimiter     literal_CD
-0b{0-1}         Binary                  literal_BINARY
-0t{0-2}         Ternary                 literal_TERNARY
-0{0-7}          Octal                   literal_OCTAL
-0x{0-F}         Hex                     literal_HEX
+'$'             Character               literal_Char
+0b{0-1}         Binary                  literal_Binary
+0t{0-2}         Ternary                 literal_Ternary
+0o{0-7}         Octal                   literal_Octal
+0x{0-F}         Hex                     literal_Hex
 {0-9}...        Decimal Digits          literal_Digit                        
 "..."           String                  literal_String
 #------------------------------------------------------
                                                         Sectors
-alias           Aliasing                sec_ALIAS
-append          Symbol Appending        sec_APPEND
-ct              Compile Time            sec_CT
-else            Coniditonal Else        sec_ELSE
-enum            Enumeration             sec_ENUM    
+alias           Aliasing                sec_Alias
+append          Symbol Appending        sec_Append
+ct              Compile Time            sec_ct
+else            Coniditonal Else        sec_Else
+enum            Enumeration             sec_Enum    
 expose          Expose Definitions      sec_Expose
 {Identifer}     Symbol Definitions      sec_DefSym
-if              Conditional If          sec_IF
-in              Expose Member Symbols   sec_IN
+if              Conditional If          sec_if
+in              Expose Member Symbols   sec_in
 layer           Explicit layer use      sec_Layer
 meta            Metaprogramming         sec_Meta
-ro              Read-only               sec_RO
-mut             Mutable                 sec_MUT
+ro              Read-only               sec_ro
+mut             Mutable                 sec_Mut
 struct          Data Structure Type     sec_Struct             
 #-------------------------------------------------------
                                                         Statements
 :               start def block         def_Start
 ;               end   def block         def_End
-' '             Whitespace delimiter    def_WSD
-,               Symbol delimiter        def_CD
+,               Comma delimiter         def_CD
 #-------------------------------------------------------
                                                         Symbols
 {Identifier}    User defined symbol     sym_User
@@ -194,28 +231,30 @@ Layer 0
 
 APS : 1
 User identifier sector nesting is not allowed.
+Nesting alias in Meta is not allowed.
+Nesting meta in alias is not allowed.
 
 Tokens :
 #------------------------------------------------------
                                                         Operators
 # Inference
-alignof         Alignment Accessor      op_ALIGNOF
-identifier      Identifier              op_IDENTIFIER
-offsetof        Member Offset           op_OFFSETOF
-posof           Member Position         op_POSOF
-sizeof          Symbol memory           op_SIZEOF
+alignof         Alignment Accessor      op_alingof
+identifier      Identifier              op_identifier
+offsetof        Member Offset           op_offsetof
+posof           Member Position         op_posof
+sizeof          Symbol memory           op_sizeof
 # Indirection
-ptr             Pointer accessor        op_PTR
-val             Value Accessor          op_VAL
+ptr             Pointer accessor        op_ptr
+val             Value Accessor          op_val
 # Execution
-ret             Return                  op_RETURN
-pop             Pop current stack       op_POP
-push            Push current stack      op_PUSH
-goto            Jump to Label           op_GOTO
-continue        Jump to start of loop   op_CONTINUE
-break           Jump out of block       op_BREAK
+ret             Return                  op_return
+pop             Pop current stack       op_pop
+push            Push current stack      op_push
+goto            Jump to Label           op_goto
+continue        Jump to start of loop   op_continue
+break           Jump out of block       op_break
 {PI};           # Procedure Identifier
-{PI}<...>(...); Call Procedure          op_CALLPROC
+{PI}<...>(...); Call Procedure          op_callproc
 # Logical
 !               Logical NOT             op_LNOT
 &&              Logical And             op_LAND
@@ -227,55 +266,55 @@ break           Jump out of block       op_BREAK
 <<              Bitwise Shift Left      op_BSL
 >>              Bitwise Shift Right     op_BSR
 # Arithmetic
-+               Addition                op_ADD
--               Subtraction             op_SUBTRACT
-*               Multiply                op_MULTIPLY
-/               Divide                  op_DIVIDE
-%               Modulo                  op_MODULO
-++              Increment               op_INCREMENT
---              Decrement               op_DECREMENT
-==              Equals                  op_EQUAL
-!=              Not Equal               op_NOTEQUAL
->=              Greater Equal           op_GREATEREQUAL
-<=              Lesser Equal            op_LESSEREQUAL
++               Addition                op_Add
+-               Subtraction             op_Subtract
+*               Multiply                op_Multiply
+/               Divide                  op_Divide
+%               Modulo                  op_Modulo
+++              Increment               op_Increment
+--              Decrement               op_Decrement
+==              Equals                  op_Equal
+!=              Not Equal               op_NotEqul
+>=              Greater Equal           op_GreaterEqual
+<=              Lesser Equal            op_LesserEqul
 # Assignment
 =               Assignment              op_ASSIGN
 &=              Assign Bit And          op_ABAND
 |=              Assign Bit Or           op_ABOR
-^=              Assign Bit XOr          op_ABXOR
-~=              Assign Bit Not          op_ABNOT
-<<=             Assign Bit Shift Left   op_ABSL
->>=             Assign Bit Shift Right  op_ABSR
-+=              Assign Add              op_AADD
--=              Assign Subtract         op_ASUBTRACT
-*=              Assign Multiple         op_AMULTIPLY
-/=              Assign Divide           op_ADIVIDE
-%=              Assign Modulo           op_AMODULO
+^=              Assign Bit XOr          op_AB_XOR
+~=              Assign Bit Not          op_AB_Not
+<<=             Assign Bit Shift Left   op_AB_SL
+>>=             Assign Bit Shift Right  op_AB_SR
++=              Assign Add              op_A_Add
+-=              Assign Subtract         op_A_Subtract
+*=              Assign Multiple         op_A_Multiply
+/=              Assign Divide           op_A_Divide
+%=              Assign Modulo           op_A_Modulo
 #-------------------------------------------------------
                                                         Sectors
-binary          Binary  block           sec_BINARY
-ternay          Ternary block           sec_TERNARY
-octal           Octal   block           sec_OCTAL
-hex             Hex     block           sec_HEX
-inline          Redefine inplace        sec_INLINE
-interrupt       Interrupt               sec_INTERRUPT
-label           Label                   sec_LABEL
-loop            Loop execution          sec_LOOP
-page            Paging Segments         sec_MEMPAGE
-proc            Procedure               sec_PROC
-stack           Stack  Segment          sec_STACK
-static          Static Segment          sec_STATIC
+binary          Binary  block           sec_Binary
+ternay          Ternary block           sec_Ternary
+octal           Octal   block           sec_Octal
+hex             Hex     block           sec_Hex
+inline          Redefine inplace        sec_Inline
+interrupt       Interrupt               sec_Interrupt
+label           Label                   sec_Lable
+loop            Loop execution          sec_Loop
+page            Paging Segments         sec_Mempage
+proc            Procedure               sec_Proc
+stack           Stack  Segment          sec_Stack
+static          Static Segment          sec_Static
 #-------------------------------------------------------
                                                         Specifiers
-align           Alignment               specifier_ALIGN
-register        Register Type           specifier_REGISTER
-strict          Strict reference        specifier_STRICT
-volatile        Volatile reference      specifier_VOLATILE
+align           Alignment               specifier_Align
+register        Register Type           specifier_Register
+strict          Strict reference        specifier_Strict
+volatile        Volatile reference      specifier_Volatile
 #-------------------------------------------------------
                                                         Symbols
-ptr             Address Pointer                     sym_PTR
-byte            Smallest addressable unit of bits   sym_BYTE
-word            Machine data model width            sym_WORD
+ptr             Address Pointer                     sym_Ptr
+byte            Smallest addressable unit of bits   sym_Byte
+word            Machine data model width            sym_Word
 #====================================================================================================================
 Grammar :
 #-------------------------------------------------------
@@ -293,8 +332,8 @@ symbol.ptr                      Accessor to pointer of a symbol
 symbol.val                      Value of pointer type associated symbol
 
 identfier {assign op} value     Assign value to identifier
-value op value                  perform operation on value (delimiter)
-op(value, value)                perform operation on values (functional)
+value op ...                    perform operation on value (delimiter)
+op(value, ...)                  perform operation on values (functional)
 
 sizeof(symbol) * width          Specify a datatype of set width (where width is a digit literal)
 #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
@@ -430,3 +469,14 @@ Grammar :
 #-------------------------------------------------------
 #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 #====================================================================================================================
+
+
+
+
+
+
+
+#------------------------------------------------------------------------------------------------------------------
+
+#====================================================================================================================
+#\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\

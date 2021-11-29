@@ -3,7 +3,7 @@
 
 void RunShell(void)
 {
-	Log("Running shell...\n");
+	Log("\nRunning shell...\n");
 	Log("MAS Interpreter Shell");
 	LogF(">");
 	

@@ -1,0 +1,89 @@
+
+Parsing
+
+The first things parsed are the alias and meta sectors. I have not determined how these passes will be done yet.
+For now I'm going to assume a multipass of some sort may be needed to get the full context of whats going on.
+
+Notes:
+
+alias 
+    Sectors Allowed: Universal
+    Pass Priority: 1
+
+    Does not generate code, 
+    Changes backend behavior
+        Adds typedefs
+        Adds wrapper symbols
+    
+    
+    If the first alias pass cannot find a user symbol,
+    it will have another pass after the meta pass is completed.
+        (This occurs once only)
+
+meta
+    Sectors Allowed: Universal
+    Pass Priority: 2
+
+    Can generate code
+        Macro expansion
+        Templates/generics
+    Changes backend behavior
+
+    If the first meta pass cannot find a user symbol, 
+    it will have another pass after an alias pass is completed.
+        (This occurs once only)
+    
+ct  (Constant-time, Compile-Time, Cache-Time)
+    Sectors Allowed: Universal
+    Pass Priority: 3
+
+    Comple-time evalutates directives and/or execution
+    Manipulates what code is retained.
+    With interpeters, cts are used spec cache-time hinting.
+
+append
+    Sectors Allowed: Unit
+    Pass Priority: 4
+
+    Extends properties associated with a user defined symbol
+    
+AB_PS
+    Sectors Allowed: 
+        Unit->Meta, 
+        User->Meta, 
+    Pass Priority: meta
+        
+
+    Will associate nested user defined symbols with
+    the AB_PS set
+    Used for compile-time meta generated parameter sets
+    
+P_PS
+    Sectors Allowed:
+        Unit,
+        User,
+        AB_PS,
+
+    Will associate nested user defined symbols with
+    the P_PS set
+    Used for runtime parameter sets.
+    May be used in conjunctionw ith AB_PS to represent the 
+    runtime generated symbol's parameter set.
+    
+expose 
+    Sectors Allowed:
+        
+
+    Adds the expose property to all user defined symbols.
+    Allows for symbols to be exposed for linkage, seen by other modules, etc.
+    
+if 
+    Sectors Allowed:
+        alias,
+        meta,
+        ct
+        exec_scope,
+
+    Pass Priority: Parent Dependent
+        
+    

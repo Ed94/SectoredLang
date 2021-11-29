@@ -8,10 +8,10 @@ void Log(ro_str _message)
 
 void LogF(ro_str _message, ...)
 {
-		s32     result;
-		va_list argList;
-	
-		va_start(argList, _message);
-				IO_StdWriteV(IO_StdOut, _message, argList);
-		va_end(argList);
+	s32     result;
+	va_list argList;
+
+	va_start(argList, _message);
+		IO_StdWriteV(IO_StdOut, _message, argList);
+	va_end(argList);
 }

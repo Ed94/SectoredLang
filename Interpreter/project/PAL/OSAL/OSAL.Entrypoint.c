@@ -42,6 +42,8 @@ WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /* hPrevInstance */, LPSTR /* lpCm
 
 	int result = OSAL_EntryPoint();
 
+	Mem_GlobalDealloc();
+
 	return result;
 }
 #define Entrypoint_Implemented

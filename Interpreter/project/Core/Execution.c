@@ -2,6 +2,8 @@
 #include "LAL.h"
 // Core
 #include "Dev.Log.h"
+// Lexer
+#include "ProtoLexer.h"
 // Shell
 #include "Shell.h"
 
@@ -11,6 +13,11 @@
 static const 
 OS_EnvArgs* 
 EnvArgsArray = nullptr;
+
+static 
+String 
+	StreamBuffer    = {}, 
+ptr StreamBufferPtr = ptrof StreamBuffer;
 
 #pragma endregion StaticData
 
@@ -42,6 +49,8 @@ void Console_PrintEnvArguments(void)
 
 void ProcessFile(void)
 {
+	Log("Checking first argument for file.");		
+
 	String* 
 	filePath = strTo_String(EnvArgsArray->Arguments[1]);
 
@@ -61,12 +70,8 @@ void ProcessFile(void)
 	
 	Log(sl"File successfuly opened\n");	
 	
-	String 
-		streamBuffer    = {}, 
-	ptr streamBufferPtr = ptrof streamBuffer;
-	
 	bool 
-	result = String_Reserve(ptrof streamBuffer, _4K);
+	result = String_Reserve(ptrof StreamBuffer, _4K);
 	
 	if (! result)
 	{
@@ -74,12 +79,31 @@ void ProcessFile(void)
 		return;
 	}
 	
-	str rawBuffer = dref String_str(streamBufferPtr);
+	str rawBuffer = dref String_str(StreamBufferPtr);
 	
-	IO_Read(FileStream, rawBuffer, 1, 128);
+	IO_Read(FileStream, rawBuffer, 1, _4K);
 
 	Log(sl"Contents:\n");
 	LogF("%s\n", rawBuffer);
+}
+
+void LexStream()
+{
+	Lexer_Init(StringTo_str(StreamBufferPtr));
+
+	Log("Streaming Tokens:");
+	
+	Token* 
+	currentToken = Lexer_NextToken();
+	
+#define Type    currentToken->Type
+#define Value   currentToken->Value
+	for (; currentToken != nullptr; currentToken = Lexer_NextToken())	
+	{
+		LogF("\nType : %-15s, Value: \"%s\"", TokenTo[Type].Str, Value);
+	}
+#undef Type
+#undef Vlaue
 }
 
 OS_ExitVal 
@@ -98,19 +122,17 @@ OSAL_EntryPoint()
 	}
 	else
 	{
-		Log("Checking first argument for file.");
-	
 		ProcessFile();
 		
-		Log("Finished processing file...");
+		Log("Finished processing file...\n");
+		
+		LexStream();
 	}
 	
-	RunShell();
+	// RunShell();
 
 	Log(sl"Press enter to exit.");
 	getchar();
-	
-	Mem_GlobalDealloc();
 	
 	return OS_ExitCode_Success;
 }

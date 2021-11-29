@@ -5,10 +5,6 @@ struct Lexer
 LexerObj = {};
 
 
-#define NullTerminator  '\0'
-#define Whitespace      ' '
-
-
 #define Index       LexerObj.Index
 #define Contents    LexerObj.Contents
 #define ContentSize LexerObj.ContentSize
@@ -17,19 +13,33 @@ LexerObj = {};
 NoLink ForceInline
 bool IsEndOfContent()
 {
-	return CurrentChar != NullTerminator && Index < ContentSize;
+	return 
+	   CurrentChar == Tok_Comp_EOF 
+	|| Index >= ContentSize
+	;
 }
 
 NoLink ForceInline
 bool IsSymbol()
 {
-	return CurrentChar == '_' || schar_IsAlpha(CurrentChar);
+	return 
+	   CurrentChar == Tok_Comp_UnderS 
+	|| schar_IsAlpha(CurrentChar)
+	;
 }
 
 NoLink ForceInline 
-bool IsWhitespace()
+bool IsFormmatting() 
 {
-	return CurrentChar != Whitespace || CurrentChar == 10;
+	return 
+		CurrentChar == Tok_Comp_WS
+	||	CurrentChar == Tok_Comp_Null
+	||  CurrentChar == Tok_Fmt_Tab
+	||  CurrentChar == Tok_Fmt_CR
+	||  CurrentChar == Tok_Fmt_NL
+	||  CurrentChar == Tok_Fmt_OB
+	||  CurrentChar == Tok_Fmt_CB
+	;
 }
 
 #pragma region Public
@@ -37,10 +47,15 @@ bool IsWhitespace()
 void
 Lexer_Init(str _contents)
 {
+	Log("Lexer_Init");
+
 	Contents    = _contents;
 	Index       = 0;
 	CurrentChar = Contents[Index];
 	ContentSize = str_Length(Contents);
+
+	// LogF("\n I have no idea why... %s\n", TokenTo[0].Str);
+	TokenTo[0].Str;
 }
 
 void 
@@ -50,26 +65,46 @@ Lexer_Advance()
 	{
 		Index++;
 		CurrentChar = Contents[Index];
+
+		// LogF("Lexer Advance: %c\n", CurrentChar);
+	}
+
+}
+
+void
+Lexer_Jump(uDM _num)
+{   
+	for (uDM index = 0; index < _num || IsEndOfContent(); index++)
+	{
+		Index++; 
+		CurrentChar = Contents[Index];
 	}
 }
 
 void 
-Lexer_SkipWS()
+Lexer_SkipFormmating()
 {
-	while (IsWhitespace())
+	while (IsFormmatting() && !IsEndOfContent())
 	{
 		Lexer_Advance();
 	}
 }
 
-Token* 
-Lexer_NextToken()
+Token* Lexer_NextToken()
 {
-	while (! IsEndOfContent())
+	while (! IsEndOfContent()) 
 	{
-		if (IsWhitespace())
-			Lexer_SkipWS();
-			
+		if (IsFormmatting())
+		{
+			Lexer_SkipFormmating();
+		}
+		
+		if (IsEndOfContent())
+		{
+			Log("\nReached EOF");
+			return nullptr;
+		}
+		
 		enum TokenType
 		Type = EToken_Invalid;
 		
@@ -104,17 +139,18 @@ Lexer_NextToken()
 				return Lexer_CollectStr();
 			break;
 		}
-
+		
 		// Single symbol tokens handling
 		return Lexer_AdvWithToken(Token_Init(Type, scharTo_str(CurrentChar)));
 	}
 	
-	Fatal_NoEntry("Lexer_NextToken");
+	Log("\nReached EOF");
+	
+	// Fatal_NoEntry("Lexer_NextToken");
 	return nullptr;
 }
 
-Token*
-Lexer_AdvWithToken(Token* _token)
+Token* Lexer_AdvWithToken(Token* _token)
 {
 	Lexer_Advance();
 	
@@ -123,36 +159,96 @@ Lexer_AdvWithToken(Token* _token)
 
 Token* Lexer_CollectStr()
 {
-	Lexer_Advance();
+	uDM 
+	collectLength = 1, 
+	collectIndex  = Index + 1;
 	
-	uDM collectLength   = str_Length(ptrof(Contents[Index]));
-	str collectedStr    = Mem_GlobalAllocClear(schar, collectLength);
+	schar collectChar = Contents[collectIndex];
 	
-	str_Copy(collectedStr, collectLength, ptrof(Contents[Index]));
-	
-	return Token_Init(Literal_String, collectedStr);
-}
-
-Token* Lexer_CollectSymbol()
-{
-	Lexer_Advance();
-	
-	uDM collectLength = 0;
-	
-	while (CurrentChar == '_' || schar_IsAlphaNumeric(CurrentChar))
+	while (collectChar != '"')
 	{
+		collectChar = Contents[collectIndex ++];
 		collectLength++;
 	}
 	
 	if (collectLength)
 	{
-		str collectedStr = Mem_GlobalAllocClear(schar, collectLength);
+		str 
+		collectedStr = Mem_GlobalAllocClear(schar, collectLength -1 );
+		collectedStr = Mem_FormatWithData(schar, collectedStr, ptrof Contents[Index + 1], collectLength -2);
+
+		collectedStr[collectLength -1] = Tok_Comp_Null;
 		
-		str_Copy(collectedStr, collectLength, ptrof(Contents[Index]));
-		
-		Lexer_Advance();
+		if (! collectedStr)
+		{
+			Fatal_Throw("Failed to collect string literal, something went wrong with allocation or formmatting.");
+			return nullptr;
+		}
+
+		Lexer_Jump(collectLength + 1);
 		
 		return Token_Init(Literal_String, collectedStr);	
+	}
+	else
+	{
+		Fatal_Throw("Could not collect valid string literal, string length was null");
+		return nullptr;
+	}
+}
+
+Token* Lexer_CollectSymbol()
+{
+	uDM 
+	collectLength = 0, 
+	collectIndex  = Index;
+	
+	schar collectChar = Contents[collectIndex];
+	
+	while (collectChar == '_' || schar_IsAlphaNumeric(collectChar))
+	{
+		collectChar = Contents[collectIndex ++];
+		collectLength++;
+	}
+	
+	if (collectLength)
+	{
+		str 
+		collectedStr = Mem_GlobalAllocClear(schar, collectLength);
+		collectedStr = Mem_FormatWithData(schar, collectedStr, ptrof Contents[Index], collectLength -1);
+		collectedStr[collectLength] = Tok_Comp_Null;
+		
+		if (! collectedStr)
+		{
+			Fatal_Throw("Failed to collect symbol, something went wrong with allocation or formmatting.");
+			return nullptr;
+		}
+
+		Lexer_Jump(collectLength - 1);
+		
+		switch (ToToken(collectedStr))
+		{
+		#define InitIf(_token)  \
+		case _token :           \
+			return Token_Init(_token, collectedStr);
+			
+			// Unversal
+
+				InitIf(Sym_TType)
+
+			// Layer 0
+
+				InitIf(Sec_Static)
+				
+				InitIf(Sym_Ptr)
+				InitIf(Sym_Byte)
+					
+		#undef Initif
+		
+			default :
+				break;
+		}
+		
+		return Token_Init(Sym_User, collectedStr);	
 	}
 	else
 	{

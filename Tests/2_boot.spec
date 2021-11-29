@@ -1,11 +1,10 @@
-inline :
 
 ct :
 if (ISA::Arch == ISAx86-64) :
 {
 	alias : AddressLine : ISA::AddressLine; ;
 
-	proc :
+	inline proc :
 		Enter_ProtectedMode :
 			ISA:: DisableInterrupts;
 			ISA:: Enable_A20;
@@ -57,11 +56,10 @@ if (ISA::Arch == ISAx86-64) :
 		;
 	;
 };
-else
-;;
+;
 
 
-proc : 
+inline proc : 
 {
 	Boot :
 		Trampoline;
@@ -80,5 +78,3 @@ proc :
 		;
 	;
 };
-
-; // inline

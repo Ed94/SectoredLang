@@ -30,6 +30,15 @@ typedef    void* restrict    Void_RPtr;
 
 #define    fnPtr(__NAME)   (*__NAME)
 
+struct FatPtr
+{
+	void* Length;
+	void* Ptr;
+};
+
+typedef void* 
+FatPtr[2];
+
 // Addressing Constants
 
 #define    nullptr    (void*)0
@@ -86,8 +95,8 @@ void* Internal_Mem_FormatWithData(void* _memoryAddress, const void* _dataSource,
 
 struct MemBlock
 {
-	void*   Location;
 	uDM     Size;
+	void*   Location;
 };
 
 typedef struct MemBlock
@@ -129,16 +138,17 @@ void  Mem_GlobalDealloc        (void);
 #define Mem_ScopedAllocClear(_type, _numberToAllocate)  \
 (_type*)Internal_ScopedAllocClear(ptrof(scopedMemory), _numberToAllocate * sizeof(_type))
 
-#define SmartScope                  \
+#define smart_scope                 \
 {					                \
 	AllocTable scopedMemory =       \
-	{ NULL, 0U };
+	{ nullptr, 0U };
 
-#define SmartScope_End                              \
-	if (scopedMemory.Array != NULL)                 \
+#define smart_return(_value)                        \
+	if (scopedMemory.Array != nullptr)              \
 	{								                \
-		ScopedDealloc(ptrof(scopedMemory));     \
+		ScopedDealloc(ptrof(scopedMemory));         \
 	}												\
+	return _value;                                  \
 }
 
 #pragma endregion Rudimentary MemoryManagement
