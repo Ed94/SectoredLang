@@ -2,19 +2,13 @@ from conans import ConanFile, CMake
 
 
 class MAS_Interpreter_Conan(ConanFile):
+
     name = "MAS_Interpreter"
     version = "0.1.0"
     settings = "os", "arch", "compiler", "build_type"
     
-    
     # generators = "cmake_find_package"
     
-    
-    
-    
-    
-    
-
 #     def build(self):
 #         cmake = CMake(self)                # CMake helper auto-formats CLI arguments for CMake
 #         cmake.configure()                  # cmake -DCMAKE_TOOLCHAIN_FILE=conantoolchain.cmake

@@ -2,4 +2,4 @@
 Language:        C
 ColumnLimit:     80
 IndentWidth:     4
-Standard:        C7
+Standard:        C17

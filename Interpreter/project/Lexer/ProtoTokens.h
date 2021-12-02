@@ -85,7 +85,7 @@ Token* Token_Init(ETokenType _type, str _value);
 
 
 ForceInline
-const struct TokenStrEntry ptr
+const struct TokenStrEntry*
 Internal_TokenTo()
 {
 	const static

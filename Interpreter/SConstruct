@@ -18,6 +18,10 @@ Platforms           = []
 Platform_Options    = {}
 Platform_Flags      = {}
 
+
+
+#region Tooling
+
 def lldName() :
 	if os.name == "nt" :
 		return "lld-link"
@@ -25,10 +29,18 @@ def lldName() :
 clang    = "clang"
 clang_cl = "clang-cl"
 gcc      = "gcc"
-msvc     = "cl"
+msvc     = "msvc"
 
 gnu_link = "link"
 lld      = lldName()
+# Link has been hjacked on my system in PATHS with devkit pro msys....
+
+# Not working for some reason...
+mslink   = "mslink"
+
+#endregion Tooling
+
+
 
 #region Standard Library
 
@@ -60,22 +72,34 @@ if (os.name == "nt") :
 		r"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.30.30705\include"
 	])
 	
-	
 #endregion Standard Library
 
-#region Translation Units to compile
 
-ProjDir     = "./project/"
+
+#region Context Units Specification
+
+Config_Dir    = "./Config/"
+PAL_Dir       = "./PAL/"
+ProjDir       = "./Project/"
+ThirdPartyDir = "./ThirdParty/"
+
 Directories = [
+# Config 
+	Config_Dir,
+# Third-Party
+	ThirdPartyDir,
+# ALs
+	PAL_Dir,
+	PAL_Dir + "LAL",
+	PAL_Dir + "OSAL",
+	PAL_Dir + "TPAL",
+# Project
+	ProjDir,
 	ProjDir + "Core",
-	ProjDir + "LAL",
 	ProjDir + "Lexer",
-	ProjDir + "PAL",
-	ProjDir + "PAL/OSAL",
 	ProjDir + "Parser",
 	ProjDir + "Shell",
 ]
-
 
 SourceFiles = []
 for directory in Directories :
@@ -89,9 +113,11 @@ for directory in Directories :
 
 
 # Currenlty not used, but is the entrypoint specification unit.
-EntrypointFile = "./project/PAL/OSAL/OSAL_Entrypoint.c"
+EntrypointFile = "./PAL/OSAL/OSAL_Entrypoint.c"
 
-#endregion Translation Units to compile
+#endregion Context Units Specification
+
+
 
 # region Third-party Libraries
 
@@ -106,54 +132,122 @@ Libraries = [
 
 
 
-# Build Environment
+#region Tooling Configuration
 
-ar_Flags        = []
+# Archiver (Static Library)
+
+AR_Flags = []
+AR_Msg   = "Archiving $TARGET"
+
+# Assembler
+
+Assembler = None;
+AS_Flags  = []
+Asm_Msg   = "Assembling unit $TARGET"
+
+# C
+
 C_Compiler      = clang
+C_Msg           = "Compiling C unit $TARGET"
 C_Defines       = []
 C_Flags         = [
+# MSVC
+	# "/std:c17",
+	# "-D_DEBUG"
+	# "-DUNICODE",
+	# "-D_UNICODE",
+	# "-Z7",
+# Clang / GCC
 	"-std=c17", 
-	"-Wall", 
+	"-O0",
+	"-fno-limit-debug-info",
+	"-gfull",
+	"-DDEBUG",
 	"-Wno-unused-function",
 	"-Wno-unused-variable",
 	"-Wno-unknown-pragmas",
-	"-Wno-incompatible-pointer-types-discards-qualifiers"
+	"-Wno-incompatible-pointer-types-discards-qualifiers",
+	# "-E",
+# Any
+	"-Wall", 
+	# '-Werror'
 ]
-# Cpp_Defines 	= {}
-# Cpp_Flags 		= ['-Wall']#, '-Werror']
-# Cxx_Flags 		= ['-std=c++17']
+C_Suffixes = [
+	".h",
+	".c"
+]
+
+# C++
+
+Cpp_Compiler    = None
+Cpp_Msg         = "Compiling C++ unit $TARGET"
+Cpp_Defines 	= []
+
+Cpp_Suffixes = [
+	".hpp",
+".cpp",
+	".tpp"
+]
+ 
+# C/C++
+Cxx_Flags 		= [
+]
+Cpp_Flags 		= [
+	# "-std=c++17",
+	# '-Wall',
+	# '-Werror',
+]
+
+# Linker
+
 Linker          = lld
+Link_Msg        = "Linking $TARGET"
 Link_Flags      = [
-	
 ]
 
-# print("CC is: " + Env.subst('$CC'))
-# print("CCCOM is: " + Env['CCCOM'])
+#endregion Tooling Configuration
 
-Env = Environment();
 
-# if (C_Compiler == clang) :
-	# Env.Tool("clang")
+
+#region Build Environment
+
+Env = Environment()
+
 Env.Tool(C_Compiler)
-
-
 Env.PrependENVPath("PATH", os.getenv("PATH"))
 
-
-# Configuration
 Env.Replace \
 (
-	ARFLAGS    = ar_Flags,
-	ARCOMSTR   = "Archiving $TARGET",
-	CCFLAGS    = C_Flags,
-	CPPPATH    = Directories,
+	# Archive
+	# ARFLAGS    = AR_Flags,
+	ARCOMSTR   = AR_Msg,
+	
+	# C
+	CC          = C_Compiler,
+	CFLAGS      = C_Flags ,
+	CFILESUFFIX = C_Suffixes,
+	CPPPATH     = Directories,
+	CCCOMSTR    = C_Msg,
+	
+	# C++
+	CXX           = Cpp_Compiler,
+	CXXCOMSTR     = Cpp_Msg,
+	CXXFILESUFFIX = Cpp_Suffixes,
+	
+	# C/C++
+	CCFLAGS  = Cxx_Flags,
+	CXXFLAGS = Cpp_Flags,
+	CPPFLAGS = C_Defines,
+
+	# Libraries
 	LIBS       = Libraries,
 	LIBPATH    = LibraryDirs,
+
+	# Linker
 	LINK       = Linker,
-	LINKCOMSTR = "Linking $TARGET",
+	LINKCOMSTR = Link_Msg,
 	# LINKFLAGS  = Link_Flags
 )
-
 
 
 #region Release Env
@@ -170,16 +264,13 @@ Env.Replace \
 #endregion Debug Env
 
 
-
 # Name of the program binary
 targetName  = "masi"
-buildPath   = "../build/"
+buildPath   = "./Binaries/"
 
 # VariantDir(buildPath, ProjDir)
 
-
-
-# Env.Append
+#endregion  Build Environment
 
 
 	
@@ -197,9 +288,16 @@ buildPath   = "../build/"
 
 #region Building
 
-# See https://www.scons.org/doc/0.92/HTML/scons-user/x595.html
-SetOption('implicit_cache', 1)
-# SetOption('max-drift', 1)
+#region GoFast     https://github.com/SCons/scons/wiki/GoFastButton
+# Env.Decider('MD5-timestamp')
+# MaxDriftValue = 2
+
+# SetOption("max-drift", MaxDriftValue)
+# SetOption("implicit-deps-unchanged", 1)
+
+SetOption("implicit_cache", 1)
+#endregion GoFast
+	
 
 # Build default target
 defaultTarget = Env.Program(targetName, SourceFiles)
@@ -208,10 +306,10 @@ defaultTarget = Env.Program(targetName, SourceFiles)
 Default(defaultTarget)
 
 # Arrange for the program to be copied into a destination directory
-Env.Install(buildPath, defaultTarget)
+# Env.Install(buildPath, defaultTarget)
 
 # Setup a cli arg for specifing the build (install) path.
-Env.Alias('default', buildPath)
+# Env.Alias('default', buildPath)
 
 #endregion Building
 

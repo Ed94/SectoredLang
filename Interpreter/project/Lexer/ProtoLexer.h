@@ -6,7 +6,7 @@
 
 struct Lexer
 {
-	u32   Index;
+	u64   Index;
 	str   Contents;	
 	uDM   ContentSize;
 	schar CurrentChar;

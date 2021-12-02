@@ -37,7 +37,7 @@ MemBlock* AllocTable_Add(AllocTable* _memoryArray)
 			_memoryArray->Array, 
 			(_memoryArray->Length + 1) 
 		);
-
+		
 		if (resizeIntermediary != nullptr)
 		{
 			_memoryArray->Array = resizeIntermediary;
@@ -114,7 +114,7 @@ void ScopedDealloc(AllocTable* _scopedMemory)
 
 void* Internal_Mem_GlobalAlloc(uDM _sizeOfAllocation)
 {
-	MemBlock* newBlock = AllocTable_Add(ptrof(GlobalMemory));
+	MemBlock* newBlock = AllocTable_Add(ptrof GlobalMemory);
 		
 	newBlock->Size     = _sizeOfAllocation;
 	newBlock->Location = Mem_Alloc(byte, _sizeOfAllocation);
@@ -132,7 +132,7 @@ void* Internal_Mem_GlobalAlloc(uDM _sizeOfAllocation)
 
 void* Internal_Mem_GlobalAllocClear(uDM _sizeOfAllocation)
 {
-	MemBlock* newBlock = AllocTable_Add(ptrof(GlobalMemory));
+	MemBlock* newBlock = AllocTable_Add(ptrof GlobalMemory);
 		
 	newBlock->Size     = _sizeOfAllocation;
 	newBlock->Location = Mem_AllocClear(byte, _sizeOfAllocation);

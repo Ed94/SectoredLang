@@ -4,6 +4,6 @@
 #define ZPL_IMPL
 //#define ZPL_STRING
 //#define ZPL_NANO
-		#include "zpl/zpl.h"
+		#include "zpl.h"
 #endif
 

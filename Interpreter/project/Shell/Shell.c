@@ -7,15 +7,14 @@ void RunShell(void)
 	Log("MAS Interpreter Shell");
 	LogF(">");
 	
-	String  line    = {};
+	String  line    = { 0, nullptr };
 	uDM     length  = 0;
 	
 #define linePtr ptrof(line)
-	IO_ReadLine(IO_StdIn, String_str(linePtr), ptrof(length)); 
-
-	String_SetLength(ptrof(line), length);
+	IO_ReadLine(IO_StdIn, linePtr.Data, ptrof(length)); 
+	line.Length = length;
 	
-	Log(StringTo_str(linePtr));
+	Log(line.Data);
 #undef linePtr
 }
 

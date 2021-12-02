@@ -2,7 +2,7 @@
 
 
 struct Lexer
-LexerObj = {};
+LexerObj = { 0, nullptr, 0, 0 };
 
 
 #define Index       LexerObj.Index
@@ -32,8 +32,8 @@ NoLink ForceInline
 bool IsFormmatting() 
 {
 	return 
-		CurrentChar == Tok_Comp_WS
-	||	CurrentChar == Tok_Comp_Null
+	    CurrentChar == Tok_Comp_WS
+	||  CurrentChar == Tok_Comp_Null
 	||  CurrentChar == Tok_Fmt_Tab
 	||  CurrentChar == Tok_Fmt_CR
 	||  CurrentChar == Tok_Fmt_NL
@@ -222,7 +222,7 @@ Token* Lexer_CollectSymbol()
 			Fatal_Throw("Failed to collect symbol, something went wrong with allocation or formmatting.");
 			return nullptr;
 		}
-
+		
 		Lexer_Jump(collectLength - 1);
 		
 		switch (ToToken(collectedStr))

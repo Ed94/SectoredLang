@@ -1,8 +1,6 @@
 #ifndef Shell__DEF
 
-#include "LAL.h"
-#include "Dev.Log.h"
-
+#include "Core.h"
 
 
 void RunShell(void);

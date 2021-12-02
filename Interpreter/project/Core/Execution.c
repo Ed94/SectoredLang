@@ -1,12 +1,9 @@
-#include "OSAL.h"
-#include "LAL.h"
 // Core
-#include "Dev.Log.h"
+#include "Core.h"
 // Lexer
 #include "ProtoLexer.h"
 // Shell
 #include "Shell.h"
-
 
 #pragma region StaticData
 
@@ -16,8 +13,7 @@ EnvArgsArray = nullptr;
 
 static 
 String 
-	StreamBuffer    = {}, 
-ptr StreamBufferPtr = ptrof StreamBuffer;
+StreamBuffer = { 0, nullptr };
 
 #pragma endregion StaticData
 
@@ -49,12 +45,12 @@ void Console_PrintEnvArguments(void)
 
 void ProcessFile(void)
 {
-	Log("Checking first argument for file.");		
+	Log("Checking first argument for file.");
 
 	String* 
 	filePath = strTo_String(EnvArgsArray->Arguments[1]);
 
-	LogF(sl"Opening File: %s\n", dref String_str(filePath));
+	LogF(sl"Opening File: %s\n", filePath->Data);
 	
 	IO_Stream* 
 	FileStream = nullptr;
@@ -79,7 +75,7 @@ void ProcessFile(void)
 		return;
 	}
 	
-	str rawBuffer = dref String_str(StreamBufferPtr);
+	str rawBuffer = StreamBuffer.Data;
 	
 	IO_Read(FileStream, rawBuffer, 1, _4K);
 
@@ -87,9 +83,9 @@ void ProcessFile(void)
 	LogF("%s\n", rawBuffer);
 }
 
-void LexStream()
+void LexStream(void)
 {
-	Lexer_Init(StringTo_str(StreamBufferPtr));
+	Lexer_Init(StreamBuffer.Data);
 
 	Log("Streaming Tokens:");
 	
