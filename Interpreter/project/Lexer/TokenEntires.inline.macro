@@ -1,17 +1,18 @@
 // Universal
-
 		Entry(Params_PStart)
 		Entry(Params_PEnd)
 	
 		Entry(OP_Assign)
 
+		Entry(Literal_Digit)
 		Entry(Literal_String)
 		
 		Entry(Def_Start)
 		Entry(Def_End)
 		
 		Entry(Sym_TType)
-		Entry(Sym_User)
+		Entry(Sym_Identifier)
+		Entry(Sym_Invalid)
 		
 // Layer 0
         Entry(Sec_Static)

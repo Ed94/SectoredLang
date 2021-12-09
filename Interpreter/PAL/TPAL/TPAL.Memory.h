@@ -1,5 +1,7 @@
-#if defined(LAL_zpl) && !defined(TPAL_Memory_zpl__Def)
-#                        define  TPAL_Memory_zpl__Def
+#if defined(TPAL_zpl)             \
+&& !defined(TPAL_Memory_zpl__Def)
+#   define  TPAL_Memory_zpl__Def
+
 
 ForceInline 
 void* Internal_Mem_Alloc(uDM _amount)
@@ -20,6 +22,12 @@ void* Internal_Mem_AllocClear(uDM _num, uDM _amount)
 	}
 	
 	return nullptr;
+}
+
+ForceInline
+void* Internal_Mem_Resize(void* _memoryAddress, sDM _oldSize, sDM _newSize)
+{
+	return zpl_resize(zpl_heap(), _memoryAddress, _oldSize, _newSize);
 }
 
 ForceInline

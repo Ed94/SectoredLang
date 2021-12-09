@@ -1,4 +1,4 @@
-#ifndef LAL_Def
+#ifndef LAL__Def
 
 /*
 Langauge Abstraction Layer
@@ -8,8 +8,10 @@ for the langauge, and wrapper for supported libraries to use over the
 platform impelemetnation of the standard STL.
 */
 
+#include "TPAL.h"
+
 #include "Config.LAL.h"
-#include "LAL.C_STL.h"
+
 #include "LAL.Bit.h"
 #include "LAL.Declarations.h"
 #include "LAL.Exception.h"
@@ -20,5 +22,5 @@ platform impelemetnation of the standard STL.
 #include "LAL.Types.h"
 
 
-#define LAL_Def
+#define LAL__Def
 #endif

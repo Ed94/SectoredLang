@@ -1,10 +1,14 @@
 #ifndef LAL_Memory__Def
 #define LAL_Memory__Def
 
-#include "LAL.C_STL.h"
+#include "TPAL.h"
+#include "Config.LAL.h"
 #include "LAL.Declarations.h"
 #include "LAL.Types.h"
 
+#ifdef obj
+#   undef obj
+#endif
 
 // Memory Sizes
 
@@ -22,10 +26,12 @@
 
 // Addressing Operation Wrappers
 
+#define ro(__TYPE)      __TYPE const
 #define ptr(__TYPE)     __TYPE*
 #define ro_ptr(__TYPE)  __TYPE* const
 #define dref            *
 #define ptrof           &
+// #define obj(__PTR)      (*__PTR)
 
 // Addressing Type
 
@@ -34,12 +40,8 @@ typedef    void* restrict    Void_RPtr;
 
 #define    fnPtr(__NAME)   (*__NAME)
 
-#define FatTypedef(__TYPE, __ALIAS)             \
-typedef __TYPE __ALIAS;                         \
-struct __ALIAS##Ptr { __TYPE val; }             \
-
 #define Ptr(__TYPE) \
-struct __TYPE##Ptr
+__TYPE##Ptr
 
 struct FatPtr
 {
@@ -67,6 +69,7 @@ struct FatPtr##__TYPE   \
 
 void* Internal_Mem_Alloc     (uDM _amount);
 void* Internal_Mem_AllocClear(uDM _num, uDM _amount);
+void* Internal_Mem_Resize    (void* _memoryAddress, sDM _oldSize, sDM _newSize);
 void           Mem_Dealloc   (void* _memoryToDeallocate);
 
 void* Internal_Mem_FormatByFill  (void* _memoryAddress, s32         _fillValue,  uDM _sizeOfData);
@@ -77,6 +80,9 @@ cast(_type*)Internal_Mem_Alloc(sizeof(_type) * _numberToAllocate)
 
 #define              Mem_AllocClear(_type, _numberToAllocate) \
 cast(_type*)Internal_Mem_AllocClear(_numberToAllocate, sizeof(_type));
+
+#define              Mem_Resize(_type, _memoryAddress, _currentNumber, _numberDesired) \
+cast(_type*)Internal_Mem_Resize(_memoryAddress, sizeof(_type) * _currentNumber, sizeof(_type) * _numberDesired);
 
 #define              Mem_FormatByFill(_type, _memoryAddress, _fillValue, _sizeOfAllocation) \
 cast(_type*)Internal_Mem_FormatByFill(_memoryAddress, _fillValue, sizeof(_type) * _sizeOfAllocation)
@@ -93,7 +99,7 @@ cast(_type*)Internal_Mem_FormatWithData(_memoryAddress, _dataSource, sizeof(_typ
 // Never frees global allocation until application closes. 
 // Only should be used with small programs that do not need a better solution.
 
-#ifdef LAL_Use_BasicMemoryManager
+// #ifdef LAL_Use_BasicMemoryManager
 struct MemBlock
 {
 	uDM     Size;
@@ -158,56 +164,12 @@ cast(_type*)Internal_Mem_ScopedAllocClear(ptrof(scopedMemory), sizeof(_type) * _
 	return _value;                                  \
 }
 
-#endif // LAL_Use_BasicMemoryManager
+// #endif // LAL_Use_BasicMemoryManager
 #pragma endregion BasicMemoryManager
 
 
-// Implementation
-
-#if     defined(LAL_Memory_CustomImpl)
-
-		// Insert custom definition body here...
-
-#elif   defined(LAL_zpl)
-#       include "TPAL.Memory.zpl.h"
-
-#else  // Use Platform STL
-
-ForceInline 
-void* Internal_Mem_Alloc(uDM _amount)
-{
-	return malloc(_amount);
-}
-
-ForceInline
-void* Internal_Mem_AllocClear(uDM _num, uDM _amount)
-{
-	return calloc(_num, _amount);
-}
-
-ForceInline
-void Mem_Dealloc(void* _memoryToDeallocate)
-{
-	free(_memoryToDeallocate);
-}
-
-ForceInline 
-void* Internal_Mem_FormatByFill(void* _memoryAddress, s32  _fillValue, uDM _sizeOfData)
-{
-	return memset(_memoryAddress, _fillValue, _sizeOfData);
-}
-
-ForceInline
-void* Internal_Mem_FormatWithData(void* _memoryAddress, const void* _dataSource, uDM _sizeOfData)
-{
-	return memcpy(_memoryAddress, _dataSource, _sizeOfData);
-}
-
-#endif
+// TPAL Implementation
+#include "TPAL.Memory.h"
 
 
 #endif // LAL_Memory__Def
-
-
-// Not necesssary
-// #define UsingNamespace__LAL_Memory

@@ -1,4 +1,6 @@
-#ifndef LAL_Unicode_zpl__Def
+#if defined(TPAL_zpl) \
+&& !defined(TPAL_Unicode__Def)
+#   define  TPAL_Unicode__Def
 
 // Note main interface is based directly off of zpl.
 
@@ -34,5 +36,5 @@ sDM rune_Decode(const utf8* _str, sDM _length, rune* _rune);
 sDM rune_Size  (const utf8* _str, sDM _length);
 
 
-#define LAL_Unicode_zpl__Def
-#endif
+#endif // TPAL_Unicode__Def
+

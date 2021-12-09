@@ -1,4 +1,4 @@
-#include "ProtoLexer.h"
+#include "Lexer.h"
 
 
 struct Lexer
@@ -10,6 +10,7 @@ LexerObj = { 0, nullptr, 0, 0 };
 #define ContentSize LexerObj.ContentSize
 #define CurrentChar LexerObj.CurrentChar
 
+
 NoLink ForceInline
 bool IsEndOfContent()
 {
@@ -17,6 +18,12 @@ bool IsEndOfContent()
 	   CurrentChar == Tok_Comp_EOF 
 	|| Index >= ContentSize
 	;
+}
+
+NoLink ForceInline
+bool IsDigit()
+{
+	return schar_IsDigit(CurrentChar);
 }
 
 NoLink ForceInline
@@ -45,17 +52,23 @@ bool IsFormmatting()
 #pragma region Public
 
 void
-Lexer_Init(str _contents)
+Lexer_Init(const String* _contents)
 {
 	Log("Lexer_Init");
 
-	Contents    = _contents;
+	Contents    = _contents->Data;
 	Index       = 0;
 	CurrentChar = Contents[Index];
 	ContentSize = str_Length(Contents);
 
 	// LogF("\n I have no idea why... %s\n", TokenTo[0].Str);
-	TokenTo[0].Str;
+	// TokenTo[0].Str;
+}
+
+void
+Lexer_Tokenize()
+{
+	
 }
 
 void 
@@ -106,7 +119,12 @@ Token* Lexer_NextToken()
 		}
 		
 		enum TokenType
-		Type = EToken_Invalid;
+		Type = Token_Invalid;
+		
+		if (IsDigit())
+		{
+			return Lexer_CollectDecimal();
+		}
 		
 		if (IsSymbol())
 		{
@@ -140,14 +158,11 @@ Token* Lexer_NextToken()
 			break;
 		}
 		
-		// Single symbol tokens handling
-		return Lexer_AdvWithToken(Token_Init(Type, scharTo_str(CurrentChar)));
+		// Known value  tokens
+		return Lexer_AdvWithToken(Token_Init(Type, scharTo_String(CurrentChar)));
 	}
 	
-	Log("\nReached EOF");
-	
-	// Fatal_NoEntry("Lexer_NextToken");
-	return nullptr;
+	return Token_EOF;
 }
 
 Token* Lexer_AdvWithToken(Token* _token)
@@ -157,10 +172,60 @@ Token* Lexer_AdvWithToken(Token* _token)
 	return _token;
 }
 
+Token* Lexer_CollectDecimal()
+{
+	uDM
+	collectLength = 1,
+	collectIndex = Index;
+	
+	schar collectChar = Contents[collectIndex];
+	
+	while (collectChar == IsDigit())
+	{
+		collectChar = Contents[collectIndex ++];
+		collectLength++;
+	}
+	
+	if (collectLength)
+	{
+		String* collectedDigits = String_MakeReserve(collectLength);
+		
+		if (! collectedDigits)
+		{
+			Fatal_Throw("Failed to reserve string.");
+			return nullptr;
+		}
+		
+		collectedDigits->Data = Mem_FormatWithData
+		(schar, 
+			collectedDigits->Data, 
+			ptrof Contents[Index], 
+			collectLength
+		);
+		
+		collectedDigits->Data[collectLength] = Tok_Comp_Null;
+		
+		if (! collectedDigits)
+		{
+			Fatal_Throw("Failed to collect decimal literal, something went wrong with allocation or formmatting.");
+			return nullptr;
+		}
+		
+		Lexer_Jump(collectLength);
+		
+		return Token_Init(Literal_Digit, collectedDigits);
+	}
+	else
+	{
+		Fatal_Throw("Could not collect valid decimal literal...");
+		return nullptr;
+	}
+}
+
 Token* Lexer_CollectStr()
 {
 	uDM 
-	collectLength = 1, 
+	collectLength = 0, 
 	collectIndex  = Index + 1;
 	
 	schar collectChar = Contents[collectIndex];
@@ -174,10 +239,10 @@ Token* Lexer_CollectStr()
 	if (collectLength)
 	{
 		str 
-		collectedStr = Mem_GlobalAllocClear(schar, collectLength -1 );
-		collectedStr = Mem_FormatWithData(schar, collectedStr, ptrof Contents[Index + 1], collectLength -2);
+		collectedStr = Mem_GlobalAllocClear(schar, collectLength);
+		collectedStr = Mem_FormatWithData(schar, collectedStr, ptrof Contents[Index + 1], collectLength -1);
 
-		collectedStr[collectLength -1] = Tok_Comp_Null;
+		collectedStr[collectLength] = Tok_Comp_Null;
 		
 		if (! collectedStr)
 		{
@@ -187,7 +252,7 @@ Token* Lexer_CollectStr()
 
 		Lexer_Jump(collectLength + 1);
 		
-		return Token_Init(Literal_String, collectedStr);	
+		return Token_Init(Literal_String, String_Make(collectedStr, collectLength));	
 	}
 	else
 	{
@@ -229,7 +294,7 @@ Token* Lexer_CollectSymbol()
 		{
 		#define InitIf(_token)  \
 		case _token :           \
-			return Token_Init(_token, collectedStr);
+			return Token_Init(_token, String_Make(collectedStr, collectLength));
 			
 			// Unversal
 
@@ -248,7 +313,7 @@ Token* Lexer_CollectSymbol()
 				break;
 		}
 		
-		return Token_Init(Sym_User, collectedStr);	
+		return Token_Init(Sym_Identifier, String_Make(collectedStr, collectLength));	
 	}
 	else
 	{

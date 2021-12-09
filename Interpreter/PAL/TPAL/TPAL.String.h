@@ -1,8 +1,6 @@
-#if defined(LAL_zpl) && !defined(TPAL_String_zpl__Def)
-#                        define  TPAL_String_zpl__Def
-
-#include "LAL.C_STL.h"
-#include "LAL.String.h"
+#if defined(TPAL_zpl)               \
+&& !defined(TPAL_String_zpl__Def)
+#   define  TPAL_String_zpl__Def
 
 
 #pragma region Narrow
@@ -10,13 +8,19 @@
 ForceInline 
 bool nchar_IsAlpha(nchar _char)
 {
-	return zpl_isalpha(_char);	
+	return zpl_char_is_alpha(_char);	
 }
 
 ForceInline
 bool nchar_IsAlphaNumeric(nchar _char)
 {
-	return zpl_isalphanumeric(_char);
+	return zpl_char_is_alphanumeric(_char);
+}
+
+ForceInline
+bool nchar_IsDigit(nchar _char)
+{
+	return zpl_char_is_digit(_char);
 }
 
 ForceInline 
@@ -28,17 +32,22 @@ s32 nstr_Compare(ro_nstr _str1, ro_nstr _str2)
 ForceInline
 ErrorType nstr_Concat
 (
-	nstr    restrict _appendStr_out, uDM _appendStrSize,
-	ro_nstr restrict _copyStr_in,    uDM _copyStrSize
+   nstr             _dest_out,   uDM _destSize,
+   ro_nstr restrict _srcStrA_in, uDM _srcStrSizeA,
+   ro_nstr restrict _srcStrB_in, uDM _srcStrSizeB
 )
 {
-	return zpl_strncat_s
+	if (! _dest_out)
+		return -1;
+
+	zpl_str_concat
 	(
-		_appendStr_out, 
-		_appendStrSize, 
-		_copyStr_in, 
-		_copyStrSize
+		_dest_out,  _destSize,
+		_srcStrA_in, _srcStrSizeA,
+		_srcStrB_in, _srcStrSizeB
 	);
+	
+	return 0;
 }
 
 ForceInline
@@ -48,7 +57,14 @@ ErrorType nstr_Copy
 	ro_nstr restrict _source_in
 )
 {
-	return zpl_strncpy(_self, _source_in, _selfSize);
+	nstr result = zpl_strncpy(_self, _source_in, _selfSize);
+	
+	if (! result)
+	{
+		return -1;
+	}
+	
+	return 0;
 }
 
 ForceInline
@@ -73,30 +89,31 @@ s32 nstr_FormatV(nstr restrict _string_out, uDM _stringLength, ro_nstr restrict 
 ForceInline
 uDM nstr_Length(ro_nstr _self)
 {
-	return strlen(_self);
+	// return strlen(_self);
+	return zpl_strlen(_self);
 }
 
 ForceInline 
-s32 nStr_StdWrite(IO_StdStream* restrict _stream_in, ro_nstr _format, ...)
+s32 nStr_StdWrite(IO_Std* restrict _stream_in, ro_nstr _format, ...)
 {
 	s32     result;
 	va_list argList;
 
 	va_start(argList, _format);
 		// No support for zpl_files yet.
-		// result = zpl_printf_va(_stream_in, _format, argList);
-		result = vfprintf_s(_stream_in, _format, argList);
+		result = zpl_fprintf_va(_stream_in, _format, argList);
+		// result = vfprintf_s(_stream_in, _format, argList);
 	va_end(argList);
 
 	return result;
 }
 
 ForceInline 
-s32 nstr_StdWriteV(IO_StdStream* restrict _stream_in, ro_nstr _format, va_list _argList)
+s32 nstr_StdWriteV(IO_Std* restrict _stream_in, ro_nstr _format, va_list _argList)
 {
 	// No support for zpl_files yet.
-	// return zpl_printf_va(_stream_in, _format, _argList);
-	return vfprintf_s(_stream_in, _format, _argList);
+	return zpl_fprintf_va(_stream_in, _format, _argList);
+	// return vfprintf_s(_stream_in, _format, _argList);
 }
 
 #pragma endregion Narrow
@@ -124,6 +141,12 @@ void String_Concat(void)
 {
 }
 
+ForceInline
+bool String_IsEqual(String* restrict _string_in, String* restrict _other_in)
+{
+	return zpl_string_are_equal(_string_in->Data, _other_in->Data);
+}
+
 ForceInline 
 void String_SetLength(String* _string, uDM _length)
 {
@@ -135,4 +158,4 @@ void String_SetLength(String* _string, uDM _length)
 #pragma endregion Character_String_Generics
 
 
-#endif // LAL_String_zpl__Def
+#endif // TPAL_String_zpl__Def

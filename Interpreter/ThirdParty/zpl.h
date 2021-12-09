@@ -7824,6 +7824,30 @@ License:
 #    pragma GCC diagnostic pop
 #endif
 
+#if defined(ZPL_EXPOSE_TYPES)
+    typedef zpl_u8 u8;
+    typedef zpl_i8 i8;
+    typedef zpl_u16 u16;
+    typedef zpl_i16 i16;
+    typedef zpl_u32 u32;
+    typedef zpl_i32 i32;
+    typedef zpl_u64 u64;
+    typedef zpl_i64 i64;
+    typedef zpl_b8 b8;
+    typedef zpl_b16 b16;
+    typedef zpl_b32 b32;
+    typedef zpl_f32 f32;
+    typedef zpl_f64 f64;
+    typedef zpl_rune rune;
+    typedef zpl_usize usize;
+    typedef zpl_isize isize;
+    typedef zpl_uintptr uintptr;
+    typedef zpl_intptr intptr;
+#endif // ZPL_EXPOSE_TYPES
+
+#endif // ZPL_H
+
+// #define ZPL_IMPLEMENTATION
 #if defined(ZPL_IMPLEMENTATION) && !defined(ZPL_IMPLEMENTATION_DONE)
 #define ZPL_IMPLEMENTATION_DONE
 
@@ -18044,28 +18068,7 @@ License:
 #    undef zpl__strlen
 #endif
 
-#if defined(ZPL_EXPOSE_TYPES)
-    typedef zpl_u8 u8;
-    typedef zpl_i8 i8;
-    typedef zpl_u16 u16;
-    typedef zpl_i16 i16;
-    typedef zpl_u32 u32;
-    typedef zpl_i32 i32;
-    typedef zpl_u64 u64;
-    typedef zpl_i64 i64;
-    typedef zpl_b8 b8;
-    typedef zpl_b16 b16;
-    typedef zpl_b32 b32;
-    typedef zpl_f32 f32;
-    typedef zpl_f64 f64;
-    typedef zpl_rune rune;
-    typedef zpl_usize usize;
-    typedef zpl_isize isize;
-    typedef zpl_uintptr uintptr;
-    typedef zpl_intptr intptr;
-#endif // ZPL_EXPOSE_TYPES
 
-#endif // ZPL_H
 
 // TOC:
 // zpl.h

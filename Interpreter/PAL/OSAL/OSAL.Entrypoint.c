@@ -34,7 +34,7 @@ OSAL_GetEnvArgs(void)
 #ifdef WIN32
 
 int 
-WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /* hPrevInstance */, LPSTR /* lpCmdLine */, int /* nShowCmd */)
+WINAPI WinMain(HINSTANCE /*hInstance*/, HINSTANCE /* hPrevInstance */, LPSTR /* lpCmdLine */, int /* nShowCmd */)
 {
 	// OSAL_Record_EntryPoint_StartExecution();
 

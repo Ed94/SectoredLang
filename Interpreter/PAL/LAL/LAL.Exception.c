@@ -1,9 +1,9 @@
 #include "LAL.Exception.h"
 
 #include "LAL.IO.h"
-#include "LAL.Memory.h"
 
 
+#pragma region Exceptions
 void Exception_Throw(str _message)
 {
 	IO_StdWrite(IO_StdError, "\nError: %s\n", _message);
@@ -28,8 +28,10 @@ void Exception_NotImplemented(str _message)
 {
 	IO_StdWrite(IO_StdError, "\nError: %s\n", _message);
 }
+#pragma endregion Exceptions
 
 
+#pragma region Fatals
 void Fatal_Throw(str _message)
 {
 	IO_StdWrite(IO_StdError, "\nError: %s\n", _message);
@@ -64,4 +66,5 @@ void Fatal_NotImplemented(str _message)
 
 	assert(false);
 }
+#pragma endregion Fatals
 

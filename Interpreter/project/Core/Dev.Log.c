@@ -8,7 +8,6 @@ void Log(ro_str _message)
 
 void LogF(ro_str _message, ...)
 {
-	s32     result;
 	va_list argList;
 
 	va_start(argList, _message);

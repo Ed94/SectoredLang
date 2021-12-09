@@ -1,7 +1,11 @@
 #ifndef LAL_Exception__Def
+#define LAL_Exception__Def
 
-#include "LAL.C_STL.h"
+#include "TPAL.h"
+#include "Config.LAL.h"
+#include "LAL.Declarations.h"
 #include "LAL.String.h"
+#include "LAL.Types.h"
 
 
 ForceInline
@@ -23,6 +27,13 @@ void Fatal_NoReentry     (str _message);
 void Fatal_NotImplemented(str _message);
 
 
-#define LAL_Exception__Def
+#ifdef LAL_TryCatch
+#       define try     if (true)
+#       define catch   else catch_label :
+#       define throw   goto catch_lable
+// https://twitter.com/thradams/status/1465733687270690818?s=20
+#endif
+
+
 #endif
 

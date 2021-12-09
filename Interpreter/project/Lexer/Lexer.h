@@ -1,7 +1,7 @@
-#ifndef ProtoLexer__DEF
+#ifndef Lexer__DEF
 
 #include "Core.h"
-#include "ProtoTokens.h"
+#include "Tokens.h"
 
 
 struct Lexer
@@ -15,17 +15,22 @@ struct Lexer
 typedef struct Lexer
 Lexer;
 
-void Lexer_Init(str _contents);
+
+void Lexer_Init(const String* _contents);
+
+void Lexer_Tokenize(const String* _content);
 
 void Lexer_Advance();
 void Lexer_SkipWS ();
 
 Token* Lexer_NextToken    ();
 Token* Lexer_AdvWithToken (Token* _token);
+Token* Lexer_CollectDecimal();
 Token* Lexer_CollectStr   ();
 Token* Lexer_CollectSymbol();
 
-#define ProtoLexer__DEF
+
+#define Lexer__DEF
 #endif
 	
 

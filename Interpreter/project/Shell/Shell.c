@@ -11,10 +11,10 @@ void RunShell(void)
 	uDM     length  = 0;
 	
 #define linePtr ptrof(line)
-	IO_ReadLine(IO_StdIn, linePtr.Data, ptrof(length)); 
-	line.Length = length;
+	// IO_File_ReadLine(IO_StdIn, linePtr.Data, ptrof(length)); 
+	// line.Length = length;
 	
-	Log(line.Data);
+	// Log(line.Data);
 #undef linePtr
 }
 

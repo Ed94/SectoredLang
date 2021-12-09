@@ -1,6 +1,13 @@
 
 Parsing
 
+Code Units:
+
+Specification
+
+
+
+
 The first things parsed are the alias and meta sectors. I have not determined how these passes will be done yet.
 For now I'm going to assume a multipass of some sort may be needed to get the full context of whats going on.
 
@@ -40,6 +47,15 @@ ct  (Constant-time, Compile-Time, Cache-Time)
     Comple-time evalutates directives and/or execution
     Manipulates what code is retained.
     With interpeters, cts are used spec cache-time hinting.
+	
+static (Static Data Sector)
+	Sectors Allowed: Universal
+	Pass Priority: 4
+	
+	Allows for the specification of static data that are allocated
+	at program start.
+	
+
 
 append
     Sectors Allowed: Unit

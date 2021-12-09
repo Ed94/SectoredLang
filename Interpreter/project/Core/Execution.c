@@ -1,9 +1,9 @@
 // Core
 #include "Core.h"
 // Lexer
-#include "ProtoLexer.h"
+#include "Lexer.h"
 // Shell
-#include "Shell.h"
+// #include "Shell.h"
 
 #pragma region StaticData
 
@@ -52,13 +52,15 @@ void ProcessFile(void)
 
 	LogF(sl"Opening File: %s\n", filePath->Data);
 	
-	IO_Stream* 
-	FileStream = nullptr;
+	IO_File
+	fileStream;
 	
-	ErrorType 
-	ResultCode = IO_Open(ptrof FileStream, filePath, IO_AccessMode_Read);
+	IO_FileContent content = IO_File_ReadContent(filePath->Data, true);
+	
+	// ErrorType 
+	// resultCode = IO_File_Open(ptrof fileStream, filePath->Data, IO_AccessMode_Read);
 
-	if (ResultCode != 0)
+	if (content.Size <= 0)
 	{
 		Exception_Throw(sl"Failed to open the file.\n");
 		return;
@@ -77,7 +79,11 @@ void ProcessFile(void)
 	
 	str rawBuffer = StreamBuffer.Data;
 	
-	IO_Read(FileStream, rawBuffer, 1, _4K);
+	Mem_FormatWithData(schar, rawBuffer, content.Data, content.Size);
+
+	// uDM test = IO_File_Read(ptrof fileStream, rawBuffer, _4K);
+	
+	// rawBuffer[test -1] = '\0';
 
 	Log(sl"Contents:\n");
 	LogF("%s\n", rawBuffer);
@@ -85,7 +91,7 @@ void ProcessFile(void)
 
 void LexStream(void)
 {
-	Lexer_Init(StreamBuffer.Data);
+	Lexer_Init(ptrof StreamBuffer);
 
 	Log("Streaming Tokens:");
 	
@@ -94,13 +100,25 @@ void LexStream(void)
 	
 #define Type    currentToken->Type
 #define Value   currentToken->Value
-	for (; currentToken != nullptr; currentToken = Lexer_NextToken())	
+	for (; currentToken != nullptr && Type != Token_Invalid; currentToken = Lexer_NextToken())	
 	{
-		LogF("\nType : %-15s, Value: \"%s\"", TokenTo[Type].Str, Value);
+		LogF("\nType : %-15s, Value: \"%s\"", TokenTo[Type].Str, Value->Data);
 	}
 #undef Type
 #undef Vlaue
 }
+
+// void ParseStream()
+// {
+// 	Lexer_Init(StreamBuffer.Data);
+	
+// 	Parser_Init();
+	
+// 	// Currently we know the file passed will be a spec unit.
+// 	ast_Node* ast =  Parse(CUT_Specification);
+	
+// 	Log("Completed parse.");
+// }
 
 OS_ExitVal 
 OSAL_EntryPoint()
@@ -120,9 +138,10 @@ OSAL_EntryPoint()
 	{
 		ProcessFile();
 		
-		Log("Finished processing file...\n");
+		Log("\nFinished processing file...\n");
 		
 		LexStream();
+		// ParseStream();
 	}
 	
 	// RunShell();

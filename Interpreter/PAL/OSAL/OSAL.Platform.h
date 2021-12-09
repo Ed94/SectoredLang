@@ -24,8 +24,10 @@ enum EOS
 {
  	    EOS_Windows = 1,
 #define M_OS_Windows  1
+
 	    EOS_Mac     = 2,
 #define M_OS_Mac      2
+
 	    EOS_Linux   = 3 
 #define M_OS_Linux    3
 };
@@ -33,16 +35,16 @@ enum EOS
 
 // OS Definition
 #ifdef _WIN32
-					#define OS   EOS_Windows
-					#define M_OS M_OS_Windows
+#       define  OS      EOS_Windows
+#       define  M_OS    M_OS_Windows
 #endif
 #ifdef __MACH__
-					#define OS   EOS_Mac
-					#define M_OS M_OS_Mac
+#       define  OS      EOS_Mac
+#       define  M_OS    M_OS_Mac
 #endif
 #ifdef __linux__
-					#define OS   EOS_Linux
-					#define M_OS M_OS_Linux
+#       define  OS      EOS_Linux
+#       define  M_OS    M_OS_Linux
 #endif 
 
 #define IsWindows	M_OS == M_OS_Windows

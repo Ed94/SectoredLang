@@ -1,20 +1,24 @@
 #ifndef LAL_Declarations_Def
+#define LAL_Declarations_Def
+
+#include "Config.LAL.h"
 
 
-#define cast(__TYPE) (__TYPE)
+#define cast(__TYPE)          (__TYPE)
+#define ocast(__TYPE, __OBJ)  (*(__TYPE*)(&__OBJ))
 
 // Statics:
 
 // Creates a static duration variable only accessible to the file. (Global scope/File scope only)
-#define NoLink        static
+#define NoLink          static
 // Creates a static duration variable accessible to any file or linkage. (Global/File scope Only)
-#define ExportLink    extern
-#define ImportLink    extern
+#define ExportLink      extern
+#define ImportLink      extern
 
 // Inlines
 // Alias for an inline variable that is supposed to have a constant value, 
 // but exist in multiple definitions.
-#define multiDefs    inline
+#define multiDefs       inline
 
 
 #ifdef		LAL_ForceInlineMode_EnforceDiscretion
@@ -43,5 +47,4 @@
 #endif
 
 
-#define LAL_Declarations_Def
 #endif

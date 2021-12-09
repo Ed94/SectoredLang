@@ -1,60 +1,23 @@
-#ifndef LAL_IO__DEF
-#define LAL_IO__DEF
+/*
+Note:  This current implementation is heavily reliant on zpl.
+*/
 
-#include "LAL.C_STL.h"
+#ifndef LAL_IO__Def
+#define LAL_IO__Def
+
+#include "TPAL.h"
+#include "Config.LAL.h"
 #include "LAL.Declarations.h"
-#include "LAL.Exception.h"
-#include "LAL.Memory.h"
 #include "LAL.String.h"
 #include "LAL.Types.h"
 
 
-#define IO_StdIn    (IO_StdStream*)stdin
-#define IO_StdOut   (IO_StdStream*)stdout
-#define IO_StdError (IO_StdStream*)stderr
-
-
-#ifdef  LAL_zlib
-typedef struct gzFile_s Internal_IO_Stream;
-
-#elif   false && defined (LAL_zpl)
-typedef zpl_file        Internal_IO_Stream;
-
-#else
-typedef FILE            Internal_IO_Stream;
-#endif
-
-typedef Internal_IO_Stream
-          IO_Stream, 
-*         IO_StreamPtr,
-*restrict IO_Stream_RPtr;
-
-typedef FILE
-IO_StdStream;
-
-
 enum IO_AccessMode
 {
-	IO_AccessMode_Read   = 0,
-	IO_AccessMode_Write  = 1,
-	IO_AccessMode_Append = 2,
-
-#ifdef LAL_zlib
-	IO_AccessMode_ReadExtended   = IO_AccessMode_Read,
-	IO_AccessMode_WriteExtended  = IO_AccessMode_Write,
-	IO_AccessMode_AppendExtended = IO_AccessMode_Append,
-#else
-	IO_AccessMode_ReadExtended   = 3,
-	IO_AccessMode_WriteExtended  = 4,
-	IO_AccessMode_AppendExtended = 5,	
-#endif
-};
-
-enum IO_CompressStrat
-{
-	IO_CompressStrat_Filtered,
-	IO_CompressStrat_Huffman,
-	IO_CompressStrat_RLE,
+	IO_AccessMode_Read      = ZPL_FILE_MODE_READ,
+	IO_AccessMode_Write     = ZPL_FILE_MODE_WRITE,
+	IO_AccessMode_Append    = ZPL_FILE_MODE_APPEND,
+	IO_AccessMode_ReadWrite = ZPL_FILE_MODE_RW
 };
 
 enum IO_Constants
@@ -81,124 +44,79 @@ enum IO_CharMode
 	Wide   = 1
 };
 
-enum IO_Flush_Method
+enum IO_FileError
 {
-#ifdef LAL_zlib
-	IO_Flush_None   = Z_NO_FLUSH,
-	IO_Flush_Sync   = Z_SYNC_FLUSH,
-	IO_Flush_Finish = Z_FINISH
-#else
-	IO_Flush_None,
-	IO_Flush_Sync,
-	IO_Flush_Finish
-#endif
+	IO_FileError_None               = ZPL_FILE_ERROR_NONE,
+	IO_FileError_Invalid            = ZPL_FILE_ERROR_INVALID,
+	IO_FileError_InvalidName        = ZPL_FILE_ERROR_INVALID_FILENAME,
+	IO_FileError_Exists             = ZPL_FILE_ERROR_EXISTS,
+	IO_FileError_NotExist           = ZPL_FILE_ERROR_NOT_EXISTS,
+	IO_FileError_Permission         = ZPL_FILE_ERROR_PERMISSION,
+	IO_FileError_TruncationFailure  = ZPL_FILE_ERROR_TRUNCATION_FAILURE,
+	IO_FileError_NotEmpty           = ZPL_FILE_ERROR_NOT_EMPTY,
+	IO_FileError_NameTooLong        = ZPL_FILE_ERROR_NAME_TOO_LONG,
+	IO_FileError_Unknown            = ZPL_FILE_ERROR_UNKNOWN,
+};
+
+
+typedef struct IO_FileContent
+IO_FileContent;
+
+
+struct IO_FileContent
+{
+	zpl_allocator _Allocator;
+	byte*         Data;
+	sDM           Size;
 };
 
 
 #pragma region Functions
 
-#pragma region Private
-ForceInline
-ro_str* LAL_IO_getAccessModeString(void)
-{
-	static ro_str _AccessModeStrings[] =
-	{
-		"r",
-		"w",
-		"a",
-		"r+",
-		"w+",
-		"a+"
-	};
-	
-	return _AccessModeStrings;
-}
+IO_FileContent  IO_File_ReadContent (ro_str _path, bool _addNullTermination);
+byte32          IO_File_WriteContent(ro_str restrict _path, const void* restrict _buffer, sDM _size);
+				// MFR : Mark For Removal
+void            IO_File_ContentMFR  (IO_FileContent _content);
 
-ForceInline
-ro_str* LAL_IO_getStrategyString(void)
-{
-	static ro_str _StrategyModeStrings[] =
-	{
-		"f",
-		"h",
-		"R"
-	};
-	
-	return _StrategyModeStrings;
-}
+s32       IO_File_Close         (IO_File* _file_in);
+s64       IO_File_Cursor        (IO_File* _file_in);
+s64       IO_File_IsEOF         (IO_File* _file_in);
+byte      IO_File_GetByte       (IO_File* _file_in);
+ErrorType IO_File_Open          (IO_File* restrict _file_out, ro_str restrict _path, enum IO_AccessMode _accessMode);
+uDM       IO_File_Read          (IO_File* restrict _file_in, const void* restrict _buffer_out, sDM _size);
+uDM       IO_File_Write         (IO_File* restrict _file_in, const void* restrict _buffer_in, sDM _size);
 
-#pragma endregion 
-
-
-s32       IO_Close      (IO_Stream* _stream_in);
-	      // Will only return a message if using zlib.
-ErrorType IO_Error      (IO_Stream* restrict _stream_in, ro_str* restrict _message);
-void      IO_ErrorClear (IO_Stream* _stream_in);
-s32       IO_Flush      (IO_Stream* _stream_in, enum IO_Flush_Method _method);
-s32       IO_IsEndOfFile(IO_Stream* _stream_in);
-
-ErrorType IO_Open(IO_Stream_RPtr* restrict _stream_out, const String* restrict _path, enum IO_AccessMode _accessMode);
-ErrorType IO_OpenZ
-(
-	IO_Stream_RPtr* restrict _stream_out,
-	const String*   restrict _path,
-	enum IO_AccessMode       _accessMode,
-	u8                       _compressLevel,
-	enum IO_CompressStrat    _strategy
-);
-
-uDM       IO_Read    (IO_Stream* restrict _stream_in, void* restrict _buffer_out, uDM _size, uDM _count);
-ErrorType IO_ReadLine(IO_Stream* restrict _stream_in, str* restrict _line_out, uDM* _length_out);
-nstr      IO_Read_str(IO_Stream* restrict _stream_in, str restrict _string, s32 _count);
-
-#ifdef LAL_zlib
-	#define IO_SetCharMode(_stream_in, _mode)
-#else
-	s32 IO_SetCharMode(IO_Stream* _stream_in, enum IO_CharMode _mode);
-#endif
-
-s32 IO_StdWrite  (IO_StdStream* restrict _stream_in, ro_str restrict _format, ...);
-s32 IO_StdWriteV (IO_StdStream* restrict _stream_in, ro_str restrict _format, va_list _argList);
-uDM IO_Write     (IO_Stream* restrict _stream_in, void* restrict _buffer_in, uDM _size, uDM _count);
-s32 IO_Write_CStr(IO_Stream* restrict _stream_in, ro_str restrict _string);
+s32 IO_StdWrite  (IO_Std* restrict _file_in, ro_str restrict _format, ...);
+s32 IO_StdWriteV (IO_Std* restrict _file_in, ro_str restrict _format, va_list _argList);
 
 #pragma endregion Functions
 
 #pragma region Generics
 #pragma endregion Generics
 
-// Implementation
-
-#if     defined(LAL_zlib)
-#       include "TPAL.IO.zlib.h"
-
-#elif   false && defined(LAL_zpl)
-// Not Ready yet, zpl has a different structure to its interface,
-// will take time to adapt.
-#       include "TPAL.IO.zpl.h"
-
-#else   // Use STL
-#       include "TPAL.IO.stl.h"
-#endif
 
 ForceInline
-s32 IO_StdWrite(IO_StdStream* restrict _stream_in, ro_str restrict _format, ...)
+s32 IO_StdWrite(IO_Std* restrict _file_in, ro_str restrict _format, ...)
 {
 	s32     result;
 	va_list argList;
 
 	va_start(argList, _format);
-		result = str_StdWriteV(_stream_in, _format, argList);
+		result = str_StdWriteV(_file_in, _format, argList);
 	va_end(argList);
 		
 	return result;
 }
 
 ForceInline
-s32 IO_StdWriteV(IO_StdStream* restrict _stream_in, ro_str restrict _format, va_list _argList)
+s32 IO_StdWriteV(IO_Std* restrict _file_in, ro_str restrict _format, va_list _argList)
 {
-	return str_StdWriteV(_stream_in, _format, _argList);
+	return str_StdWriteV(_file_in, _format, _argList);
 }
+
+
+// TPAL
+#include "TPAL.IO..h"
 
 
 #endif // LAL_IO__Def

@@ -1,9 +1,8 @@
-#ifndef LAL_C_STL__Def
+#ifndef TPAL__Def
+#define TPAL__Def
 
-#include "Config.LAL.h"
+#include "Config.TPAL.h"
 
-
-// C STL Libraries
 
 #if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic push 
@@ -12,14 +11,26 @@
 
 #ifndef OSAL_Platform__Def
 // Yeet any platform grime here..
-#   define  LAL_Avoid_WindowsIssues
-#   include "LAL.Platform.h"
+#   define  TPAL_Avoid_WindowsIssues
+#   include "TPAL.Platform.h"
 #endif
 
-#ifdef LAL_STD
+#pragma region REQUIRED
 #       include <assert.h>
-#       include <ctype.h>
 #       include <errno.h>
+#       include <stdarg.h>
+#       include <stdbool.h>
+#       include <stddef.h>
+#       include <stdio.h>
+#       include <stdint.h>
+#       include <stdlib.h>
+#       include <uchar.h>
+#       include <wchar.h>
+#       include <wctype.h>
+#pragma endregion REQUIRED
+
+#ifdef TPAL_STD
+#       include <ctype.h>
 #       include <inttypes.h>
 #       include <float.h>
 #       include <math.h>
@@ -28,36 +39,23 @@
 #       include <setjmp.h>
 #       include <signal.h>
 // #       include <stdalign.h>
-#       include <stdarg.h>
 // #       include <stdatomic.h>
-#       include <stdbool.h>
-#       include <stddef.h>
-#       include <stdint.h>
-#       include <stdio.h>
-#       include <stdlib.h>
 // #       include <stdnoreturn.h>
 #       include "string.h"
 // #       include <threads.h>
 #       include <time.h>
-#       include <uchar.h>
-#       include <wchar.h>
-#       include <wctype.h>
 #endif
 
-#ifdef LAL_zpl
-		#include "zpl.h"
+#ifdef TPAL_allegro
 #endif
 
-#if defined(LAL_zlib) || defined(LAL_klib)
+#if defined(TPAL_zlib) || defined(TPAL_klib)
 // Requires posix interface.
 #       include "unistd/unistd.h"
 #       include "unistd/uni_signal.h"
 #endif
 
-#ifdef LAL_allegro
-#endif
-
-#ifdef LAL_bstring
+#ifdef TPAL_bstring
 #       include "bstrlib/bsafe.h"
 #       include "bstrlib/bstraux.h"
 #       include "bstrlib/bstrlib.h"
@@ -65,22 +63,30 @@
 #       include "bstrlib/utf8util.h"
 #endif
 
-#ifdef LAL_glib
+#ifdef TPAL_glib
 #endif
 
-#ifdef LAL_zlib
+#ifdef TPAL_Hedley
+#       include "hedley.h"
+#endif
+
+#ifdef TPAL_zlib
+//  Some klib features depend on zlib.
 #   include "zlib/zlib.h"
 	
-#   ifdef      LAL_CharWidth_Wide
-#       undef  LAL_CharWidth_Wide
-#       define LAL_CharWidth_Narrow
-// zlib does not suppor wide char.
+#   ifdef      TPAL_CharWidth_Wide
+#       undef  TPAL_CharWidth_Wide
+#       define TPAL_CharWidth_Narrow
+//      zlib does not suppor wide char.
 #   endif
+
+#   define LAL_Unsupported__IO_SetCharMode	
+//         zlib doesn't support setting character mode.
 #endif
 
-#ifdef LAL_klib
+#ifdef TPAL_klib
 
-#   ifdef LAL_zlib
+#   ifdef TPAL_zlib
 #       include "klib/bgzf.h"
 #   endif
 #       include "klib/kalloc.h"
@@ -112,13 +118,20 @@
 #       include "klib/kvec.h"
 #endif
 
-#ifdef LAL_sqlite
+#ifdef TPAL_qlib
+#       include "qlibc/qlibc.h"
+#endif 
+
+#ifdef TPAL_sqlite
 #       include "sqlite3.h"
+#endif
+
+#ifdef TPAL_zpl
+#       include "zpl.h"
 #endif
 
 #if defined(__GNUC__) || defined(__clang__)
 #   pragma GCC diagnostic pop
 #endif
 
-#define LAL_C_STL__Def
-#endif
+#endif // TPAL__Def

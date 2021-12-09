@@ -53,6 +53,7 @@ Layer 4         Declarative with dependent types
 
 symbols:
     context             Provides a designated named context unit for a project
+	description			Description for context
     modules             States what backend modules to use for program specification
     layers              Specifies which language layers are implicity allowed. (To allow none, leave empty)
     explicit layers     Whether or not layers may be explicitly allowed within units
@@ -169,7 +170,7 @@ typeof          Type Accessor           op_TypeOf
                                                         Literals
 '$'             Character               literal_Char
 0b{0-1}         Binary                  literal_Binary
-0t{0-2}         Ternary                 literal_Ternary
+0t{0-2}         Ternary          		literal_Ternary
 0o{0-7}         Octal                   literal_Octal
 0x{0-F}         Hex                     literal_Hex
 {0-9}...        Decimal Digits          literal_Digit                        
@@ -186,10 +187,7 @@ expose          Expose Definitions      sec_Expose
 if              Conditional If          sec_if
 in              Expose Member Symbols   sec_in
 layer           Explicit layer use      sec_Layer
-meta            Metaprogramming         sec_Meta
-ro              Read-only               sec_ro
-mut             Mutable                 sec_Mut
-struct          Data Structure Type     sec_Struct             
+meta            Metaprogramming         sec_Meta          
 #-------------------------------------------------------
                                                         Statements
 :               start def block         def_Start
@@ -197,7 +195,7 @@ struct          Data Structure Type     sec_Struct
 ,               Comma delimiter         def_CD
 #-------------------------------------------------------
                                                         Symbols
-{Identifier}    User defined symbol     sym_User
+{Identifier}    User defined symbol     sym_Identifier
 type            Top Type                sym_TType
 {undefined}     Invalid Token           sym_Invalid
 #====================================================================================================================
@@ -292,18 +290,31 @@ break           Jump out of block       op_break
 %=              Assign Modulo           op_A_Modulo
 #-------------------------------------------------------
                                                         Sectors
+			# Encoding
 binary          Binary  block           sec_Binary
 ternay          Ternary block           sec_Ternary
 octal           Octal   block           sec_Octal
 hex             Hex     block           sec_Hex
+
+				
+embed			Embed Data				sec_Embed
 inline          Redefine inplace        sec_Inline
-interrupt       Interrupt               sec_Interrupt
+
+			# Control Flow
 label           Label                   sec_Lable
 loop            Loop execution          sec_Loop
+
+			# Memory
 page            Paging Segments         sec_Mempage
-proc            Procedure               sec_Proc
 stack           Stack  Segment          sec_Stack
 static          Static Segment          sec_Static
+
+interrupt       Interrupt               sec_Interrupt
+proc            Procedure               sec_Proc
+
+
+ro              Read-only               sec_Ro
+struct          Data Structure Type     sec_Struct   
 #-------------------------------------------------------
                                                         Specifiers
 align           Alignment               specifier_Align
@@ -403,6 +414,7 @@ Tokens :
 interface   Dispatch Specification      sec_INTERFACE
 gc          Garbage Collector           sec_GC
 zone        Zone Memory                 sec_MEMZONE
+mut         Mutable                     sec_Mut
 #-------------------------------------------------------
                                                         Specifiers
 ref         References                  sec_ref                                                        

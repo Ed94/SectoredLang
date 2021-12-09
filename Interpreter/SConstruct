@@ -13,11 +13,29 @@ import sys
 import time
 
 
+class TextColor:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+
+print("Scons - WIP Building template")
 
 Platforms           = []
 Platform_Options    = {}
 Platform_Flags      = {}
 
+print ("Platform: " + os.name)
+
+Num_LogicalCores = int(os.environ.get('NUM_CPU', 12))
+
+print ("Logical Cores: " + str(Num_LogicalCores))
 
 
 #region Tooling
@@ -78,7 +96,7 @@ if (os.name == "nt") :
 
 #region Context Units Specification
 
-Config_Dir    = "./Config/"
+Config_Dir    = "./Config"
 PAL_Dir       = "./PAL/"
 ProjDir       = "./Project/"
 ThirdPartyDir = "./ThirdParty/"
@@ -97,7 +115,7 @@ Directories = [
 	ProjDir,
 	ProjDir + "Core",
 	ProjDir + "Lexer",
-	ProjDir + "Parser",
+	# ProjDir + "Parser",
 	ProjDir + "Shell",
 ]
 
@@ -137,26 +155,29 @@ Libraries = [
 # Archiver (Static Library)
 
 AR_Flags = []
-AR_Msg   = "Archiving $TARGET"
+AR_Msg   = TextColor.WARNING + "Archiving $TARGET"
 
 # Assembler
 
 Assembler = None;
 AS_Flags  = []
-Asm_Msg   = "Assembling unit $TARGET"
+Asm_Msg   = TextColor.WARNING + "Assembling unit $TARGET"
 
 # C
 
 C_Compiler      = clang
-C_Msg           = "Compiling C unit $TARGET"
+C_Msg           = TextColor.WARNING + f"{'Compiling C Unit':<30}{'$TARGET':<40}"
 C_Defines       = []
 C_Flags         = [
 # MSVC
 	# "/std:c17",
+	# "-Od",
 	# "-D_DEBUG"
 	# "-DUNICODE",
 	# "-D_UNICODE",
 	# "-Z7",
+	# "-d1PP"
+	# "-MT",
 # Clang / GCC
 	"-std=c17", 
 	"-O0",
@@ -168,6 +189,9 @@ C_Flags         = [
 	"-Wno-unknown-pragmas",
 	"-Wno-incompatible-pointer-types-discards-qualifiers",
 	# "-E",
+	# "-H",
+	# "-P",
+	 
 # Any
 	"-Wall", 
 	# '-Werror'
@@ -180,12 +204,12 @@ C_Suffixes = [
 # C++
 
 Cpp_Compiler    = None
-Cpp_Msg         = "Compiling C++ unit $TARGET"
+Cpp_Msg         = TextColor.WARNING + f"{'Compiling C++ Unit':<30}{'$TARGET':<40}"
 Cpp_Defines 	= []
 
 Cpp_Suffixes = [
 	".hpp",
-".cpp",
+	".cpp",
 	".tpp"
 ]
  
@@ -196,13 +220,17 @@ Cpp_Flags 		= [
 	# "-std=c++17",
 	# '-Wall',
 	# '-Werror',
+	# "-EHa"
 ]
 
 # Linker
 
 Linker          = lld
-Link_Msg        = "Linking $TARGET"
+Link_Msg        = TextColor.WARNING + f"{'Linking Unit':<30}{'$TARGET':<40}"
 Link_Flags      = [
+	"-DEBUG",
+	"-nologo",
+	"-opt:ref"
 ]
 
 #endregion Tooling Configuration
@@ -246,7 +274,7 @@ Env.Replace \
 	# Linker
 	LINK       = Linker,
 	LINKCOMSTR = Link_Msg,
-	# LINKFLAGS  = Link_Flags
+	LINKFLAGS  = Link_Flags
 )
 
 
@@ -289,13 +317,8 @@ buildPath   = "./Binaries/"
 #region Building
 
 #region GoFast     https://github.com/SCons/scons/wiki/GoFastButton
-# Env.Decider('MD5-timestamp')
-# MaxDriftValue = 2
-
-# SetOption("max-drift", MaxDriftValue)
-# SetOption("implicit-deps-unchanged", 1)
-
 SetOption("implicit_cache", 1)
+SetOption('num_jobs', Num_LogicalCores)
 #endregion GoFast
 	
 
@@ -305,6 +328,8 @@ defaultTarget = Env.Program(targetName, SourceFiles)
 # Set the default target as the default build target
 Default(defaultTarget)
 
+Progress(TextColor.ENDC + f"{'Evaluating':<15}{'$TARGET':<40}\n")
+
 # Arrange for the program to be copied into a destination directory
 # Env.Install(buildPath, defaultTarget)
 
@@ -313,4 +338,7 @@ Default(defaultTarget)
 
 #endregion Building
 
+
+
+# Dump the entire env snapshot...
 # print(Env.Dump())

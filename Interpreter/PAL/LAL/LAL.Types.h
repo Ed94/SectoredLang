@@ -1,20 +1,26 @@
 #ifndef LAL_Types__Def
 #define LAL_Types__Def
 
-#include "LAL.C_STL.h"
+#include "TPAL.h"
 
 
 // Data
 
 typedef int8_t
   byte,
-* bytePtr,
-* byteArray;
+* bytePtr;
 
 typedef int16_t
   byte16,
-* byte16Ptr,
-* byte16Array;
+* byte16Ptr;
+
+typedef int32_t
+  byte32,
+* byte32Ptr;
+
+typedef int64_t
+  byte64,
+* byte64Ptr;
 
 // Data model defined addressing sizes.
 
@@ -30,15 +36,19 @@ typedef    uintptr_t    uIntPtr;
 
 static_assert(sizeof(uIntPtr) == sizeof(sIntPtr), "sizeof(uIntPtr) != sizeof(sIntPtr)");
 
+// Characters
+
+typedef unsigned char     c8;
+typedef signed   char     sc8;
+typedef          char16_t c16;
+typedef          char32_t c32;
+
 // Integers
 
 // Flexible
 
 typedef    unsigned int    ui32;
 typedef    signed   int    si32;
-
-typedef    unsigned long   uLong;
-typedef    long            sLong;
 
 static_assert(sizeof(ui32)  == sizeof(si32), "sizeof(ui32) != sizeof(si32)");
 
@@ -81,6 +91,18 @@ typedef         double      f64;
 
 typedef errno_t
 ErrorType;
+
+// IO
+
+#define     IO_StdIn    (IO_Std*)zpl_file_get_standard(ZPL_FILE_STANDARD_INPUT)
+#define     IO_StdOut   (IO_Std*)zpl_file_get_standard(ZPL_FILE_STANDARD_OUTPUT)
+#define     IO_StdError (IO_Std*)zpl_file_get_standard(ZPL_FILE_STANDARD_ERROR)
+
+typedef zpl_file
+            IO_File, 
+*           IO_FilePtr,
+*restrict   IO_FileRPtr,
+		    IO_Std;
 
 
 #endif // LAL_Types__Def

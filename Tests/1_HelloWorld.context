@@ -2,7 +2,6 @@ context : HelloWorld  ;
 module  : Interpreter ;
 layer   : 0 ;
 alias   : Standard.Version.2021 ;
-name    : Hello World! ;
 
 dependencies:
 PAL    // Platform Abstraction Layer

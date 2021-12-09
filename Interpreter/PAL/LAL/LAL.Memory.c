@@ -3,21 +3,18 @@
 #include "LAL.Exception.h"
 
 
-NoLink AllocTable 
-GlobalMemory =
+// Later
+// static 
+// byte    Static_Memory
+// [_64K];
+
+static AllocTable 
+Heap_GlobalMemory =
 { 0U, nullptr };
 
 
 // Memory Allocation Array
 
-NoLink
-void* Internal_Reallocate(void* _memoryToReallocate, size_t _sizeDesired)
-{
-	return realloc(_memoryToReallocate, _sizeDesired);
-}
-
-#define Reallocate(_type, _memoryToReallocate, _numberDesired) \
-(_type*)Internal_Reallocate(_memoryToReallocate, _numberDesired * sizeof(_type))
 
 #define LastEntry _memoryArray->Length -1
 
@@ -31,10 +28,10 @@ MemBlock* AllocTable_Add(AllocTable* _memoryArray)
 	}
 	else
 	{
-		MemBlockPtr* resizeIntermediary = Reallocate
-		(
-			MemBlock*, 
+		MemBlockPtr* resizeIntermediary = Mem_Resize
+		(MemBlock*, 
 			_memoryArray->Array, 
+			_memoryArray->Length,
 			(_memoryArray->Length + 1) 
 		);
 		
@@ -54,11 +51,11 @@ MemBlock* AllocTable_Add(AllocTable* _memoryArray)
 	return _memoryArray->Array[LastEntry];
 }
 
-NoLink
-MemBlock* AllocTable_LastEntry(AllocTable* _memoryArray)
-{
-	return _memoryArray->Array[LastEntry];
-}
+// NoLink
+// MemBlock* AllocTable_LastEntry(AllocTable* _memoryArray)
+// {
+// 	return _memoryArray->Array[LastEntry];
+// }
 
 // Memory Management
 
@@ -114,7 +111,7 @@ void ScopedDealloc(AllocTable* _scopedMemory)
 
 void* Internal_Mem_GlobalAlloc(uDM _sizeOfAllocation)
 {
-	MemBlock* newBlock = AllocTable_Add(ptrof GlobalMemory);
+	MemBlock* newBlock = AllocTable_Add(ptrof Heap_GlobalMemory);
 		
 	newBlock->Size     = _sizeOfAllocation;
 	newBlock->Location = Mem_Alloc(byte, _sizeOfAllocation);
@@ -132,7 +129,7 @@ void* Internal_Mem_GlobalAlloc(uDM _sizeOfAllocation)
 
 void* Internal_Mem_GlobalAllocClear(uDM _sizeOfAllocation)
 {
-	MemBlock* newBlock = AllocTable_Add(ptrof GlobalMemory);
+	MemBlock* newBlock = AllocTable_Add(ptrof Heap_GlobalMemory);
 		
 	newBlock->Size     = _sizeOfAllocation;
 	newBlock->Location = Mem_AllocClear(byte, _sizeOfAllocation);
@@ -150,17 +147,22 @@ void* Internal_Mem_GlobalAllocClear(uDM _sizeOfAllocation)
 
 void* Internal_Mem_GlobalRealloc(void* _location, uDM _sizeForReallocation)
 {
-	for (uDM index = 0; index < GlobalMemory.Length; index++)
+	for (uDM index = 0; index < Heap_GlobalMemory.Length; index++)
 	{
-		if (GlobalMemory.Array[index]->Location == _location)
+		if (Heap_GlobalMemory.Array[index]->Location == _location)
 		{
-			void* resizeIntermediary = Reallocate(byte, _location, _sizeForReallocation);
+			void* resizeIntermediary = Mem_Resize
+			(byte, 
+				_location, 
+				Heap_GlobalMemory.Array[index]->Size,
+				_sizeForReallocation
+			);
 
 			if (resizeIntermediary != NULL)
 			{
-				GlobalMemory.Array[index]->Location = resizeIntermediary;
+				Heap_GlobalMemory.Array[index]->Location = resizeIntermediary;
 
-				return GlobalMemory.Array[index]->Location;
+				return Heap_GlobalMemory.Array[index]->Location;
 			}
 			else
 			{
@@ -174,14 +176,14 @@ void* Internal_Mem_GlobalRealloc(void* _location, uDM _sizeForReallocation)
 
 void Mem_GlobalDealloc(void)
 {
-	for (uDM index = 0; index < GlobalMemory.Length; index++)
+	for (uDM index = 0; index < Heap_GlobalMemory.Length; index++)
 	{
-		Mem_Dealloc(GlobalMemory.Array[index]->Location);
+		Mem_Dealloc(Heap_GlobalMemory.Array[index]->Location);
 
-		Mem_Dealloc(GlobalMemory.Array[index]);
+		Mem_Dealloc(Heap_GlobalMemory.Array[index]);
 	}
 
-	Mem_Dealloc(GlobalMemory.Array);
+	Mem_Dealloc(Heap_GlobalMemory.Array);
 
 	return;
 }
