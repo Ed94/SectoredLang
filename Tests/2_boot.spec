@@ -1,28 +1,29 @@
 
 ct :
-if (ISA::Arch == ISAx86-64) :
+if (ISA. Arch == ISA. x86-64) :
 {
 	alias : AddressLine : ISA::AddressLine; ;
 
 	inline proc :
 		Enter_ProtectedMode :
-			ISA:: DisableInterrupts;
-			ISA:: Enable_A20;
+			ISA. DisableInterrupts;
+			ISA. Enable_A20;
 			
-			if (! ISA:: Is_Enabled_A20) :
+			if (! ISA. Is_Enabled_A20) :
 				Hang;
 			;
 			
-			ISA:: DS_Init;
-			ISA:: Load_GDT;
-			ISA:: JumpTo_ProtectedMode;
+			ISA. DS_Init;
+			ISA. Load_GDT;
+			ISA. JumpTo_ProtectedMode;
 		;
 	
 		ProtectedMode_MakeScratchStack :
 			alias : 
-				ISA::Expose_Registers; 
-				GDT : ISA::GDT;
-				mov : ISA::mov;
+				ISA. Expose_Registers; 
+
+				GDT : ISA. GDT;
+				mov : ISA. mov;
 			;
 			
 			mov(ax, GDT::DS);
@@ -33,18 +34,18 @@ if (ISA::Arch == ISAx86-64) :
 		;
 	
 		Setup_4LevelPaging :
-			ISA:: Enable_PAE;
-			ISA:: Enable_LME;
-			ISA:: Enable_PG;
-			ISA:: Set_PML4_Ptr;
-			ISA:: EnablePaging;
+			ISA. Enable_PAE;
+			ISA. Enable_LME;
+			ISA. Enable_PG;
+			ISA. Set_PML4_Ptr;
+			ISA. EnablePaging;
 		;
 	
 		Enter_LongMode :
 		;
 
 		Trampoline_x86-64 :
-			alias : TextMode : ISA:: VideoMode:: TextMode; ;
+			alias : TextMode : ISA.VideoMode. TextMode; ;
 		
 			ISA:: SetVideoMode(TextMode);
 

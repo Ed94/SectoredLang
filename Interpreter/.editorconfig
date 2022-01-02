@@ -1,5 +1,10 @@
 root = true
 
+[*]
+end_of_line = lf
+insert_final_newline = true
+guidelines = 160
+
 [*{.h, .c}]
 indent_style = tab
 indent_size = 4
@@ -24,8 +29,3 @@ guidelines = 80
 indent_style = space
 indent_size = 4
 guidelines = 180
-
-[*]
-end_of_line = lf
-insert_final_newline = true
-guidelines = 160

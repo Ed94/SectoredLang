@@ -2,20 +2,59 @@
 
 
 struct Lexer
-LexerObj = { 0, nullptr, 0, 0 };
+LexerObj = 
+{ 
+	0, 
+	nullptr,
+	0, 
+	0, 
+	
+	{ 0, 0, nullptr },  // TokenArray
+	nullptr,
+	nullptr		
+};
 
 
-#define Index       LexerObj.Index
-#define Contents    LexerObj.Contents
-#define ContentSize LexerObj.ContentSize
-#define CurrentChar LexerObj.CurrentChar
+#define Index           LexerObj.Index
+#define Contents        LexerObj.Contents
+#define ContentSize     LexerObj.ContentSize
+#define CurrentChar     LexerObj.CurrentChar
+#define NextChar        Contents[Index + 1]
+#define Tokens          LexerObj.Tokens
+#define PreviousToken   LexerObj.PreviousToken
+#define CurrentToken    LexerObj.CurrentToken
 
+NoLink ForceInline
+void Tokens_Append()
+{
+	Tokens.Nodes[Tokens.Num] = CurrentToken;
+	Tokens.Num++;
+}
+
+NoLink ForceInline
+bool IsComment()
+{
+	return
+		CurrentChar == '/'
+	&&  CurrentChar == NextChar
+	;
+}
+
+NoLink ForceInline
+bool IsCommentBlock()
+{
+	return 
+		CurrentChar == '/'
+	&&  NextChar == '-'
+	;
+}
 
 NoLink ForceInline
 bool IsEndOfContent()
 {
 	return 
 	   CurrentChar == Tok_Comp_EOF 
+	|| CurrentChar == Tok_Comp_Null
 	|| Index >= ContentSize
 	;
 }
@@ -40,7 +79,7 @@ bool IsFormmatting()
 {
 	return 
 	    CurrentChar == Tok_Comp_WS
-	||  CurrentChar == Tok_Comp_Null
+	// ||  CurrentChar == Tok_Comp_Null
 	||  CurrentChar == Tok_Fmt_Tab
 	||  CurrentChar == Tok_Fmt_CR
 	||  CurrentChar == Tok_Fmt_NL
@@ -61,8 +100,9 @@ Lexer_Init(const String* _contents)
 	CurrentChar = Contents[Index];
 	ContentSize = str_Length(Contents);
 
-	// LogF("\n I have no idea why... %s\n", TokenTo[0].Str);
-	// TokenTo[0].Str;
+	Tokens.Nodes    = Mem_GlobalAllocClear(Token*, _1K);
+	Tokens.Capacity = _1K;
+	Tokens.Num      = 0;
 }
 
 void
@@ -99,40 +139,63 @@ Lexer_SkipFormmating()
 {
 	while (IsFormmatting() && !IsEndOfContent())
 	{
+		// LogF("Formmatting: %c\n", CurrentChar);
 		Lexer_Advance();
 	}
 }
 
 Token* Lexer_NextToken()
 {
-	while (! IsEndOfContent()) 
+	PreviousToken = CurrentToken;
+	
+	loop
 	{
 		if (IsFormmatting())
 		{
 			Lexer_SkipFormmating();
+			continue;
 		}
 		
 		if (IsEndOfContent())
 		{
 			Log("\nReached EOF");
-			return nullptr;
+
+			CurrentToken = Token_EOF;
+			break;
 		}
 		
-		enum TokenType
-		Type = Token_Invalid;
+		if (IsComment())
+		{
+			// CurrentToken = Lexer_Collect_Comment();
+			Lexer_Collect_Comment();
+			continue;
+		}
 		
+		if (IsCommentBlock())
+		{
+			// CurrentToken =  Lexer_Collect_CommentBlock();
+			Lexer_Collect_CommentBlock();
+			continue;
+		}
+	
 		if (IsDigit())
 		{
-			return Lexer_CollectDecimal();
+			CurrentToken = Lexer_Collect_Decimal();
+			break;
 		}
 		
 		if (IsSymbol())
 		{
-			return Lexer_CollectSymbol();
+			CurrentToken = Lexer_Collect_Symbol();
+			break;
 		}
+			
+		enum TokenType
+		Type = Token_Invalid;
 			
 		switch (CurrentChar)
 		{
+		// Universal
 			case Tok_Params_PStart:
 				Type = Params_PStart;
 			break;
@@ -140,11 +203,19 @@ Token* Lexer_NextToken()
 			case Tok_Params_PEnd:
 				Type = Params_PEnd;
 			break;
-
-			case Tok_OP_Assign:
-				Type = OP_Assign;
+			
+			case Tok_Params_SBStart:
+				Type = Params_SBStart;
 			break;
-	
+			
+			case Tok_Params_SBEnd:
+				Type = Params_SBEnd;
+			break;
+			
+			case Tok_OP_SMA:
+				Type = OP_SMA;
+			break;
+
 			case Tok_Def_Start:
 				Type = Def_Start;
 			break;
@@ -152,17 +223,32 @@ Token* Lexer_NextToken()
 			case Tok_Def_End:
 				Type = Def_End;
 			break;
+			
+			case Tok_Def_CD:
+				Type = Def_CD;
+			break;
 
+		// Level 0
+			case Tok_OP_Assign:
+				Type = OP_Assign;
+			break;
+	
 			case Tok_Literal_String_DLim:
-				return Lexer_CollectStr();
+				CurrentToken = Lexer_Collect_Str();
+				Tokens_Append();
+				return CurrentToken;
 			break;
 		}
 		
 		// Known value  tokens
-		return Lexer_AdvWithToken(Token_Init(Type, scharTo_String(CurrentChar)));
+		CurrentToken = Lexer_AdvWithToken(Token_Init(Type, scharTo_String(CurrentChar)));
+
+		Tokens_Append();
+		return CurrentToken;
 	}
 	
-	return Token_EOF;
+	Tokens_Append();
+	return CurrentToken;
 }
 
 Token* Lexer_AdvWithToken(Token* _token)
@@ -172,11 +258,119 @@ Token* Lexer_AdvWithToken(Token* _token)
 	return _token;
 }
 
-Token* Lexer_CollectDecimal()
+Token* Lexer_Collect_Comment()
+{
+	uDM
+	collectLength = 0,
+	collectIndex  = Index + 2;
+	
+	schar collectChar = Contents[collectIndex];
+	
+	while (collectChar != Tok_Fmt_NL)
+	{
+		collectChar = Contents[collectIndex ++];
+		collectLength++;
+	}
+	
+	if (collectLength)
+	{
+		String* collectedCmt = String_MakeReserve(collectLength);
+		
+		if (! collectedCmt)
+		{
+			Fatal_Throw("failed to reserve comment string.");
+			return nullptr;
+		}
+		
+		collectedCmt->Data = Mem_FormatWithData
+		(schar,
+			collectedCmt->Data,
+			ptrof Contents[Index],
+			collectLength
+		);
+		
+		collectedCmt->Data[collectLength] = Tok_Comp_Null;
+		
+		if (! collectedCmt)
+		{
+			Fatal_Throw("Failed to collect comment, something went wrong with allocation or formmatting.");
+			return nullptr;
+		}
+
+		Lexer_Jump(collectLength + 1);
+		
+		// return Token_Init(Cmt_Body, collectedCmt);	
+		return nullptr;
+	}
+	else
+	{
+		return Token_CmtEmpty;
+	}
+}
+
+Token* Lexer_Collect_CommentBlock()
+{
+	uDM
+	collectLength = 0,
+	collectIndex  = Index + 2;
+	
+	schar collectChar = Contents[collectIndex];
+	
+	while (collectChar != '-' && Contents[collectIndex + 1] != '/')
+	{
+		collectChar = Contents[collectIndex ++];
+		collectLength++;
+	}
+	
+	// For -/
+	collectLength += 2;
+	
+	if (collectLength)
+	{
+		String* collectedCmt = String_MakeReserve(collectLength);
+		
+		if (! collectedCmt)
+		{
+			Fatal_Throw("failed to reserve comment string.");
+			return nullptr;
+		}
+		
+		collectedCmt->Data = Mem_FormatWithData
+		(schar,
+			collectedCmt->Data,
+			ptrof Contents[Index],
+			collectLength
+		);
+		
+		collectedCmt->Data[collectLength - 2] = '-';
+		collectedCmt->Data[collectLength - 1] = '/';
+		collectedCmt->Data[collectLength    ] = Tok_Comp_Null;
+		
+		collectedCmt->Length = collectLength;
+		
+		if (! collectedCmt)
+		{
+			Fatal_Throw("Failed to collect comment, something went wrong with allocation or formmatting.");
+			return nullptr;
+		}
+
+		Lexer_Jump(collectLength + 2);
+		
+		// return Token_Init(Cmt_Body, collectedCmt);	
+		return nullptr;
+	}
+	else
+	{
+		Fatal_Throw("Failed to collect comment, something went wrong with collection.");
+		return nullptr;
+	}
+}
+
+Token* Lexer_Collect_Decimal()
 {
 	uDM
 	collectLength = 1,
-	collectIndex = Index;
+	collectIndex  = Index;
 	
 	schar collectChar = Contents[collectIndex];
 	
@@ -204,6 +398,7 @@ Token* Lexer_CollectDecimal()
 		);
 		
 		collectedDigits->Data[collectLength] = Tok_Comp_Null;
+		collectedDigits->Length              = collectLength;
 		
 		if (! collectedDigits)
 		{
@@ -222,7 +417,7 @@ Token* Lexer_CollectDecimal()
 	}
 }
 
-Token* Lexer_CollectStr()
+Token* Lexer_Collect_Str()
 {
 	uDM 
 	collectLength = 0, 
@@ -261,7 +456,7 @@ Token* Lexer_CollectStr()
 	}
 }
 
-Token* Lexer_CollectSymbol()
+Token* Lexer_Collect_Symbol()
 {
 	uDM 
 	collectLength = 0, 
@@ -302,7 +497,9 @@ Token* Lexer_CollectSymbol()
 
 			// Layer 0
 
+				InitIf(Sec_Stack)
 				InitIf(Sec_Static)
+				InitIf(Sec_Proc)
 				
 				InitIf(Sym_Ptr)
 				InitIf(Sym_Byte)
@@ -324,7 +521,12 @@ Token* Lexer_CollectSymbol()
 
 #pragma endregion Public
 
-#undef Index
+
 #undef Contents
-#undef ContentsSize
 #undef CurrentChar
+#undef ContentsSize
+#undef Index
+#undef NextChar
+#undef TokenArray
+#undef PreviousToken
+#undef CurrentToken

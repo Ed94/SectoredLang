@@ -123,6 +123,31 @@ s32 nstr_StdWriteV(IO_Std* restrict _stream_in, ro_nstr _format, va_list _argLis
 #pragma region String
 
 ForceInline
+void
+String_Append(String* restrict _self, const String* restrict _other)
+{
+	_self->Data   = zpl_string_append(_self->Data, _other->Data);
+	_self->Length = zpl_string_length(_self->Data);
+}
+
+ForceInline
+void
+String_Append_WFormat(String* restrict _self, ro_str restrict _format, ...)
+{
+	zpl_isize result;
+
+	char buffer[ZPL_PRINTF_MAXLEN] = { 0 };
+
+	va_list args;
+	va_start(args, _format);
+		result = zpl_snprintf_va(buffer, zpl_count_of(buffer) - 1, _format, args) - 1;
+	va_end(args);
+
+	_self->Data = zpl_string_append_length(_self->Data, buffer, result);
+	_self->Length = zpl_string_length(_self->Data);
+}
+
+ForceInline
 enum Str_CompareResult 
 String_Compare(const String* restrict _string_in, const String* restrict _other_in)
 {

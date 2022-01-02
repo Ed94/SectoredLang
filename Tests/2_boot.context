@@ -9,7 +9,7 @@ PAL    // Platform Abstraction Layer
 ;
 
 alias append :
-ISA : PAL:: ISA;
+ISA : PAL. ISA;
 ;
 
 files :

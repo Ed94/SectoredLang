@@ -115,7 +115,7 @@ Directories = [
 	ProjDir,
 	ProjDir + "Core",
 	ProjDir + "Lexer",
-	# ProjDir + "Parser",
+	ProjDir + "Parser",
 	ProjDir + "Shell",
 ]
 
@@ -189,6 +189,8 @@ C_Flags         = [
 	"-Wno-unknown-pragmas",
 	"-Wno-incompatible-pointer-types-discards-qualifiers",
 	# "-E",
+	# "-C",
+	# "-CC",
 	# "-H",
 	# "-P",
 	 

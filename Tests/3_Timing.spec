@@ -43,7 +43,7 @@ proc InitData : in Timing :
 
 (_self : ptr Timer) : pub proc : in _self :
 
-	// This alias definition is restrictd to this pub fn: scope
+	// This alias definition is restrictd to this pub proc: scope
 	alias :
 	{	
 		// This is overloading the default floating point operator 

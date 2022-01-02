@@ -40,9 +40,6 @@ typedef    void* restrict    Void_RPtr;
 
 #define    fnPtr(__NAME)   (*__NAME)
 
-#define Ptr(__TYPE) \
-__TYPE##Ptr
-
 struct FatPtr
 {
 	uDM   Length;
@@ -76,19 +73,19 @@ void* Internal_Mem_FormatByFill  (void* _memoryAddress, s32         _fillValue, 
 void* Internal_Mem_FormatWithData(void* _memoryAddress, const void* _dataSource, uDM _sizeOfData);
 
 #define              Mem_Alloc(_type, _numberToAllocate) \
-cast(_type*)Internal_Mem_Alloc(sizeof(_type) * _numberToAllocate)
+cast(_type*)Internal_Mem_Alloc(sizeof(_type) * (_numberToAllocate))
 
 #define              Mem_AllocClear(_type, _numberToAllocate) \
 cast(_type*)Internal_Mem_AllocClear(_numberToAllocate, sizeof(_type));
 
 #define              Mem_Resize(_type, _memoryAddress, _currentNumber, _numberDesired) \
-cast(_type*)Internal_Mem_Resize(_memoryAddress, sizeof(_type) * _currentNumber, sizeof(_type) * _numberDesired);
+cast(_type*)Internal_Mem_Resize(_memoryAddress, sizeof(_type) * (_currentNumber), sizeof(_type) * (_numberDesired));
 
 #define              Mem_FormatByFill(_type, _memoryAddress, _fillValue, _sizeOfAllocation) \
-cast(_type*)Internal_Mem_FormatByFill(_memoryAddress, _fillValue, sizeof(_type) * _sizeOfAllocation)
+cast(_type*)Internal_Mem_FormatByFill(_memoryAddress, _fillValue, sizeof(_type) * (_sizeOfAllocation))
 
 #define              Mem_FormatWithData(_type, _memoryAddress, _dataSource, _numberToAllocate) \
-cast(_type*)Internal_Mem_FormatWithData(_memoryAddress, _dataSource, sizeof(_type) * _numberToAllocate)
+cast(_type*)Internal_Mem_FormatWithData(_memoryAddress, _dataSource, sizeof(_type) * (_numberToAllocate))
 
 #pragma endregion ManualManagement
 
@@ -133,13 +130,13 @@ void  Mem_GlobalDealloc            (void);
 
 
 #define              Mem_GlobalAlloc(_type,          _numberToAllocate) \
-cast(_type*)Internal_Mem_GlobalAlloc(sizeof(_type) * _numberToAllocate)
+cast(_type*)Internal_Mem_GlobalAlloc(sizeof(_type) * (_numberToAllocate))
 
 #define              Mem_GlobalAllocClear(_type,          _numberToAllocate) \
-cast(_type*)Internal_Mem_GlobalAllocClear(sizeof(_type) * _numberToAllocate)
+cast(_type*)Internal_Mem_GlobalAllocClear(sizeof(_type) * (_numberToAllocate))
 
 #define              Mem_GlobalRealloc(_type, _address, _numberToReallocate) \
-cast(_type*)Internal_Mem_GlobalRealloc(_address, sizeof(_type) * _numberToReallocate)
+cast(_type*)Internal_Mem_GlobalRealloc(_address, sizeof(_type) * (_numberToReallocate))
 
 
 // Smart memory via scope wrapping
@@ -150,10 +147,10 @@ cast(_type*)Internal_Mem_GlobalRealloc(_address, sizeof(_type) * _numberToReallo
 	{ nullptr, 0U };
 	
 #define              Mem_ScopedAlloc(_type, _numberToAllocate)  \
-cast(_type*)Internal_Mem_ScopedAlloc(ptrof(scopedMemory), sizeof(_type) * _numberToAllocate)
+cast(_type*)Internal_Mem_ScopedAlloc(ptrof(scopedMemory), sizeof(_type) * (_numberToAllocate))
 
 #define              Mem_ScopedAllocClear(_type, _numberToAllocate) \
-cast(_type*)Internal_Mem_ScopedAllocClear(ptrof(scopedMemory), sizeof(_type) * _numberToAllocate)
+cast(_type*)Internal_Mem_ScopedAllocClear(ptrof(scopedMemory), sizeof(_type) * (_numberToAllocate))
 
 #define smart_return(_value) \
                                                     \

@@ -1,21 +1,34 @@
 // Universal
-		Entry(Params_PStart)
-		Entry(Params_PEnd)
-	
-		Entry(OP_Assign)
+Entry(Cmt_SS)
+Entry(Cmt_Body)
 
-		Entry(Literal_Digit)
-		Entry(Literal_String)
-		
-		Entry(Def_Start)
-		Entry(Def_End)
-		
-		Entry(Sym_TType)
-		Entry(Sym_Identifier)
-		Entry(Sym_Invalid)
+Entry(Params_PStart)
+Entry(Params_PEnd)
+// Entry(Params_ABStart)
+// Entry(Params_ABEnd)
+Entry(Params_SBStart)
+Entry(Params_SBEnd)
+
+Entry(OP_SMA)
+
+Entry(Literal_Digit)
+Entry(Literal_String)
+
+Entry(Def_Start)
+Entry(Def_End)
+Entry(Def_CD)
+
+Entry(Sym_TType)
+Entry(Sym_Identifier)
+Entry(Sym_Invalid)
 		
 // Layer 0
-        Entry(Sec_Static)
-        
-        Entry(Sym_Ptr)
-        Entry(Sym_Byte)
+
+Entry(OP_Assign)
+
+Entry(Sec_Stack)
+Entry(Sec_Static)
+Entry(Sec_Proc)
+
+Entry(Sym_Ptr)
+Entry(Sym_Byte)

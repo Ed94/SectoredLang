@@ -39,7 +39,7 @@ Note: I'm not entirely aware where I'm going to put generics/templating, but mos
 Langauge Feature Layering :
 
 All language/module features can be explicitly disabled or enabled in context specification
-Generalized set of featuers are group into layers from layer 0 to layer 6
+Generalized set of featuers are group into layers from layer 0 to layer 4
 
 
 Layer 0         Low-level features, binary, hex, interrupts, paging, stack, registers, etc.
@@ -127,7 +127,6 @@ Literal
     Character
     String
 Sector
-Specifier
 Statement
 Operator
 #--------------------------------------------------------------------------------------------------------------------
@@ -135,9 +134,9 @@ Operator
 Universal Context:
 #--------------------------------------------------------------------------------------------------------------------
                                                         Comments
-//              Comment                 cmt_SS
-/-              Start Comment           cmt_SD
--/              End Comment             cmt_DS
+//              Comment Line            cmt_SS
+/-              Start Comment           cmt_SC
+-/              End Comment             cmt_EC
 #------------------------------------------------------
                                                         Components
 ' '             Whitespace              comp_WS
@@ -163,9 +162,6 @@ EOF             End of file             comp_EOF
                                                         Operators
 .               Member Resolution       op_SMA
 ->              Map Resolution          op_Map
-cast            Type cast               op_Cast
-typeof          Type Accessor           op_TypeOf
-[symbol]        Access Element          op_GetElement
 #------------------------------------------------------
                                                         Literals
 '$'             Character               literal_Char
@@ -177,17 +173,17 @@ typeof          Type Accessor           op_TypeOf
 "..."           String                  literal_String
 #------------------------------------------------------
                                                         Sectors
-alias           Aliasing                sec_Alias
-append          Symbol Appending        sec_Append
+alias           Aliasing                sec_alias
+#append          Symbol Appending        sec_append
 ct              Compile Time            sec_ct
-else            Coniditonal Else        sec_Else
-enum            Enumeration             sec_Enum    
-expose          Expose Definitions      sec_Expose
+else            Coniditonal Else        sec_else
+enum            Enumeration             sec_enum    
+#expose          Expose Definitions      sec_expose
 {Identifer}     Symbol Definitions      sec_DefSym
 if              Conditional If          sec_if
 in              Expose Member Symbols   sec_in
-layer           Explicit layer use      sec_Layer
-meta            Metaprogramming         sec_Meta          
+layer           Explicit layer use      sec_layer
+meta            Metaprogramming         sec_meta          
 #-------------------------------------------------------
                                                         Statements
 :               start def block         def_Start
@@ -228,6 +224,7 @@ typeof(identifier)              Accessor to associated type of identifier
 Layer 0
 
 APS : 1
+Untyped
 User identifier sector nesting is not allowed.
 Nesting alias in Meta is not allowed.
 Nesting meta in alias is not allowed.
@@ -235,25 +232,25 @@ Nesting meta in alias is not allowed.
 Tokens :
 #------------------------------------------------------
                                                         Operators
-# Inference
+            # Inference
 alignof         Alignment Accessor      op_alingof
-identifier      Identifier              op_identifier
+#identifier      Identifier              op_identifier
 offsetof        Member Offset           op_offsetof
 posof           Member Position         op_posof
 sizeof          Symbol memory           op_sizeof
-# Indirection
+            # Indirection
 ptr             Pointer accessor        op_ptr
 val             Value Accessor          op_val
-# Execution
+            # Execution
 ret             Return                  op_return
 pop             Pop current stack       op_pop
 push            Push current stack      op_push
 goto            Jump to Label           op_goto
 continue        Jump to start of loop   op_continue
 break           Jump out of block       op_break
-{PI};           # Procedure Identifier
-{PI}<...>(...); Call Procedure          op_callproc
-# Logical
+#{PI};           # Procedure Identifier
+#{PI}<...>(...); Call Procedure          op_callproc
+            # Logical
 !               Logical NOT             op_LNOT
 &&              Logical And             op_LAND
 ||              Logical OR              op_LOR    
@@ -263,7 +260,7 @@ break           Jump out of block       op_break
 ~               Bitwise Not             op_BNOT
 <<              Bitwise Shift Left      op_BSL
 >>              Bitwise Shift Right     op_BSR
-# Arithmetic
+            # Arithmetic
 +               Addition                op_Add
 -               Subtraction             op_Subtract
 *               Multiply                op_Multiply
@@ -275,11 +272,11 @@ break           Jump out of block       op_break
 !=              Not Equal               op_NotEqul
 >=              Greater Equal           op_GreaterEqual
 <=              Lesser Equal            op_LesserEqul
-# Assignment
+            # Assignment
 =               Assignment              op_ASSIGN
-&=              Assign Bit And          op_ABAND
-|=              Assign Bit Or           op_ABOR
-^=              Assign Bit XOr          op_AB_XOR
+&=              Assign Bit And          op_AB_And
+|=              Assign Bit Or           op_AB_Or
+^=              Assign Bit XOr          op_AB_XOr
 ~=              Assign Bit Not          op_AB_Not
 <<=             Assign Bit Shift Left   op_AB_SL
 >>=             Assign Bit Shift Right  op_AB_SR
@@ -296,8 +293,9 @@ ternay          Ternary block           sec_Ternary
 octal           Octal   block           sec_Octal
 hex             Hex     block           sec_Hex
 
-				
+            # Meta-programming				
 embed			Embed Data				sec_Embed
+ro              Read-only               sec_Ro
 inline          Redefine inplace        sec_Inline
 
 			# Control Flow
@@ -305,22 +303,19 @@ label           Label                   sec_Lable
 loop            Loop execution          sec_Loop
 
 			# Memory
-page            Paging Segments         sec_Mempage
+align           Alignment               sec_Align
+mpage           Memory Paging Segments  sec_Mempage
+register        Register Type           sec_Register
 stack           Stack  Segment          sec_Stack
 static          Static Segment          sec_Static
+strict          Strict reference        sec_Strict
+struct          Data Record/ Structure  sec_Struct   
+volatile        Volatile reference      sec_Volatile
 
+            # Execution
 interrupt       Interrupt               sec_Interrupt
 proc            Procedure               sec_Proc
 
-
-ro              Read-only               sec_Ro
-struct          Data Structure Type     sec_Struct   
-#-------------------------------------------------------
-                                                        Specifiers
-align           Alignment               specifier_Align
-register        Register Type           specifier_Register
-strict          Strict reference        specifier_Strict
-volatile        Volatile reference      specifier_Volatile
 #-------------------------------------------------------
                                                         Symbols
 ptr             Address Pointer                     sym_Ptr
@@ -351,14 +346,15 @@ sizeof(symbol) * width          Specify a datatype of set width (where width is 
 #====================================================================================================================
 
 # ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-Not fleshed out
+Below not fleshed out
 #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 Layer 1
 
+Weak typing.
 By default all data is mutable
-User identifier sector nesting is not allowed.
+User identifier sector nesting is not allowed implicitly.
 
 Removed:
 #-------------------------------------------------------
@@ -376,16 +372,17 @@ Tokens :
                                                         Parameters
 #------------------------------------------------------
                                                         Operators
-::              Scope Resolution        op_SSA
-allocate        allocate heap           sec_ALLOC
-deallocate      deallocate heap         sec_DEALLOC
+#::              Scope Resolution        op_SSA
+
+allocate        allocate heap           op_Alloc
+deallocate      deallocate heap         op_Dealloc
+
+cast            Type cast               op_Cast
+typeof          Type Accessor           op_TypeOf
 #------------------------------------------------------
                                                         Sector
-heap            Heap Memory block       sec_HEAP
-do              do loop                 sec_DO
-for             For loop                sec_FOR
-#-------------------------------------------------------
-                                                        Specifiers
+heap            Heap Memory block       sec_Heap
+for             For loop                sec_For
 #-------------------------------------------------------
                                                         Statements
 #-------------------------------------------------------
@@ -398,6 +395,8 @@ Grammar :
 Layer 2
 
 By default all data is read-only.
+Strong Typing
+Borrow Checker
 User identifier sector nesting is allowed with limitations.
 
 Removed:
@@ -411,19 +410,17 @@ Tokens :
                                                         Operators
 #------------------------------------------------------
                                                         Sector
-interface   Dispatch Specification      sec_INTERFACE
+interface   Dispatch Specification      sec_Interface
 gc          Garbage Collector           sec_GC
-zone        Zone Memory                 sec_MEMZONE
+zone        Zone Memory                 sec_MemZone
 mut         Mutable                     sec_Mut
-#-------------------------------------------------------
-                                                        Specifiers
-ref         References                  sec_ref                                                        
-trait       Static Dispatch             sec_TRAIT
-virtual     Dynamic Dispatch            sec_VIRTUAL
+trait       Static Dispatch             sec_Trait
+virtual     Dynamic Dispatch            sec_Virtual
 #-------------------------------------------------------
                                                         Statements
 #-------------------------------------------------------
                                                         Symbols
+ref         References                  sec_Ref                                                        
 #====================================================================================================================
 Grammar :
 #-------------------------------------------------------
@@ -431,6 +428,7 @@ Grammar :
 #====================================================================================================================
 Layer 3
 
+Strong typing
 By default all data is read-only.
 There are no restrictions on user identifier sector nesting.
 
@@ -446,8 +444,6 @@ Tokens :
 #------------------------------------------------------
                                                         Sector
 #-------------------------------------------------------
-                                                        Specifiers
-#-------------------------------------------------------
                                                         Statements
 #-------------------------------------------------------
                                                         Symbols
@@ -458,8 +454,8 @@ Grammar :
 #====================================================================================================================
 Layer 4
 
-There is no imperative execution bodies.
 Dependent typing
+There is no imperative execution bodies.
 There are no restrictions on symbol-statement body nesting.
 
 Tokens :
@@ -471,8 +467,6 @@ Tokens :
                                                         Sector
 fn          Function                    sec_FN
 #-------------------------------------------------------
-                                                        Specifiers
-#-------------------------------------------------------
                                                         Statements
 #-------------------------------------------------------
                                                         Symbols
@@ -481,11 +475,6 @@ Grammar :
 #-------------------------------------------------------
 #\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 #====================================================================================================================
-
-
-
-
-
 
 
 #------------------------------------------------------------------------------------------------------------------

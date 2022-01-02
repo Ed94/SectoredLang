@@ -2,6 +2,8 @@
 #include "Core.h"
 // Lexer
 #include "Lexer.h"
+// Parser
+#include "Parser.mas.h"
 // Shell
 // #include "Shell.h"
 
@@ -24,7 +26,7 @@ void ProcessFile              (void);
 void RunShell                 (void);
 
 
-void Console_PrintTitle(void)
+void Console_PrintTitle(void) 
 {
 	Log(sl"MAS Interpreter"); 
 	Log(sl"Type: C");
@@ -89,7 +91,7 @@ void ProcessFile(void)
 	LogF("%s\n", rawBuffer);
 }
 
-void LexStream(void)
+void LexStream(void) 
 {
 	Lexer_Init(ptrof StreamBuffer);
 
@@ -100,25 +102,32 @@ void LexStream(void)
 	
 #define Type    currentToken->Type
 #define Value   currentToken->Value
-	for (; currentToken != nullptr && Type != Token_Invalid; currentToken = Lexer_NextToken())	
+	loop
 	{
-		LogF("\nType : %-15s, Value: \"%s\"", TokenTo[Type].Str, Value->Data);
+		if (currentToken == nullptr
+		||  Type == Token_Invalid
+		||  Type == Tok_Comp_EOF
+		) break;
+
+		LogF("\nType : %-15s, Value: %s", TokenTo[Type].Str, Value->Data);
+
+		currentToken = Lexer_NextToken();
 	}
 #undef Type
 #undef Vlaue
 }
 
-// void ParseStream()
-// {
-// 	Lexer_Init(StreamBuffer.Data);
+void ParseStream()
+{
+	Lexer_Init(ptrof StreamBuffer);
 	
-// 	Parser_Init();
+	Parser_Init();
 	
-// 	// Currently we know the file passed will be a spec unit.
-// 	ast_Node* ast =  Parse(CUT_Specification);
+	// Currently we know the file passed will be a spec unit.
+	ast_Node* ast = Parse(CUT_Specification);
 	
-// 	Log("Completed parse.");
-// }
+	Log("Completed parse.");
+}
 
 OS_ExitVal 
 OSAL_EntryPoint()
@@ -140,8 +149,8 @@ OSAL_EntryPoint()
 		
 		Log("\nFinished processing file...\n");
 		
-		LexStream();
-		// ParseStream();
+		// LexStream();
+		ParseStream();
 	}
 	
 	// RunShell();

@@ -51,7 +51,7 @@ ro_nstr ncharTo_ro_nstr(nchar _char)
 	const nchar _Table_ncharTo_nStr
 	[256][2] =
 	{
-	#define Entry(__VALUE)   { __VALUE, '\0' },
+	#define Entry(__VALUE)   { __VALUE, '\0' }, 
 	#define Row(_N_)                                                                \
 			Entry(0x##_N_##0) Entry(0x##_N_##1) Entry(0x##_N_##2) Entry(0x##_N_##3) \
 			Entry(0x##_N_##4) Entry(0x##_N_##5) Entry(0x##_N_##6) Entry(0x##_N_##7) \
@@ -335,6 +335,8 @@ String* String_Make       (ro_str _content, uDM _length);
 String* String_MakeMove   (str _content, uDM _length);
 String* String_MakeReserve(uDM _length);
 
+void                String_Append (String* restrict _string, const String* restrict _other); 
+void                String_Append_WFormat(String* restrict _self, ro_str restrict _format, ...);
 EStr_CompareResult  String_Compare(const String* restrict _string_in, const String* restrict _other_in);
 void                String_Concat ();
 uDM                 String_Hash   (String* _string);
