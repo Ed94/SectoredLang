@@ -1,5 +1,5 @@
 ## LTP (Language Translation Platform) :
-These are domain specific compatiable translation platforms to handle MAS programs.
+These are domain specific compatible translation platforms to handle MAS programs.
 MAS platforms can support different LTPs.
 
 ## Backend Categories :
@@ -15,12 +15,11 @@ Interpreter    Runtime interpreter for the same language specification used of f
 <pre>
 These are metaprogramming platforms that may be provided by a MAS platform. 
 The language feature layering provides the default policy for what features are allowed from these directors.
-
 Alias      Provides similar to functionality to using statements c++ for namespace along with being able to 
-           specify ammendments the backend language modules such as the lexer, parser, and symbol table. 
+           specify amendments the backend language modules such as the lexer, parser, and symbol table. 
            As such things related to the langauge model can be changed. (So long as the alias backend allows for it) 
            (I Don't have a fully fleshed out idea for how the extent of alias. 
-           Its mostly a explicit context manipulation and language adapation platform)
+           Its mostly a explicit context manipulation and language adaptation platform)
 
 Meta        Rudimentary macros, to advanced macro syntax systems. 
             Templating, generics, etc.
@@ -29,14 +28,15 @@ Meta        Rudimentary macros, to advanced macro syntax systems.
 TT          Translation Time: Allows for translation time execution. 
 </pre>
 
-## LFLs (Langauge Feature Layering) :
+## LFLs (Language Feature Layering) :
 
-All language/module features can be explicitly disabled or enabled in context specification
-Generalized set of featuers are group into layers from layer 0 to layer 4
-
-*Optional, can practically skip but just making layer X in C or Forth, don't even need the ltp directors*
-Layer Bootstrap &nbsp; &nbsp; &nbsp; Boostrap target to build layer 0  
+All language/module features can be explicitly disabled or enabled in context specification  
+Generalized set of features are group into layers from layer 0 to layer 4  
 <br />
+*Optional, can practically skip but just making layer X in C or Forth, don't even need the ltp directors*  
+Layer Bootstrap &nbsp; &nbsp; &nbsp; Bootstrap target to build layer 0    
+<br />
+
 <pre>
 Layer 0 Low-level features, binary, hex, interrupts, paging, stack, registers, etc
 Layer 1 C Features
@@ -48,8 +48,9 @@ Layer 4 Purely functional
 # File/Unit associations :
 
 ## .context                Context Specification  
-Context unit for a project or package. Determines how the related content will be processed 
+Context unit for a project or package. Determines how the related content will be processed  
 <br />
+
 <pre>
 symbols:
     context             Provides a designated named context unit for a project
@@ -74,37 +75,38 @@ Serve a few purposes :
     Package Optimization    Allow the backend to cache and process packing and context efficiently
     Unit/s sectoring        Acts as a namespace for a set of implementation
 
-Note: While it is ideal, blueprints could also be generated if desired (intended feature later on)
+Note: While it is ideal, blueprints could also be generated if desired (intended feature later on)   
 
-A blueprint's syntax closely follows the language model used for spec units
+A blueprint's syntax closely follows the language model used for spec units  
 </pre>
+
 ## .spec                   Specification
 
-Where a unit of implementation for a subject or context is defined
+Where a unit of implementation for a subject or context is defined  
 There can be multiple units for each bp (blueprint)
 
 ## .gen.*                  Generated Specification
 
-These are generated units that have completed the meta and/or ct pass.
-These files are optionally outputted to the filesystem.
-These files are mainly intended to be rendered or debugged in a mas compatiable editor.
+These are generated units that have completed the meta and/or ct pass.  
+These files are optionally outputted to the filesystem.  
+These files are mainly intended to be rendered or debugged in a mas compatiable editor.  
 
-The purpose is to provide an visual of how meta-programming (alias, meta, tt) features are generated in a clear way.
+The purpose is to provide an visual of how meta-programming (alias, meta, tt) features are generated in a clear way.  
 
 ## .db                     Database
 
-This is a full image of a processed context.
-Which includes the structured table organized by the context and subject units.
-Contains all unit defined symbols and their properites along with AST of execution specification.
-These are meant to be saved to cache previous passes or as an intermediary between tools.
+This is a full image of a processed context.  
+Which includes the structured table organized by the context and subject units.  
+Contains all unit defined symbols and their properites along with AST of execution specification.  
+These are meant to be saved to cache previous passes or as an intermediary between tools.  
 
-Should be viewable using a database viewer.
+Should be viewable using a database viewer.  
 
 ## .ast                    Abstract Syntax There
 
-This is a Dion (hopefully) formatted ast file that contains the raw parsed ast of a context. 
-This can be used as intermediary between tools or as a way to store the "live" source code.
-Unit text files can be generated from the ast.
+This is a Dion (hopefully) formatted ast file that contains the raw parsed ast of a context.   
+This can be used as intermediary between tools or as a way to store the "live" source code.  
+Unit text files can be generated from the ast.    
 
-This is meant to be the live "code" the user writes source code in with a toolchain. ASTs should be rendered live
-in "tiled" or "tokened" text.
+This is meant to be the live "code" the user writes source code in with a toolchain. ASTs should be rendered live in "tiled" or "tokened" text.  
+

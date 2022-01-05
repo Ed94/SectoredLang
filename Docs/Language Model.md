@@ -1,4 +1,5 @@
 # Token Types :
+
 <pre>
 Comment         # Author commentary
 Components      # Helper tokens to aid in tokenization.
@@ -16,6 +17,7 @@ Statement       # Used to delimit what a (statement) should be in MAS.
 # Universal Context
 
 ## Tokens
+
 <pre>
 #------------------------------------------------------
                                                         Comments
@@ -85,6 +87,7 @@ Type            Top Type                sym_TType
 </pre>
 
 ## Grammar:
+
 <pre>
 ...                             Symbol pattern generator
 
@@ -120,6 +123,7 @@ typeof(identifier)              Accessor to associated type of identifier
 
 # Layer 0
 
+| | |
 |:--|:--|
 | APS | 1 |
 | CNL                 | 1        # (AKA Context Nesting Limit) {unit} : {sector} : {identifier} : {identifier}; ;; |
@@ -127,6 +131,7 @@ typeof(identifier)              Accessor to associated type of identifier
 | Implicit Mutability | mut |
 
 ## Tokens
+
 <pre>
 #------------------------------------------------------
                                                         Operators
@@ -221,6 +226,7 @@ word            Machine data model width            sym_Word
 </pre>
 
 ## Grammar
+
 <pre>
 ret   symbol;                   Return a valid symbol for the context   
 label identifier;               Deifne label with identifier
@@ -243,27 +249,28 @@ sizeof(symbol) * width          Specify a datatype of set width (where width is 
 </pre>
 
 # Layer 1
-
+| | |
 | :-- | :-- |
 | CNL                 | 1 ```# {unit} : {sector} : {identifier} : {identifier}; ;;``` |
 | Typing              | Weak |
 | Implicit Mutability | mut |
 
 ## Feature Removal
-Direct Stack Manipulation : Removed
-Direct Encoding injection 
+Direct Stack Manipulation : Removed  
+Direct Encoding injection  
 Paging Management
 
 ## Removed:
-binary
-ternary
-hex
-interrupt
-page
-pop
-push
+binary  
+ternary  
+hex  
+interrupt  
+page  
+pop  
+push  
 
 ## Tokens
+
 <pre>
 #------------------------------------------------------
                                                         Parameters
@@ -291,6 +298,7 @@ for             For loop                sec_For
 
 # Layer 2
 
+| | |
 | :-- | :-- |
 | CNL                 | 4  ```{unit} {sector} {identifier} : {identifier} : {identifier} : {identifier}; ;;``` |
 | Typing              | Strong |
@@ -298,7 +306,7 @@ for             For loop                sec_For
 | MN                  | | 
 | Borrow Checker ||
 
-Removed:
+Removed:  
 * label
 * goto
 
@@ -332,14 +340,14 @@ ref         References                  sec_Ref
 
 # Layer 3
 
-Typing : Strong
-
+Typing : Strong  
 
 Removed:
 
-#====================================================================================================================
+
 
 ## Tokens
+
 <pre>
 #------------------------------------------------------
                                                         Parameters
@@ -358,7 +366,7 @@ Removed:
 
 # Layer 4
 
-Strong-Typing
+Strong-Typing  
 Purely-functional
 
 
@@ -381,8 +389,9 @@ fn          Function                    sec_FN
 
 
 # Layer Boostrap
-(This does not use the universal context)
+(This does not use the universal context)  
 
+| | |
 | :-- | :-- |
 | APS                 | 1 |
 | CNL                 | 0         ```{sector} {identifier} : {definition} ; (Only one definition, bodies are not allowed)``` |
@@ -392,6 +401,7 @@ fn          Function                    sec_FN
 
 
 ## Tokens
+
 <pre>
 #------------------------------------------------------
                                                         Comments
@@ -455,6 +465,7 @@ type            DataType Definition     sec_Type
                                                         Symbols
 byte            Smallest addressable unit of bits   sym_Byte                                                        
 word            Machine data model width            sym_Word
+
 </pre>
 
 ## LFL : unsupported
