@@ -1,6 +1,6 @@
 #ifndef Config_LAL__Def
-
 #define Config_LAL__Def
+
 // Directive
 // #define LAL_ForceInlineMode_EnforceDiscretion
 
@@ -16,6 +16,5 @@
 
 #define LAL_CharWidth_Narrow
 #define PLS
-
 
 #endif

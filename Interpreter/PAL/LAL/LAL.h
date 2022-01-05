@@ -15,12 +15,11 @@ platform impelemetnation of the standard STL.
 #include "LAL.Bit.h"
 #include "LAL.Declarations.h"
 #include "LAL.Exception.h"
-#include "LAL.Limits.h"
 #include "LAL.IO.h"
+#include "LAL.Limits.h"
 #include "LAL.Memory.h"
 #include "LAL.String.h"
 #include "LAL.Types.h"
-
 
 #define LAL__Def
 #endif

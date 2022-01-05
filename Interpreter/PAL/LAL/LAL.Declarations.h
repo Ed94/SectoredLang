@@ -1,5 +1,4 @@
 #ifndef LAL_Declarations_Def
-#define LAL_Declarations_Def
 
 #include "Config.Build.h"
 #include "Config.LAL.h"
@@ -20,6 +19,8 @@
 // Execution
 
 #define loop    for (;;)
+
+#define mWrap   
 
 // Procedures
 
@@ -58,8 +59,6 @@
 #   define  ForceInline
 #endif
 
-#endif
-
 // Statics
 
 // Creates a static duration variable only accessible to the file. (Global scope/File scope only)
@@ -68,3 +67,6 @@
 #define ExportLink      extern
 #define ImportLink      extern
 
+
+#define LAL_Declarations_Def
+#endif

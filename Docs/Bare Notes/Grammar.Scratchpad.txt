@@ -1,0 +1,20 @@
+# It should be esasy to express context
+
+# Single Definition
+{sector} {identifier} : {Definition} ;
+
+# Body Definition
+{identifier} : 
+	{statements}
+;
+
+# Type Definition (Layer 0)
+type : 
+	# Formatting primitive delimited
+	{[size]}        # Width multiplier (Optional)
+	{identifier}    # symbol must contain a type definition or be a platform provided type.
+;
+
+# Procedures
+
+proc {symbol} 

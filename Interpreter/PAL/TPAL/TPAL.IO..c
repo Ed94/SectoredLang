@@ -8,7 +8,7 @@
 
 IO_FileContent IO_File_ReadContent(ro_str _path, bool _addNullTermination)
 {
-	zpl_file_contents result = zpl_file_read_contents(zpl_heap(), _addNullTermination, _path);
+	zpl_file_contents result = zpl_file_read_contents(Mem_GlobalAllocator(), _addNullTermination, _path);
 	
 	return ocast(IO_FileContent, result);
 }

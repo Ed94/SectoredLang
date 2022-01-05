@@ -172,6 +172,8 @@ bool String_IsEqual(String* restrict _string_in, String* restrict _other_in)
 	return zpl_string_are_equal(_string_in->Data, _other_in->Data);
 }
 
+
+
 ForceInline 
 void String_SetLength(String* _string, uDM _length)
 {

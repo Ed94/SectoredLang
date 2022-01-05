@@ -2,6 +2,19 @@
 && !defined(TPAL_Memory_zpl__Def)
 #   define  TPAL_Memory_zpl__Def
 
+zpl_allocator Mem_GlobalAllocator(void);
+ZPL_ALLOCATOR_PROC(Mem_GlobalAllocator_proc);
+
+ForceInline
+zpl_allocator Mem_GlobalAllocator(void)
+{
+	zpl_allocator allocator;
+
+	allocator.proc = Mem_GlobalAllocator_proc;
+	allocator.data = nullptr;
+
+	return allocator;
+}
 
 ForceInline 
 void* Internal_Mem_Alloc(uDM _amount)

@@ -3,7 +3,6 @@ Note:  This current implementation is heavily reliant on zpl.
 */
 
 #ifndef LAL_IO__Def
-#define LAL_IO__Def
 
 #include "TPAL.h"
 #include "Config.LAL.h"
@@ -119,4 +118,5 @@ s32 IO_StdWriteV(IO_Std* restrict _file_in, ro_str restrict _format, va_list _ar
 #include "TPAL.IO..h"
 
 
-#endif // LAL_IO__Def
+#define LAL_IO__Def
+#endif

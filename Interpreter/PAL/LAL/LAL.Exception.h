@@ -1,5 +1,4 @@
 #ifndef LAL_Exception__Def
-#define LAL_Exception__Def
 
 #include "TPAL.h"
 #include "Config.LAL.h"
@@ -35,5 +34,6 @@ void Fatal_NotImplemented(str _message);
 #endif
 
 
+#define LAL_Exception__Def
 #endif
 

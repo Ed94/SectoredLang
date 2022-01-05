@@ -1,5 +1,5 @@
-#ifndef Config_LAL__Def
-#define Config_LAL__Def
+#ifndef Config_TPAL__Def
+#define Config_TPAL__Def
 
 		// Required for LAL: IO, String
 #define TPAL_zpl

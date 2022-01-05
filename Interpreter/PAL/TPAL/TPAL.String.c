@@ -12,7 +12,7 @@ String* String_Make(ro_str _content, uDM _length)
 {
 	String* newString = Mem_GlobalAlloc(String, 1);
 	
-	newString->Data   = zpl_string_make(zpl_heap(), _content);
+	newString->Data   = zpl_string_make(Mem_GlobalAllocator(), _content);
 	newString->Length = zpl_string_length(newString->Data);
 
 	return newString;
@@ -22,7 +22,7 @@ String* String_MakeReserve(uDM _amount)
 {
 	String* newString = Mem_GlobalAlloc(String, 1);
 
-	str newStr = zpl_string_make_reserve(zpl_heap(), _amount);
+	str newStr = zpl_string_make_reserve(Mem_GlobalAllocator(), _amount);
 	
 	if (newStr != nullptr)
 	{
@@ -45,7 +45,7 @@ bool String_Reserve(String* _self, uDM _amount)
 			return false;
 	}
 
-	str newStr = zpl_string_make_reserve(zpl_heap(), _amount);
+	str newStr = zpl_string_make_reserve(Mem_GlobalAllocator(), _amount);
 	
 	if (newStr != nullptr)
 	{

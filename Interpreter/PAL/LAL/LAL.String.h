@@ -1,11 +1,12 @@
 #ifndef LAL_String__Def
-#define LAL_String__Def
+
+#include "Config.LAL.h"
+
+#include "LAL.Declarations.h"
+#include "LAL.Types.h"
+#include "LAL.Memory.h"
 
 #include "TPAL.h"
-#include "Config.LAL.h"
-#include "LAL.Declarations.h"
-#include "LAL.Memory.h"
-#include "LAL.Types.h"
 
 
 #pragma region Narrow

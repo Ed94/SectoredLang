@@ -35,7 +35,9 @@ enum AST_NodeType
 	
 	ASTnode_Term_Additive,
 	ASTnode_Term_Multiplicative,
-	ASTnode_AL_Expression
+	ASTnode_AL_Expression,
+	
+	ASTnode_NoOperation
 };
 
 enum SectorType
@@ -46,8 +48,8 @@ enum SectorType
 
 enum SectorDefType
 {
-	Single,
-	Body
+	SecDef_Single,
+	SecDef_Body
 };
 
 
@@ -65,7 +67,9 @@ ast_ProcBody,
 ast_SectorBody;
 
 typedef struct ast_Identifier           ast_Identifier;
-typedef struct ast_SectorStatic         ast_SectorStatic;
+typedef struct ast_Sector               ast_Sector,
+ast_SectorStack,
+ast_SectorStatic;
 
 typedef struct ast_SectorSymbol         ast_SectorSymbol;
 typedef struct ast_StaticIdentifier     ast_StaticIdentifier;
@@ -97,13 +101,14 @@ struct ast_Identifier
 	ast_Node* Definition;
 };
 
-struct ast_SectorStatic
+struct ast_Sector
 {
-	enum    SectorDefType  DefType;
-	union   {
-			ast_Identifier Single;
-			ast_SectorBody Body;
-	};
+	ESectorDefType          DefType;
+	ast_Node*               Definition;
+	// union   {
+	// 		ast_Identifier* Single;
+	// 		ast_SectorBody* Body;
+	// };
 };
 
 struct ast_DataDef
@@ -148,10 +153,11 @@ struct ast_Struct
 // Main Node for the AST.
 struct ast_Node
 {   
+			// String*             Context;
 	enum    AST_NodeType        Type;
 	union 	{
 			ast_UnitSpec        UnitSpec;
-			ast_SectorStatic    SectorStatic; 
+			ast_Sector          Sector; 
 			ast_SectorBody      SectorBody;
 			ast_Identifier      Identifier;
 			ast_DataDef         DataDef;

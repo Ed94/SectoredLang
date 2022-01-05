@@ -15,7 +15,6 @@ Heap_GlobalMemory =
 
 // Memory Allocation Array
 
-
 #define LastEntry _memoryArray->Length -1
 
 NoLink 
@@ -94,7 +93,6 @@ void* Internal_ScopedAllocClear(AllocTable* _scopedMemory, uDM _sizeOfAllocation
 		return nullptr;
 	}
 }
-
 
 void ScopedDealloc(AllocTable* _scopedMemory)
 {
@@ -188,5 +186,5 @@ void Mem_GlobalDealloc(void)
 	return;
 }
 
-
 #undef Reallocate
+#undef LastEntry

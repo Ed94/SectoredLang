@@ -6,7 +6,7 @@ u64 : type : [8] byte;;
 -/
 
 /-
-alias : 
+alias expose :
 uWord : ISA.uWord;
 sWord : ISA.sWord;
 ;
@@ -17,7 +17,7 @@ bool :
 	type : byte;
 
 	ct :
-	false : bool = 0x01;
+	false : bool = 0x00;
 	true  : bool = 0x01;
 	;
 ;
@@ -59,10 +59,46 @@ proc :
 		stack : 
 			// GoodbyeStr : [] byte = "Goodbye World!";
 			GoodbyeStr : ptr byte = "Goodbye World!";
+			
+			/-
+			GoodbyeStr;
+			
+			push GoodbyeStr
+			-/
 		;
 	
 		PAL.Console. Send(GoodbyeStr);
 	};
+;
+
+/-
+proc Namespaced :
+	Procedure :
+		PAL.Console. Send("Nested.Procedure!");
+		
+		Nested :
+			PAL.Console. Send("Nested Inline Procedure!");
+		;
+		
+		Nested;
+	;
+;
+
+proc Another.Nested.Procedure : 
+	PAL.Console. Send("Another.Nested.Procedure!");
+;
+
+proc Another.Nested :
+	Procedure2 :
+		PAL.Console. Send("Another.Nested.Procedure2!");
+	;
+;
+-/
+
+proc (u32 , u32) : 
+
+	Add 
+
 ;
 
 proc Entrypoint :

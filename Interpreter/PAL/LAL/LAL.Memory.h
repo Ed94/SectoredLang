@@ -1,10 +1,10 @@
 #ifndef LAL_Memory__Def
-#define LAL_Memory__Def
 
-#include "TPAL.h"
 #include "Config.LAL.h"
+#include "TPAL.h"
 #include "LAL.Declarations.h"
 #include "LAL.Types.h"
+
 
 #ifdef obj
 #   undef obj
@@ -23,6 +23,7 @@
 #define _256K   262144 
 #define _512K   524288  
 #define _1MB    1048576  
+
 
 // Addressing Operation Wrappers
 
@@ -49,7 +50,7 @@ struct FatPtr
 typedef void* 
 FatPtr[2];
 
-#define FatPtrT(__TYPE)  \
+#define FatPtrT(__TYPE) \
 struct FatPtr##__TYPE   \
 {                       \
 	uDM     Length;     \
@@ -62,7 +63,17 @@ struct FatPtr##__TYPE   \
 #define    null       { nullptr }
 
 
-#pragma region ManualManagement
+#pragma region      Formmating
+
+#define              Mem_FormatByFill(_type, _memoryAddress, _fillValue, _sizeOfAllocation) \
+cast(_type*)Internal_Mem_FormatByFill(_memoryAddress, _fillValue, sizeof(_type) * (_sizeOfAllocation))
+
+#define              Mem_FormatWithData(_type, _memoryAddress, _dataSource, _numberToAllocate) \
+cast(_type*)Internal_Mem_FormatWithData(_memoryAddress, _dataSource, sizeof(_type) * (_numberToAllocate))
+
+#pragma endregion   Formmating
+
+#pragma region Manual Management
 
 void* Internal_Mem_Alloc     (uDM _amount);
 void* Internal_Mem_AllocClear(uDM _num, uDM _amount);
@@ -81,22 +92,23 @@ cast(_type*)Internal_Mem_AllocClear(_numberToAllocate, sizeof(_type));
 #define              Mem_Resize(_type, _memoryAddress, _currentNumber, _numberDesired) \
 cast(_type*)Internal_Mem_Resize(_memoryAddress, sizeof(_type) * (_currentNumber), sizeof(_type) * (_numberDesired));
 
-#define              Mem_FormatByFill(_type, _memoryAddress, _fillValue, _sizeOfAllocation) \
-cast(_type*)Internal_Mem_FormatByFill(_memoryAddress, _fillValue, sizeof(_type) * (_sizeOfAllocation))
+#pragma endregion Manual Management
 
-#define              Mem_FormatWithData(_type, _memoryAddress, _dataSource, _numberToAllocate) \
-cast(_type*)Internal_Mem_FormatWithData(_memoryAddress, _dataSource, sizeof(_type) * (_numberToAllocate))
+#pragma region      Static Management
+// 
 
-#pragma endregion ManualManagement
+#define Def_StaticMemory()
 
 
-#pragma region BasicMemoryManager
+#pragma endregion   Static Management
+
+#pragma region      Basic Manager
 
 // This memory manager does continous allocation throughout program lifetime,
 // Never frees global allocation until application closes. 
 // Only should be used with small programs that do not need a better solution.
 
-// #ifdef LAL_Use_BasicMemoryManager
+#ifdef LAL_Use_BasicMemoryManager
 struct MemBlock
 {
 	uDM     Size;
@@ -156,17 +168,17 @@ cast(_type*)Internal_Mem_ScopedAllocClear(ptrof(scopedMemory), sizeof(_type) * (
                                                     \
 	if (scopedMemory.Array != nullptr)              \
 	{								                \
-		ScopedDealloc(ptrof(scopedMemory));         \
+		Mem_ScopedDealloc(ptrof(scopedMemory));         \
 	}												\
 	return _value;                                  \
 }
 
-// #endif // LAL_Use_BasicMemoryManager
-#pragma endregion BasicMemoryManager
+#endif // LAL_Use_BasicMemoryManager
+#pragma endregion       Basic Manager
 
 
 // TPAL Implementation
 #include "TPAL.Memory.h"
 
-
-#endif // LAL_Memory__Def
+#define LAL_Memory__Def
+#endif

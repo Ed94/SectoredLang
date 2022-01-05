@@ -48,8 +48,11 @@ ast_Node* ast_Node_Make(E_AST_NodeType _type)
 		break;
 		
 		case ASTnode_Proc_Call :
-
 		break;
+		
+		case ASTnode_NoOperation :
+		break;
+		
 		
 	#undef UnitSpec
 	#undef SectorBody

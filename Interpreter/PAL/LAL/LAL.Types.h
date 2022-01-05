@@ -1,6 +1,7 @@
 #ifndef LAL_Types__Def
 #define LAL_Types__Def
 
+#include "Config.LAL.h"
 #include "TPAL.h"
 
 
@@ -68,10 +69,10 @@ typedef    uint16_t     u16;
 typedef    uint32_t     u32;
 typedef    uint64_t     u64;
 
-static_assert(sizeof(s8)  == sizeof(s8) , "sizeof(u8)  != sizeof(zpl_s8)");
-static_assert(sizeof(u16) == sizeof(s16), "sizeof(u16) != sizeof(zpl_s16)");
-static_assert(sizeof(u32) == sizeof(s32), "sizeof(u32) != sizeof(zpl_s32)");
-static_assert(sizeof(u64) == sizeof(s64), "sizeof(u64) != sizeof(zpl_s64)");
+static_assert(sizeof(s8)  == sizeof(s8) , "sizeof(u8)  != sizeof(s8)");
+static_assert(sizeof(u16) == sizeof(s16), "sizeof(u16) != sizeof(s16)");
+static_assert(sizeof(u32) == sizeof(s32), "sizeof(u32) != sizeof(s32)");
+static_assert(sizeof(u64) == sizeof(s64), "sizeof(u64) != sizeof(s64)");
 
 static_assert(sizeof(u8)  == 1, "sizeof(u8)  != 1");
 static_assert(sizeof(u16) == 2, "sizeof(u16) != 2");

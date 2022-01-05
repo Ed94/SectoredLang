@@ -82,11 +82,13 @@ ast_Node* Parse_Sector_Stack()
 		case Def_Start :
 			Parser_EatToken(Def_Start);
 			
-			node = Parse_SectorBody_Stack();
+			node->Sector.DefType    = SecDef_Body;
+			node->Sector.Definition = Parse_SectorBody_Stack();
 		break;
 		
 		case Sym_Identifier :
-			node = Parse_Static_Identifier();
+			node->Sector.DefType    = SecDef_Single;
+			node->Sector.Definition = Parse_Static_Identifier();
 			// Sector definition is complete.
 		break;
 
@@ -111,11 +113,13 @@ ast_Node* Parse_Sector_Static()
 		case Def_Start :
 			Parser_EatToken(Def_Start);
 			
-			node = Parse_SectorBody_Static();
+			node->Sector.DefType    = SecDef_Single;
+			node->Sector.Definition = Parse_SectorBody_Static();
 		break;
 		
 		case Sym_Identifier :
-			node = Parse_Static_Identifier();
+			node->Sector.DefType    = SecDef_Body;
+			node->Sector.Definition = Parse_Static_Identifier();
 			// Sector definition is complete.
 		break;
 
@@ -140,11 +144,13 @@ ast_Node* Parse_Sector_Proc()
 		case Def_Start :
 			Parser_EatToken(Def_Start);
 			
-			node = Parse_SectorBody_Proc();
+			node->Sector.DefType    = SecDef_Body;
+			node->Sector.Definition = Parse_SectorBody_Proc();
 		break;
 		
 		case Sym_Identifier :
-			node = Parse_Proc_Identifier();
+			node->Sector.DefType    = SecDef_Single;
+			node->Sector.Definition = Parse_Proc_Identifier();
 			// Sector definition is complete.
 		break;
 		

@@ -4,6 +4,7 @@
 #include "Lexer.h"
 // Parser
 #include "Parser.mas.h"
+#include "Visitor.h"
 // Shell
 // #include "Shell.h"
 
@@ -16,6 +17,9 @@ EnvArgsArray = nullptr;
 static 
 String 
 StreamBuffer = { 0, nullptr };
+
+static
+ast_Node* AST_Root = nullptr;
 
 #pragma endregion StaticData
 
@@ -124,9 +128,16 @@ void ParseStream()
 	Parser_Init();
 	
 	// Currently we know the file passed will be a spec unit.
-	ast_Node* ast = Parse(CUT_Specification);
+	AST_Root = Parse(CUT_Specification);
 	
-	Log("Completed parse.");
+	Log("Completed parse.\n");
+}
+
+void VisitAST()
+{
+	Log("Visitng AST:");
+	
+	vistr_Visit(AST_Root);
 }
 
 OS_ExitVal 
@@ -151,6 +162,7 @@ OSAL_EntryPoint()
 		
 		// LexStream();
 		ParseStream();
+		VisitAST();
 	}
 	
 	// RunShell();
