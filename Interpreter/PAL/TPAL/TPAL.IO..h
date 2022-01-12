@@ -35,13 +35,13 @@ ErrorType IO_File_Open(IO_File* restrict _file_out, ro_str restrict _path, enum 
 }
 
 ForceInline 
-uDM IO_File_Read(IO_File* restrict _file_in, const void* restrict _buffer_out, sDM _size)
+uw IO_File_Read(IO_File* restrict _file_in, const void* restrict _buffer_out, sw _size)
 {
 	return zpl_file_read(_file_in, _buffer_out, _size);
 }
 
 ForceInline
-uDM IO_File_Write(IO_File* restrict _file_in, const void* restrict _buffer_in, sDM _size)
+uw IO_File_Write(IO_File* restrict _file_in, const void* restrict _buffer_in, sw _size)
 {
 	return zpl_file_write(_file_in, _buffer_in, _size);
 }

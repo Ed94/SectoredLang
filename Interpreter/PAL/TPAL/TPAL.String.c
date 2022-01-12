@@ -1,4 +1,5 @@
 #include "Config.TPAL.h"
+
 #ifdef TPAL_zpl
 
 #include "LAL.String.h"
@@ -8,7 +9,7 @@
 #define length  _self->Length
 
 
-String* String_Make(ro_str _content, uDM _length)
+String* String_Make(ro_str _content, uw _length)
 {
 	String* newString = Mem_GlobalAlloc(String, 1);
 	
@@ -18,7 +19,7 @@ String* String_Make(ro_str _content, uDM _length)
 	return newString;
 }
 
-String* String_MakeReserve(uDM _amount)
+String* String_MakeReserve(uw _amount)
 {
 	String* newString = Mem_GlobalAlloc(String, 1);
 
@@ -35,7 +36,7 @@ String* String_MakeReserve(uDM _amount)
 	return nullptr;
 }
 
-bool String_Reserve(String* _self, uDM _amount)
+bool String_Reserve(String* _self, uw _amount)
 {
 	if (!_self)
 	{

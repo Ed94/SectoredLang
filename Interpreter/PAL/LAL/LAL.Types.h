@@ -25,10 +25,10 @@ typedef int64_t
 
 // Data model defined addressing sizes.
 
-typedef	size_t      uDM;
-typedef	ptrdiff_t   sDM;
+typedef	size_t      uw;
+typedef	ptrdiff_t   sw;
 
-static_assert(sizeof(uDM) == sizeof(sDM), "sizeof(uDM) != sizeof(sDM)");
+static_assert(sizeof(uw) == sizeof(sw), "sizeof(uw) != sizeof(sw)");
 
 // Pointer Compatiable Width Integers
 

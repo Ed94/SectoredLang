@@ -1,0 +1,73 @@
+// This is based directly on the zpl.h source.
+expose 
+DArray tt <Type : Type, AllocatorType : PAL.AllocatorType>;
+DArray 
+{
+	tt if AllocatorType != undefined : 
+		heap : allocator = AllocatorType;
+	;
+
+	expose type	ptr struct :
+		Length : uw;
+		Data   : ptr Type;
+	;
+
+	// Internal (true) data type.
+	Header type struct
+	{
+		// If the allocator is not defined at translation time,
+		// reference an allocator using a rutnime reference.
+		tt OptionalAllocator proc exe :
+			if AllocatorType == undefined :
+				macro { Allocator : PAL.Allocator }
+		;
+
+		OptionalAllocator;
+		Capacity  : uw;
+		Length    : uw;
+		Data      : ptr byte;
+	}
+
+	proc :
+		GrowFormula (_capacity : uw) -> uw inline;
+		
+		// tt + exe = generate inplace
+		OptionalAllocator tt exe :
+			// tt if (params must be tt time) will be dissolved
+			if AllocatorType == undefined :
+				macro 
+				{
+					"_Allocator : PAL.Allocator"
+				}
+			;
+		;
+	;
+
+	expose proc (self : ptr <Type> DArray) : 
+		Init        (OptionalAllocator) inline;
+		InitCopy	(_other : ptr <Type> DArray)
+		InitReserve (_capacity : uw, OptionalAllocator);
+
+		Append  (_obj  :    Type);
+		AppendAt(_obj  :    Type, _index  : uw);
+
+		Append  (_objs : [] Type, _amount : uw);
+		AppendAt(_objs : [] Type, _amount : uw, _index uw);
+
+		Back -> ptr Type;
+		Clear;
+
+		Fill(_begin, _end : uw, _value : ptr Type)
+		Free;
+
+		GetHeader -> ptr Header inline;
+
+		Grow       (_minCapacity : uw);
+		PopBack	   ()
+		RemoveAt   (_index : uw);
+		Resize     (_newLength : uw);
+		Reserve    (_capacity : uw);
+		SetCapacity(_capacity : uw);
+	;
+}
+d

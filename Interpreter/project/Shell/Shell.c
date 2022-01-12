@@ -8,7 +8,7 @@ void RunShell(void)
 	LogF(">");
 	
 	String  line    = { 0, nullptr };
-	uDM     length  = 0;
+	uw     length  = 0;
 	
 #define linePtr ptrof(line)
 	// IO_File_ReadLine(IO_StdIn, linePtr.Data, ptrof(length)); 

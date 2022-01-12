@@ -8,61 +8,76 @@
 #                                                                    pragma region      DynamicArray
 // Using the zpl implementation.
 
-typedef struct zpl_array_header
+// TODO : Make your own dynamic array container
+typedef 	struct zpl_array_header
+			// {
+			// 	zpl_allocator allocator;
+			// 	zpl_isize	  capacity;
+			// 	zpl_isize	  count;
+			// 	char*         data;
+			// }
 DArray_Header;
 
 #           define Def_DArray(_Type)        \
-typedef     struct DArray##_Type            \
+typedef     struct DArray_##_Type           \
 			{                               \
-				_Type* Data;                \
-				sDM    Num;                 \
+				const sw*	Length;         \
+				_Type* 		Data;           \
 			}                               \
-											\
-DArray##_Type; 
+DArray_##_Type; 
 
 #ifdef LAL_Use_BasicMemoryManager
-#   define darray_Init(_array) \
-	zpl_array_init(_array->Data, Mem_GlobalAllocator())
+#   define darray_Init(_array)                              					\
+do 																				\
+{ 																				\
+	zpl_array_init((_array)->Data, Mem_GlobalAllocator());    					\
+																				\
+	zpl_array_header* header = (cast(zpl_array_header *)((_array)->Data) - 1); 	\
+	(_array)->Length = &header->count; 											\
+} while(0)
 #else
 #   define darray_Init(_array) \
 	zpl_array_init(_array->Data, zpl_heap())
 #endif
 
+#define darray_InitWithAllocator(_array, _allocator) \
+zpl_array_init((_array)->Data, _allocator);
+
 #define darray_Append(_array, _obj) \
-zpl_array_append(_array->Data, _obj)
+zpl_array_append((_array)->Data, _obj)
 
 #define darray_AppendAt(_array, _obj, _index) \
-zpl_array_append_at(_array->Data, _obj, _index)
+zpl_array_append_at((_array)->Data, _obj, _index)
 
 #define darray_CopyAndInit(_arrayDest, _arraySrc) \
-zpl_array_copy_init(_array->Data, _arraySrc->Data)
+zpl_array_copy_init((_array)->Data, (_arraySrc)->Data)
 
 #define darray_Clear(_array) \
-zpl_array_clear(-array->Data)
+zpl_array_clear((_array)->Data)
 
 #define darray_Fill(_array, _begin, _end, _value) \
-zpl_array_fill(_array->Data, _begin, _end, _value)
+zpl_array_fill((_array)->Data, _begin, _end, _value)
 
 #define darray_Free(_array) \
-zpl_array_free(_array->Data)
+zpl_array_free((_array)->Data)
 
 #define darray_Grow(_array, _minCapacity) \
-zpl_array_grow(_array->Data, _minCapacity)
+zpl_array_grow((_array)->Data, _minCapacity)
 
 #define darray_Pop(_array) \
-zpl_array_pop(_array->Data)
+zpl_array_pop((_array)->Data)
 
 #define darray_RemoveAt(_array, _index) \
-zpl_array_remove_at(_array->Data, _index)
+zpl_array_remove_at((_array)->Data, _index)
 
 #define darray_Reserve(_array, _capacity) \
-zpl_array_reserve(_array->Data, _capacity)
+zpl_array_reserve((_array)->Data, _capacity)
 
 #define darray_Resize(_array, _newCount) \
-zpl_array_resize(_array->Data, _newCount)
+zpl_array_resize((_array)->Data, _newCount)
 
 #define darray_SetCapacity(_array, _newCapacity) \
-zpl_array_set_capacity(_array->Data, _newCapacity)
+zpl_array_set_capacity((_array)->Data, _newCapacity)
 
 #                                                                    pragma endregion   DynamicArray
 
@@ -71,7 +86,7 @@ zpl_array_set_capacity(_array->Data, _newCapacity)
 #               define Def_SArray(_Type, _Length)   \
 typedef         struct  SArray##_Length##_Type      \
 				{                                   \
-					uDM   Num;                      \
+					uw   Num;                       \
 					_Type Data[_Length];            \
 				};                                  \
 													\
@@ -176,7 +191,7 @@ kArray_PushP (IDK)
 		{							                                                            \
 			if ( (_arrayDest).Capacity < (_arraySrc).Num )                                      \
 			{                                                                                   \
-				karray_Resize(__Type, _arrayDest, (_arraySrc).Num);	                            \
+				karray_Resize(__Type, _arrayDest, (_arraySrc).Num);                             \
 			}                                                                                   \
 																								\
 			(_arrayDest).Num = (_arraySrc).Num;                                                 \
@@ -189,7 +204,7 @@ kArray_PushP (IDK)
 		{									                                                        \
 			if ((_array).Num == (_array).Capacity)                                                  \
 			{										                                                \
-				(_array).Capacity = (_array).Capacity ? (_array).Capacity << 1 : 2;	                \
+				(_array).Capacity = (_array).Capacity ? (_array).Capacity << 1 : 2;                 \
 				(_array).Data     = Mem_GlobalRealloc(__Type, (_array).Data, (_array).Capacity);	\
 			}															                            \
 																									\
@@ -211,7 +226,7 @@ kArray_PushP (IDK)
 #       define karray_Add(__Type, _array, _index)                                                                   \
 		(                                                                                                           \
 			(                                                                                                       \
-				(_array).Capacity <= (uDM)(_index) ?                                                                \
+				(_array).Capacity <= (uw)(_index) ?                                                                \
 						(                                                                                           \
 							(_array).Capacity = (_array).Num = (_index) + 1, karray_RoundUp32((_array).Capacity),   \
 							(_array).Data     = Mem_GlobalRealloc(__Type, (_array).Data, (_array).Capacity), 0      \
@@ -247,8 +262,8 @@ kArray_PushP (IDK)
 #                           define kArray(_Type)   \
 struct kArray_##_Type   \
 {                       \
-	uDM    Capacity;    \
-	uDM    Num,         \
+	uw    Capacity;    \
+	uw    Num,         \
 	_Type* Data;        \
 }
 #                                                                     pragma endregion       K_Array

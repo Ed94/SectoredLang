@@ -1,20 +1,56 @@
 # It should be esasy to express context
 
-# Single Definition
-{sector} {identifier} : {Definition} ;
+# Universal
 
-# Body Definition
-{identifier} : 
-	{statements}
-;
+# Allowed
+{Comments}
+{Formmatting}
+{directors}
 
-# Type Definition (Layer 0)
-type : 
-	# Formatting primitive delimited
-	{[size]}        # Width multiplier (Optional)
-	{identifier}    # symbol must contain a type definition or be a platform provided type.
-;
+	# Sectors
+		# Single Definition
+		{sector} ... {identifier} : 
+			{Definition} 
+		;
+		# Body Definition
+		{sector} :
+			{Body Definition} ...
+		;
+		{sector} ... : ... :
+			{Body Definition} ...
+		;
 
-# Procedures
+# Layer 0
 
-proc {symbol} 
+	# Enumeration
+	[type] enum : 
+		{member} ...
+	;
+
+	# Procedures
+		# Sector Single
+		proc {symbol} : 
+			{statements};
+		;
+		# Sector Body
+		proc :
+			{Body}
+		;
+
+	# Execution Body
+		exec statement;
+		exec :
+			{executable statements or instructions}
+		;
+
+	# Parameter sectors
+		# Single
+	({stateemnt}, ...) :
+		{Body Definition} ... 
+	;
+
+
+# Layer 1
+
+
+

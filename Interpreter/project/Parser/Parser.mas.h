@@ -62,8 +62,8 @@ ast_Node* Parse_AL_Expr();
 ast_Node* Parse_Term_Addi();
 ast_Node* Parse_Term_Mult();
 
-ast_Node* Parse_Op_Assign(ContextType _context, uDM _depth);
-ast_Node* Parse_Op_ProcCall(ContextType _context, uDM _depth);
+ast_Node* Parse_Op_Assign(ContextType _context, uw _depth);
+ast_Node* Parse_Op_ProcCall(ContextType _context, uw _depth);
 
 ast_Node* Parse_Literal_String();
 ast_Node* Parse_Symbol();

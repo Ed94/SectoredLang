@@ -90,8 +90,8 @@ ContextType[Identifier_MaxContextDepth];
 // Container for Code Units and Sectors
 struct ast_NodeArray
 {
-	uDM            Capacity;
-	uDM            Num;
+	uw            Capacity;
+	uw            Num;
 	ptr(ast_Node)* Nodes;
 };
 
@@ -180,7 +180,7 @@ struct ast_Node
 
 ast_Node* ast_Node_Make(E_AST_NodeType _type);
 
-void ast_NodeArray_Add(ast_NodeArray* _self, ast_Node* _nodeToAdd, uDM _capacityWidthUnit);
+void ast_NodeArray_Add(ast_NodeArray* _self, ast_Node* _nodeToAdd, uw _capacityWidthUnit);
 
 #define ast_UnitSpec_Add(_self, _nodeToAdd) \
 ast_NodeArray_Add(_self, _nodeToAdd, AST_UnitSpec_CWU)

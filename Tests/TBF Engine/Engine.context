@@ -1,0 +1,27 @@
+context : "Engine";
+LTP     : Interpreter ;
+layers  : Explicit ;
+
+dependencies :
+PAL
+;
+
+alias :
+OS      : PAL.OSAL;
+Console : PAL.Console;
+;
+
+units : 
+	Cycler     : bp, spec;
+	Execution  : bp, spec;			
+	Engine     : bp;
+	Input      : bp, spec;
+	Memory     : bp, spec;
+	Renderer   : bp, spec;
+	State      : bp, spec;
+	State.Intro: bp, spec;
+	Timing     : bp, spec;
+;
+
+entrypoint : Entrypoint;
+the lan

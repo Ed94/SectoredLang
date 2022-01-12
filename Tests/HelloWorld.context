@@ -1,5 +1,5 @@
 context : HelloWorld  ;
-module  : Interpreter ;
+LTP     : Interpreter ;
 layer   : 0 ;
 alias   : Standard.Version.2021 ;
 
@@ -12,7 +12,8 @@ OS      : PAL::OSAL;
 Console : PAL::Console;
 ;
 
-files :
+units :
 1_HelloWorld : spec ;
+;
 
 entrypoint : Entrypoint ;

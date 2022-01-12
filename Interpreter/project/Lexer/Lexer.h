@@ -8,34 +8,30 @@ struct Lexer
 {
 	u64   Index;
 	str   Contents;	
-	uDM   ContentSize;
+	uw    ContentSize;
 	schar CurrentChar;
 	
-	TokenArray Tokens;
-	Token*     PreviousToken;
-	Token*     CurrentToken;
+	DArray_Tokens TokensArray;
+	const Token*  PreviousToken;
+	const Token*  CurrentToken;
 };
 
 typedef struct Lexer
 Lexer;
 
-
-void Lexer_Init(const String* _contents);
-
 void Lexer_Tokenize(const String* _content);
 
-void Lexer_Advance();
-void Lexer_SkipWS ();
+// Grabs the next token (provides first token if current token is the first).
+const Token*	Lexer_Next();
+// Provides the previous token without changing the current token index;
+const Token*	Lexer_Previous();
+// Provides the token at the state index
+const Token* 	Lexer_TokenAt(uw _index);
+// Provides the token (_index) away from current token.
+const Token*	Lexer_TokenRelative(sw _index);
 
-Token* Lexer_NextToken      ();
-Token* Lexer_AdvWithToken   (Token* _token);
-
-Token* Lexer_Collect_Comment        ();
-Token* Lexer_Collect_CommentBlock   ();
-Token* Lexer_Collect_Decimal        ();
-Token* Lexer_Collect_Str            ();
-Token* Lexer_Collect_Symbol         ();
-
+// Reset lexer to the first token.
+void			Lexer_Reset();
 
 #define Lexer__DEF
 #endif

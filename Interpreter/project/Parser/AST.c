@@ -70,7 +70,7 @@ ast_Node* ast_Node_Make(E_AST_NodeType _type)
 #define Capacity    _self->Capacity
 #define Num         _self->Num
 
-void ast_NodeArray_Add(ast_NodeArray* _self, ast_Node* _nodeToAdd, uDM _capacityUnitWidth)
+void ast_NodeArray_Add(ast_NodeArray* _self, ast_Node* _nodeToAdd, uw _capacityUnitWidth)
 {
 	if (Capacity == _capacityUnitWidth)
 	{

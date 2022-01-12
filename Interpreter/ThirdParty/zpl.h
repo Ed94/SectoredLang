@@ -3846,7 +3846,7 @@ License:
 
      ZPL_BEGIN_C_DECLS
 
-     typedef struct zpl_array_header {
+    typedef struct zpl_array_header {
          char *data;
          zpl_isize count;
          zpl_isize capacity;
@@ -3982,7 +3982,7 @@ License:
      #define zpl_array_reserve(x, new_capacity)                                                                             \
      do {                                                                                                               \
          if (ZPL_ARRAY_HEADER(x)->capacity < (new_capacity)) zpl_array_set_capacity(x, new_capacity);                   \
-     } while (0)
+     } while (0) 
 
      ZPL_END_C_DECLS
      // file: header/essentials/collections/buffer.h

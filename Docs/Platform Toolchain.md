@@ -31,17 +31,20 @@ TT          Translation Time: Allows for translation time execution.
 ## LFLs (Language Feature Layering) :
 
 All language/module features can be explicitly disabled or enabled in context specification  
-Generalized set of features are group into layers from layer 0 to layer 4  
+Generalized set of features are group into layers from layer 0 to layer 4.  
+With an extra sub-layer called "0.OS" for the 0th layer but ommiting features ussually handled by a OS kernel.  
 <br />
 *Optional, can practically skip but just making layer X in C or Forth, don't even need the ltp directors*  
 Layer Bootstrap &nbsp; &nbsp; &nbsp; Bootstrap target to build layer 0    
 <br />
 
 <pre>
-Layer 0 Low-level features, binary, hex, interrupts, paging, stack, registers, etc
-Layer 1 C Features
-Layer 2 Memory and execution safety, garbage collection, V-Table generation, etc        
-Layer 3 C++ level of expressability
+Layer 0     Low-level features, binary, hex, interrupts, paging, stack, registers, etc
+Lyaer 0.OS  Removes features handled by the OS kernel and provides a standard interface to OS
+            Features
+Layer 1     C Features
+Layer 2     Memory and execution safety, garbage collection, V-Table generation, etc        
+Layer 3     C++ level of expressability
 Layer 4 Purely functional
 </pre>
 
@@ -55,14 +58,14 @@ Context unit for a project or package. Determines how the related content will b
 symbols:
     context             Provides a designated named context unit for a project
     description         Description for context
-    modules             States what backend modules to use for program specification
+    LTP                 States what backend modules to use for program specification
     layers              Specifies which language layers are implicity allowed. (To allow none, leave empty)
     explicit layers     Whether or not layers may be explicitly allowed within units
     alias               Specifies either the model language standard or support for an external language syntax
     dependencides       States what external packages this context depends on
     alias               Allows for in context appending of the current alias set (intended for small additions)
     units/files         Used to specify what units or files are associated with the context
-    entrypoint          Specifies the execution entrypoint (if the context is a program)
+    exec                Specifies the execution entrypoint (if the context is a program)
 </pre>
 
 ## .bp                     Blueprint

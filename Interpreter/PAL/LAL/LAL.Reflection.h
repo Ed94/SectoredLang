@@ -4,12 +4,12 @@
 
 
 #define size_of(__TYPE) \
-cast(sDM)(sizeof(__TYPE))
+cast(sw)(sizeof(__TYPE))
 
 #define count_of(__TYPE)                            \
 	((size_of(x) / size_of(0 [x]))                  \
 	/                                               \
-	(cast(sDM)( !(size_of(x) % size_of(0 [x])))))
+	(cast(sw)( !(size_of(x) % size_of(0 [x])))))
 
 #if defined(_MSC_VER) || defined(__TINYC__)
 #    define offset_of(__TYPE, __ELEMENT)       ((sDM) & (((__TYPE *)0)->__ELEMENT))

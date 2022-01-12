@@ -140,7 +140,7 @@ ast_Node* Visit_UnitSpec()
 	
 	LogF("Visit - Type: UnitSpec, Nodes: %llu\n",  spec->Num);
 	
-	for (uDM index = 0; index < spec->Num; index++)
+	for (uw index = 0; index < spec->Num; index++)
 	{
 		ast_Node* specNode = spec->Nodes[index];
 		

@@ -1,0 +1,22 @@
+context : "LX Cradle" : name ;
+LTP     : Interpreter ;
+layers  : Explicit ;
+
+dependencies :
+PAL;
+;
+
+alias :
+Console : PAL.Console;
+ISA     : PAL.ISA;
+;
+
+directories :
+"./";
+;
+
+units :
+0.LX.Cradle : spec
+;
+
+entyrpoint : Entrypoint;

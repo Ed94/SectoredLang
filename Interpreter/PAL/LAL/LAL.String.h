@@ -73,21 +73,21 @@ s32 nstr_Compare(ro_nstr _str1, ro_nstr _str2);
 
 ErrorType nstr_Concat
 (
-   nstr             _dest_out,   uDM _destSize,
-   ro_nstr restrict _srcStrA_in, uDM _srcStrSizeA,
-   ro_nstr restrict _srcStrB_in, uDM _srcStrSizeB	
+   nstr             _dest_out,   uw _destSize,
+   ro_nstr restrict _srcStrA_in, uw _srcStrSizeA,
+   ro_nstr restrict _srcStrB_in, uw _srcStrSizeB	
 );
 
 ErrorType nstr_Copy
 (
-	nstr restrict    _self,      uDM _selfSize,
+	nstr restrict    _self,      uw _selfSize,
 	ro_nstr restrict _source_in
 );
 
-s32 nstr_Format (nstr restrict _string_out, uDM _stringLength, ro_nstr restrict _format, ...);
-s32 nstr_FormatV(nstr restrict _string_out, uDM _stringLength, ro_nstr restrict _format, va_list _argList);
+s32 nstr_Format (nstr restrict _string_out, uw _stringLength, ro_nstr restrict _format, ...);
+s32 nstr_FormatV(nstr restrict _string_out, uw _stringLength, ro_nstr restrict _format, va_list _argList);
 
-uDM nstr_Length(ro_nstr _self);
+uw nstr_Length(ro_nstr _self);
 
 s32 nStr_StdWrite (IO_Std* restrict _stream_in, ro_nstr _format, ...);
 s32 nstr_StdWriteV(IO_Std* restrict _stream_in, ro_nstr _format, va_list _argList);
@@ -186,9 +186,9 @@ s32 str_Compare(ro_str _str1, ro_str _str2)
 ForceInline
 ErrorType str_Concat
 (
-   str             _dest_out,   uDM _destSize,
-   ro_str restrict _srcStrA_in, uDM _srcStrSizeA,
-   ro_str restrict _srcStrB_in, uDM _srcStrSizeB
+   str             _dest_out,   uw _destSize,
+   ro_str restrict _srcStrA_in, uw _srcStrSizeA,
+   ro_str restrict _srcStrB_in, uw _srcStrSizeB
 )
 {
 	return nstr_Concat
@@ -202,7 +202,7 @@ ErrorType str_Concat
 ForceInline
 ErrorType str_Copy
 (
-	str restrict    _self,      uDM _selfSize,
+	str restrict    _self,      uw _selfSize,
 	ro_str restrict _source_in
 )
 {
@@ -210,13 +210,13 @@ ErrorType str_Copy
 }
 
 ForceInline
-s32 str_FormatV(str restrict _string_out, uDM _stringLength, ro_str restrict _format, va_list _argList)
+s32 str_FormatV(str restrict _string_out, uw _stringLength, ro_str restrict _format, va_list _argList)
 {
 	return nstr_FormatV(_string_out, _stringLength, _format, _argList);
 }
 
 ForceInline
-s32 str_Format(str restrict _string_out, uDM _stringLength, ro_str restrict _format, ...)
+s32 str_Format(str restrict _string_out, uw _stringLength, ro_str restrict _format, ...)
 {
 	s32     result;
 	va_list argList;
@@ -229,9 +229,9 @@ s32 str_Format(str restrict _string_out, uDM _stringLength, ro_str restrict _for
 }
 
 ForceInline
-uDM str_Hash(str _str)
+uw str_Hash(str _str)
 {
-    uDM hash = 5381;
+    uw hash = 5381;
     
     u32 character;
 
@@ -242,7 +242,7 @@ uDM str_Hash(str _str)
 }
 
 ForceInline
-uDM str_Length(ro_str _self)
+uw str_Length(ro_str _self)
 {
 	return nstr_Length(_self);
 }
@@ -287,7 +287,7 @@ typedef struct String
 
 struct String
 {
-	uDM        Length;
+	uw         Length;
 	zpl_string Data;
 };
 
@@ -297,7 +297,7 @@ struct String
 
 struct String_ofchar
 {
-	uDM   Length;
+	uw    Length;
 	schar Data[2];
 };
 
@@ -329,20 +329,20 @@ const String* scharTo_ro_String(schar _char)
 }
 
 String* strTo_String(ro_str _str);
-String* strTo_String_wLength(ro_str _str, uDM _length);
+String* strTo_String_wLength(ro_str _str, uw _length);
 
 // Creates a string allocation with the provided string as its initial content
-String* String_Make       (ro_str _content, uDM _length);
-String* String_MakeMove   (str _content, uDM _length);
-String* String_MakeReserve(uDM _length);
+String* String_Make       (ro_str _content, uw _length);
+String* String_MakeMove   (str _content, uw _length);
+String* String_MakeReserve(uw _length);
 
 void                String_Append (String* restrict _string, const String* restrict _other); 
 void                String_Append_WFormat(String* restrict _self, ro_str restrict _format, ...);
 EStr_CompareResult  String_Compare(const String* restrict _string_in, const String* restrict _other_in);
 void                String_Concat ();
-uDM                 String_Hash   (String* _string);
+uw                  String_Hash   (String* _string);
 bool                String_IsEqual(String* restrict _string_in, String* restrict _other_in);
-bool                String_Reserve(String* _string, uDM _amount);
+bool                String_Reserve(String* _string, uw _amount);
 
 ForceInline
 String* scharTo_String(schar _char)
@@ -359,7 +359,7 @@ String* strTo_String(ro_str _str)
 }
 
 ForceInline
-String* strTo_String_wLength(ro_str _str, uDM _length)
+String* strTo_String_wLength(ro_str _str, uw _length)
 {
 	String* newString = String_Make(_str, _length);
 	
@@ -369,7 +369,7 @@ String* strTo_String_wLength(ro_str _str, uDM _length)
 // #define strTo_String(_str, ...)
 
 ForceInline
-uDM String_Hash(String* _string)
+uw String_Hash(String* _string)
 {
 	return str_Hash(_string->Data);
 }
@@ -381,4 +381,5 @@ uDM String_Hash(String* _string)
 // TPAL
 #include "TPAL.String.h"
 
+#define LAL_String__Def
 #endif // LAL_String__Def

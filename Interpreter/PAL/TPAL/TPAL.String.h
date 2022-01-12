@@ -32,9 +32,9 @@ s32 nstr_Compare(ro_nstr _str1, ro_nstr _str2)
 ForceInline
 ErrorType nstr_Concat
 (
-   nstr             _dest_out,   uDM _destSize,
-   ro_nstr restrict _srcStrA_in, uDM _srcStrSizeA,
-   ro_nstr restrict _srcStrB_in, uDM _srcStrSizeB
+   nstr             _dest_out,   uw _destSize,
+   ro_nstr restrict _srcStrA_in, uw _srcStrSizeA,
+   ro_nstr restrict _srcStrB_in, uw _srcStrSizeB
 )
 {
 	if (! _dest_out)
@@ -53,7 +53,7 @@ ErrorType nstr_Concat
 ForceInline
 ErrorType nstr_Copy
 (
-	nstr restrict    _self,      uDM _selfSize,
+	nstr restrict    _self,      uw _selfSize,
 	ro_nstr restrict _source_in
 )
 {
@@ -68,7 +68,7 @@ ErrorType nstr_Copy
 }
 
 ForceInline
-s32 nstr_Format(nstr restrict _string_out, uDM _stringLength, ro_nstr restrict _format, ...)
+s32 nstr_Format(nstr restrict _string_out, uw _stringLength, ro_nstr restrict _format, ...)
 {
 	s32     result;
 	va_list argList;
@@ -81,13 +81,13 @@ s32 nstr_Format(nstr restrict _string_out, uDM _stringLength, ro_nstr restrict _
 }
 
 ForceInline
-s32 nstr_FormatV(nstr restrict _string_out, uDM _stringLength, ro_nstr restrict _format, va_list _argList)
+s32 nstr_FormatV(nstr restrict _string_out, uw _stringLength, ro_nstr restrict _format, va_list _argList)
 {
 	return zpl_snprintf_va(_string_out, _stringLength, _format, _argList);
 }
 
 ForceInline
-uDM nstr_Length(ro_nstr _self)
+uw nstr_Length(ro_nstr _self)
 {
 	// return strlen(_self);
 	return zpl_strlen(_self);
@@ -175,7 +175,7 @@ bool String_IsEqual(String* restrict _string_in, String* restrict _other_in)
 
 
 ForceInline 
-void String_SetLength(String* _string, uDM _length)
+void String_SetLength(String* _string, uw _length)
 {
 	zpl__set_string_length(_string->Data, _length);
 }

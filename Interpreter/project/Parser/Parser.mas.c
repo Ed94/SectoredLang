@@ -14,7 +14,7 @@ ParserObj = { 0, nullptr, nullptr }
 void Parser_Init()
 {
 	Log("Parser Init");
-	CurrentToken = Lexer_NextToken();	
+	CurrentToken = Lexer_Next();	
 }
 
 ast_Node* Parse_UnitSpec()
@@ -290,12 +290,12 @@ ast_Node* Parse_DataDef()
 {
 	ast_Node* node = ast_Node_Make(ASTnode_DataDef);
 	
-	if (CurrentToken->Type == Sym_Ptr)
+	if (CurrentToken->Type == OP_Sym_Ptr)
 	{
-		Parser_EatToken(Sym_Ptr);	
+		Parser_EatToken(OP_Sym_Ptr);	
 		
 		static 
-		String  _PtrStr = STok_Sym_Ptr;
+		String  _PtrStr = STok_OP_Sym_Ptr;
 		String* ptrType = String_MakeReserve(_PtrStr.Length + 1 + CurrentToken->Value->Length);
 		
 		String_Append_WFormat(ptrType, "ptr %s", CurrentToken->Value->Data);
@@ -343,7 +343,7 @@ ast_Node* Parse_Proc_Body()
 			LogF("Parent Symbol: %s\n", CurrentToken->Value->Data);
 
 			String*  identifierStmt[Identifier_MaxContextDepth];
-			uDM      index = 0;
+			uw      index = 0;
 			
 			identifierStmt[index++] = CurrentToken->Value;
 			Parser_EatToken(Sym_Identifier);
@@ -408,7 +408,7 @@ void Parser_EatToken(enum TokenType _type)
 	
 	if (type == _type)
 	{
-		CurrentToken = Lexer_NextToken();
+		CurrentToken = Lexer_Next();
 		return;
 	}
 
@@ -493,18 +493,18 @@ ast_Node* Parse_AL_Expr();
 ast_Node* Parse_Term_Addi();
 ast_Node* Parse_Term_Mult();
 
-ast_Node* Parse_Op_Assign(ContextType _context, uDM _depth)
+ast_Node* Parse_Op_Assign(ContextType _context, uw _depth)
 {
 	Fatal_NotImplemented("Parse_OP_Assign");
 	return nullptr;
 }
 
-ast_Node* Parse_Op_ProcCall(ContextType _context, uDM _depth)
+ast_Node* Parse_Op_ProcCall(ContextType _context, uw _depth)
 {
 	Log("Parse Op proc call");
 	ast_Node* node = ast_Node_Make(ASTnode_Proc_Call);
 			
-	for (uDM index = 0; index < _depth; index++)
+	for (uw index = 0; index < _depth; index++)
 	{
 		node->ProcCall.Context[index] = _context[index];
 	}
@@ -515,7 +515,7 @@ ast_Node* Parse_Op_ProcCall(ContextType _context, uDM _depth)
 			
 			Parser_EatToken(Params_PStart);
 			
-			for (uDM index = 0; index < 6 && CurrentToken->Type != Params_PEnd; index++)
+			for (uw index = 0; index < 6 && CurrentToken->Type != Params_PEnd; index++)
 			{
 				node->ProcCall.Parameters[index] = CurrentToken->Value;
 				

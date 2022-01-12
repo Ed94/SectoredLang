@@ -66,14 +66,14 @@ struct IO_FileContent
 {
 	zpl_allocator _Allocator;
 	byte*         Data;
-	sDM           Size;
+	sw            Size;
 };
 
 
 #pragma region Functions
 
 IO_FileContent  IO_File_ReadContent (ro_str _path, bool _addNullTermination);
-byte32          IO_File_WriteContent(ro_str restrict _path, const void* restrict _buffer, sDM _size);
+byte32          IO_File_WriteContent(ro_str restrict _path, const void* restrict _buffer, sw _size);
 				// MFR : Mark For Removal
 void            IO_File_ContentMFR  (IO_FileContent _content);
 
@@ -82,8 +82,8 @@ s64       IO_File_Cursor        (IO_File* _file_in);
 s64       IO_File_IsEOF         (IO_File* _file_in);
 byte      IO_File_GetByte       (IO_File* _file_in);
 ErrorType IO_File_Open          (IO_File* restrict _file_out, ro_str restrict _path, enum IO_AccessMode _accessMode);
-uDM       IO_File_Read          (IO_File* restrict _file_in, const void* restrict _buffer_out, sDM _size);
-uDM       IO_File_Write         (IO_File* restrict _file_in, const void* restrict _buffer_in, sDM _size);
+uw        IO_File_Read          (IO_File* restrict _file_in, const void* restrict _buffer_out, sw _size);
+uw        IO_File_Write         (IO_File* restrict _file_in, const void* restrict _buffer_in, sw _size);
 
 s32 IO_StdWrite  (IO_Std* restrict _file_in, ro_str restrict _format, ...);
 s32 IO_StdWriteV (IO_Std* restrict _file_in, ro_str restrict _format, va_list _argList);

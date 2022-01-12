@@ -58,7 +58,7 @@ MemBlock* AllocTable_Add(AllocTable* _memoryArray)
 
 // Memory Management
 
-void* Internal_ScopedAlloc(AllocTable* _scopedMemory, uDM _sizeOfAllocation)
+void* Internal_ScopedAlloc(AllocTable* _scopedMemory, uw _sizeOfAllocation)
 {
 	MemBlock* newBlock = AllocTable_Add(_scopedMemory);
 
@@ -76,7 +76,7 @@ void* Internal_ScopedAlloc(AllocTable* _scopedMemory, uDM _sizeOfAllocation)
 	}
 }
 
-void* Internal_ScopedAllocClear(AllocTable* _scopedMemory, uDM _sizeOfAllocation)
+void* Internal_ScopedAllocClear(AllocTable* _scopedMemory, uw _sizeOfAllocation)
 {
 	MemBlock* newBlock = AllocTable_Add(_scopedMemory);
 
@@ -96,7 +96,7 @@ void* Internal_ScopedAllocClear(AllocTable* _scopedMemory, uDM _sizeOfAllocation
 
 void ScopedDealloc(AllocTable* _scopedMemory)
 {
-	for (uDM index = 0; index < _scopedMemory->Length; index++)
+	for (uw index = 0; index < _scopedMemory->Length; index++)
 	{
 		Mem_Dealloc(_scopedMemory->Array[index]->Location);
 		Mem_Dealloc(_scopedMemory->Array[index]);
@@ -107,7 +107,7 @@ void ScopedDealloc(AllocTable* _scopedMemory)
 	return;
 }
 
-void* Internal_Mem_GlobalAlloc(uDM _sizeOfAllocation)
+void* Internal_Mem_GlobalAlloc(uw _sizeOfAllocation)
 {
 	MemBlock* newBlock = AllocTable_Add(ptrof Heap_GlobalMemory);
 		
@@ -125,7 +125,7 @@ void* Internal_Mem_GlobalAlloc(uDM _sizeOfAllocation)
 	}
 }
 
-void* Internal_Mem_GlobalAllocClear(uDM _sizeOfAllocation)
+void* Internal_Mem_GlobalAllocClear(uw _sizeOfAllocation)
 {
 	MemBlock* newBlock = AllocTable_Add(ptrof Heap_GlobalMemory);
 		
@@ -143,9 +143,9 @@ void* Internal_Mem_GlobalAllocClear(uDM _sizeOfAllocation)
 	}
 }
 
-void* Internal_Mem_GlobalRealloc(void* _location, uDM _sizeForReallocation)
+void* Internal_Mem_GlobalRealloc(void* _location, uw _sizeForReallocation)
 {
-	for (uDM index = 0; index < Heap_GlobalMemory.Length; index++)
+	for (uw index = 0; index < Heap_GlobalMemory.Length; index++)
 	{
 		if (Heap_GlobalMemory.Array[index]->Location == _location)
 		{
@@ -174,7 +174,7 @@ void* Internal_Mem_GlobalRealloc(void* _location, uDM _sizeForReallocation)
 
 void Mem_GlobalDealloc(void)
 {
-	for (uDM index = 0; index < Heap_GlobalMemory.Length; index++)
+	for (uw index = 0; index < Heap_GlobalMemory.Length; index++)
 	{
 		Mem_Dealloc(Heap_GlobalMemory.Array[index]->Location);
 

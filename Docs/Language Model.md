@@ -17,7 +17,6 @@ Statement       # Used to delimit what a (statement) should be in MAS.
 # Universal Context
 
 ## Tokens
-
 <pre>
 #------------------------------------------------------
                                                         Comments
@@ -35,8 +34,8 @@ EOF             End of file             comp_EOF
                                                         Formatting (Ignored by the compiler)
 " ..."          Whitespace String       fmt_WSS
 \n              NewLine                 fmt_NL
-{               Open Brace              fmt_OB
-}               Close Brace             fmt_CB
+<!-- {               Open Brace              fmt_OB -->
+<!-- }               Close Brace             fmt_CB -->
 #------------------------------------------------------
                                                         Parameters
 (               Parenthesis Start        params_PStart
@@ -60,13 +59,17 @@ EOF             End of file             comp_EOF
 "..."           String                  literal_String
 #------------------------------------------------------
                                                         Sectors
+    # Directors
 tt              Translation Time        sec_tt
-    # Alias
+<!-- cc              CallingConvention       sec_callc -->
+        # Alias
 alias           Aliasing                sec_alias
+expose          Expose Symbols As       sec_expose   
 in              Expose Member Symbols   sec_in
-    # Metaprogramming
+        # Metaprogramming
 layer           Explicit layer use      sec_layer
 meta            Metaprogramming         sec_meta          
+macro           Macro                   sec_macro
     # Conditional
 if              Conditional If          sec_if
 else            Coniditonal Else        sec_else
@@ -78,6 +81,8 @@ type            Type definition         sec_Type
                                                         Statements
 :               start def block         def_Start
 ;               end   def block         def_End
+{               start def block (brace) def_Start 
+}               end   def block (brace) def_End
 ,               Comma delimiter         def_CD
 #-------------------------------------------------------
                                                         Symbols
@@ -137,6 +142,7 @@ typeof(identifier)              Accessor to associated type of identifier
                                                         Operators
             # Inference
 alignof         Alignment Accessor      op_alingof
+cast            Type cast               op_Cast
 offsetof        Member Offset           op_offsetof
 posof           Member Position         op_posof
 sizeof          Symbol memory           op_sizeof
@@ -195,28 +201,26 @@ binary          Binary  block           sec_Binary
 ternay          Ternary block           sec_Ternary
 octal           Octal   block           sec_Octal
 hex             Hex     block           sec_Hex
-
-			# Meta-programming				
-embed			Embed Data				sec_Embed
-ro              Read-only               sec_Ro
-inline          Redefine inplace        sec_Inline
-
 			# Control Flow
 label           Label                   sec_Lable
 loop            Loop execution          sec_Loop
-
 			# Memory
 align           Alignment               sec_Align
+embed			Embed Data				sec_Embed
 mpage           Memory Paging Segments  sec_Mempage
 register        Register Type           sec_Register
+ro              Read-only               sec_Ro
 stack           Stack  Segment          sec_Stack
 static          Static Segment          sec_Static
 strict          Strict reference        sec_Strict
 struct          Data Record/ Structure  sec_Struct   
 volatile        Volatile reference      sec_Volatile
-
+union           Discriminated Union     sec_Union
 			# Execution
+exe             Execute                 sec_Exe
+inline          Redefine inplace        sec_Inline
 interrupt       Interrupt               sec_Interrupt
+op              Operator Defining       sec_Operator
 proc            Procedure               sec_Proc
 #-------------------------------------------------------
                                                         Symbols
@@ -245,29 +249,76 @@ identfier {assign op} value     Assign value to identifier
 value op ...                    perform operation on value (delimiter)
 op(value, ...)                  perform operation on values (functional)
 
-sizeof(symbol) * width          Specify a datatype of set width (where width is a digit literal)
+struct :                        Define a data record or structure
+    {data member definitions}
+;
+
+union :
+    {data member associations}  Define a untagged union
+;
+
+[{enum}] union :
+    {data member associations}  Define a tagged union
+;
 </pre>
 
+## Directors
+
+### Alias
+
+### Meta
+
+### Translation Time
+
+
+# Layer 0.OS
+
+Same as Layer 0 with exception:
+
+## Feature Removal
+CPU Interrupts
+Paging Management
+
+## Removed
+interrupt
+mpage  
+
+## Tokens
+<pre>
+#------------------------------------------------------
+                                                        Parameters
+#------------------------------------------------------
+                                                        Operators
+#------------------------------------------------------
+                                                        Sector
+			# Memory
+heap            Heap Memory block       sec_Heap
+#-------------------------------------------------------
+                                                        Statements
+#-------------------------------------------------------
+                                                        Symbols
+</pre>
+
+## Grammar
+
+
 # Layer 1
+
 | | |
 | :-- | :-- |
+| APS | 1 |
 | CNL                 | 1 ```# {unit} : {sector} : {identifier} : {identifier}; ;;``` |
 | Typing              | Weak |
 | Implicit Mutability | mut |
 
 ## Feature Removal
-Direct Stack Manipulation : Removed  
+Direct Stack Manipulation
 Direct Encoding injection  
-Paging Management
 
 ## Removed:
 binary  
 ternary  
 hex  
-interrupt  
-page  
-pop  
-push  
 
 ## Tokens
 
@@ -280,7 +331,6 @@ push
 allocate        allocate heap           op_Alloc
 deallocate      deallocate heap         op_Dealloc
 			# Type System
-cast            Type cast               op_Cast
 typeof          Type Accessor           op_TypeOf
 #------------------------------------------------------
                                                         Sector
@@ -288,6 +338,7 @@ typeof          Type Accessor           op_TypeOf
 heap            Heap Memory block       sec_Heap
 			# Execution
 for             For loop                sec_For
+soa             Structure of Arrays     sec_SOA
 #-------------------------------------------------------
                                                         Statements
 #-------------------------------------------------------
@@ -295,6 +346,7 @@ for             For loop                sec_For
 </pre>
 
 ## Grammar
+
 
 # Layer 2
 
@@ -317,6 +369,7 @@ Removed:
                                                         Parameters
 #------------------------------------------------------
                                                         Operators
+dcast       Dynamic Type Cast           sec_DCast
 #------------------------------------------------------
                                                         Sector
 		# Execution
@@ -325,9 +378,7 @@ trait       Static Dispatch             sec_Trait
 virtual     Dynamic Dispatch            sec_Virtual
 		# Memory
 gc          Garbage Collector           sec_GC
-zone        Zone Memory                 sec_MemZone
 mut         Mutable                     sec_Mut
-
 #-------------------------------------------------------
                                                         Statements
 #-------------------------------------------------------
@@ -344,10 +395,7 @@ Typing : Strong
 
 Removed:
 
-
-
 ## Tokens
-
 <pre>
 #------------------------------------------------------
                                                         Parameters
@@ -399,9 +447,7 @@ fn          Function                    sec_FN
 | Implicit Mutability | mut |
 | Math Notation       | op(a, b) |
 
-
 ## Tokens
-
 <pre>
 #------------------------------------------------------
                                                         Comments
@@ -420,7 +466,9 @@ EOF             End of file             comp_EOF
 {               Open Brace              fmt_OB
 }               Close Brace             fmt_CB
 #------------------------------------------------------
-                                                        Operators                                             
+                                                        Operators
+.               Member Resolution       op_SMA
+->              Map Resolution          op_Map 
             # Execution
 pop             Pop current stack       op_pop
 push            Push current stack      op_push
@@ -459,8 +507,8 @@ stack           Stack  Segment          sec_Stack
 static          Static Segment          sec_Static
 struct          Data Record/ Structure  sec_Struct   
             # Execution
+exec            Execution               sec_Exec
 proc            Procedure               sec_Proc
-type            DataType Definition     sec_Type
 #-------------------------------------------------------
                                                         Symbols
 byte            Smallest addressable unit of bits   sym_Byte                                                        

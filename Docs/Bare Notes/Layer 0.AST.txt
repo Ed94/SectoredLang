@@ -8,29 +8,22 @@ Formmating
 # Universal Sectors: 
 {Comments}
 {Formmatting}
-alias
-ct
-meta
+{directors}
 
 # Unit Sectors: 
 Universal Sectors
-{Identifier}
-P_PS Sectors                # () Stack Parameter sets
-AB_PS Sectors               # <> Stack Parameter sets
-append
-expose
 interrupt                   # Not Sure
+{Identifier}
+layer
 page                        # Not Sure
+{parameter sets ()<>}
 proc
 static
 
 # {Identifier} Sectors (Named unit sectors):
 Universal Sectors
 {Identifier}
-P_PS Sectors                # () Stack Parameter sets
-AB_PS Sectors               # <> Parameter sets
-append
-expose
+{parameter sets ()<>}
 interrupt
 page
 proc
@@ -38,8 +31,7 @@ static
 # In layer 0: If any of the below, the identifier ceases to be a sector.
 enum
 struct
-{type}
-{specifier} {type}
+type
 
 # <> Prameter Set Scope
 Universal Sectors

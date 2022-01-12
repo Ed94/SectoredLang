@@ -17,13 +17,13 @@ zpl_allocator Mem_GlobalAllocator(void)
 }
 
 ForceInline 
-void* Internal_Mem_Alloc(uDM _amount)
+void* Internal_Mem_Alloc(uw _amount)
 {
 	return zpl_malloc(_amount);
 }
 
 ForceInline
-void* Internal_Mem_AllocClear(uDM _num, uDM _amount)
+void* Internal_Mem_AllocClear(uw _num, uw _amount)
 {
 	void* allocation = zpl_malloc(_num * _amount);
 	
@@ -38,7 +38,7 @@ void* Internal_Mem_AllocClear(uDM _num, uDM _amount)
 }
 
 ForceInline
-void* Internal_Mem_Resize(void* _memoryAddress, sDM _oldSize, sDM _newSize)
+void* Internal_Mem_Resize(void* _memoryAddress, sw _oldSize, sw _newSize)
 {
 	return zpl_resize(zpl_heap(), _memoryAddress, _oldSize, _newSize);
 }
@@ -50,13 +50,13 @@ void Mem_Dealloc(void* _memoryToDeallocate)
 }
 
 ForceInline 
-void* Internal_Mem_FormatByFill(void* _memoryAddress, s32  _fillValue, uDM _sizeOfData)
+void* Internal_Mem_FormatByFill(void* _memoryAddress, s32  _fillValue, uw _sizeOfData)
 {
 	return zpl_memset(_memoryAddress, _fillValue, _sizeOfData);
 }
 
 ForceInline
-void* Internal_Mem_FormatWithData(void* _memoryAddress, const void* _dataSource, uDM _sizeOfData)
+void* Internal_Mem_FormatWithData(void* _memoryAddress, const void* _dataSource, uw _sizeOfData)
 {
 	return zpl_memcopy(_memoryAddress, _dataSource, _sizeOfData);
 }

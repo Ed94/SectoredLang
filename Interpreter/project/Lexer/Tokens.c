@@ -1,28 +1,11 @@
 #include "Tokens.h"
 
 
-// For later... Once I get the setup for mvp down packed
-// I wont be needing dynamic memory and should just be fine with static sector buffers.
-// NoLink
-// Token   TokenBuffer
-// [_1K];
-
-
-Token* 
-Token_Init(ETokenType _type, const String* _value)
-{
-	Token* newToken = Mem_GlobalAllocClear(Token, 1);
-	
-	newToken->Type  = _type;
-	newToken->Value = _value;
-
-	return newToken;
-}
 
 enum TokenType
 ToToken(str _str)
 {
-	static uDM _ToTokenArray[TokenType_ArraySize];
+	static uw _ToTokenArray[TokenType_ArraySize];
 	
 	static 
 	bool _DoOnce = true;

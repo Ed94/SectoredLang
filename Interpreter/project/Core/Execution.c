@@ -41,7 +41,7 @@ void Console_PrintTitle(void)
 
 void Console_PrintEnvArguments(void)
 {
-	for (uDM index = 0; index < EnvArgsArray->Count; index++)
+	for (uw index = 0; index < EnvArgsArray->Count; index++)
 	{
 		LogF(sl"%lld : %s", index, EnvArgsArray->Arguments[index]);
 	}
@@ -97,34 +97,13 @@ void ProcessFile(void)
 
 void LexStream(void) 
 {
-	Lexer_Init(ptrof StreamBuffer);
-
-	Log("Streaming Tokens:");
-	
-	Token* 
-	currentToken = Lexer_NextToken();
-	
-#define Type    currentToken->Type
-#define Value   currentToken->Value
-	loop
-	{
-		if (currentToken == nullptr
-		||  Type == Token_Invalid
-		||  Type == Tok_Comp_EOF
-		) break;
-
-		LogF("\nType : %-15s, Value: %s", TokenTo[Type].Str, Value->Data);
-
-		currentToken = Lexer_NextToken();
-	}
-#undef Type
-#undef Vlaue
+	Lexer_Tokenize(ptrof StreamBuffer);
 }
 
 void ParseStream()
 {
-	Lexer_Init(ptrof StreamBuffer);
-	
+	Lexer_Tokenize(ptrof StreamBuffer);
+
 	Parser_Init();
 	
 	// Currently we know the file passed will be a spec unit.

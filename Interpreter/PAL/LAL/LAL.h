@@ -13,6 +13,7 @@ platform impelemetnation of the standard STL.
 #include "Config.LAL.h"
 
 #include "LAL.Bit.h"
+#include "LAL.Containers.h"
 #include "LAL.Declarations.h"
 #include "LAL.Exception.h"
 #include "LAL.IO.h"

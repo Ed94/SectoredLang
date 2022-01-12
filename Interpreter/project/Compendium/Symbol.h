@@ -35,7 +35,7 @@ enum Sym_ContextAttribs
 	
 };
 
-typedef uDM
+typedef uw
 Sym_ContextAttribsFlags;
 
 
