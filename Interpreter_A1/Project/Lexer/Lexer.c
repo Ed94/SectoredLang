@@ -162,14 +162,16 @@ Lexer_SkipFormmating()
 	}
 }
 
-Token* Lexer_AdvWithToken(Token* _token)
+Token*
+Lexer_AdvWithToken(Token* _token)
 {
 	Lexer_Advance();
 	
 	return _token;
 }
 
-Token* Lexer_Collect_Comment()
+Token* 
+Lexer_Collect_Comment()
 {
 	uw
 	collectLength = 0,
@@ -219,7 +221,8 @@ Token* Lexer_Collect_Comment()
 	}
 }
 
-Token* Lexer_Collect_CommentBlock()
+Token*
+Lexer_Collect_CommentBlock()
 {
 	uw
 	collectLength = 0,

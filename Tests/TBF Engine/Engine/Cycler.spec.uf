@@ -1,9 +1,5 @@
 proc :
-	Lapse exe : 
-		Exist = false; 
-	;
-	
-	Initialize :
+	Initialize exe :
 		loop : if Exist == true : break;
 			Timing. TakeInitialSnapshot;	
 
@@ -15,8 +11,12 @@ proc :
 			Timing. Update;
 		;
 	;
-	
-	LoadModule :
+
+	Lapse exe : 
+		Exist = false; 
+	;
+
+	LoadModule exe :
 		Exist = true;
 	;
 ;

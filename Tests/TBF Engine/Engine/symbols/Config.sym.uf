@@ -1,0 +1,11 @@
+Debug, expose, tt, 
+Debug, type, bool, bool.false
+
+Game.ModuleLinkMode, expose, tt, 
+Game.ModuleLinkMode, type, u32
+Game.ModuleLinkMode, enum, Dynamic, Static
+
+Game.ModuleLinkage, expose, tt, 
+Game.ModuleLinkage, type, Game.ModuleLinkMode, 
+Game.ModuleLinkage, op_assign, Game.ModuleLinkMode.Dynamic
+

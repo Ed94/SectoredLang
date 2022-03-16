@@ -1,6 +1,7 @@
 DArray
 {
-	tt AllocatorArg proc exe : if AllocatorType == undefined { macro : Allocator; };
+	tt macro AllocatorArg if AllocatorType == undefined : 
+	exe { Allocator };
 
 	GrowFormula exe:
 		// ret +(8, *(2, x))
@@ -26,9 +27,10 @@ DArray
 
 	InitReserve
 	{
-		tt if AllocatorType == undefined :
-		heap : allocator = _Allocator;
-		;
+		tt if AllocatorType == undefined : exe
+		{
+			heap : allocator = _Allocator;
+		};
 		
 		DA_ptr type : ptr word;
 		

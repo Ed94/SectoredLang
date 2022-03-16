@@ -1,4 +1,4 @@
-static InputObj : type : Data;;
+static InputObj : Data;
 
 proc :
 GetContext -> ptr Data : ret InputObj.ptr;

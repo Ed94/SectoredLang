@@ -226,7 +226,7 @@ kArray_PushP (IDK)
 #       define karray_Add(__Type, _array, _index)                                                                   \
 		(                                                                                                           \
 			(                                                                                                       \
-				(_array).Capacity <= (uw)(_index) ?                                                                \
+				(_array).Capacity <= (uw)(_index) ?                                                                 \
 						(                                                                                           \
 							(_array).Capacity = (_array).Num = (_index) + 1, karray_RoundUp32((_array).Capacity),   \
 							(_array).Data     = Mem_GlobalRealloc(__Type, (_array).Data, (_array).Capacity), 0      \

@@ -1,10 +1,16 @@
 // This is based directly on the zpl.h source.
-expose 
-DArray tt <Type : Type, AllocatorType : PAL.AllocatorType>;
+
+
+expose // A symbol will be generated at translation time with the following parameters accounted for during translation.
+// tt + exe : Generate inplace
+DArray tt depend (Type : Type, AllocatorType : PAL.AllocatorType);
+// DArray__Depend_Type__PAL.AllocatorType
+// In a symbol abi symbol viewer 
+
 DArray 
 {
 	tt if AllocatorType != undefined : 
-		heap : allocator = AllocatorType;
+		exe { heap : allocator = AllocatorType; }
 	;
 
 	expose type	ptr struct :
@@ -17,10 +23,12 @@ DArray
 	{
 		// If the allocator is not defined at translation time,
 		// reference an allocator using a rutnime reference.
-		tt OptionalAllocator proc exe :
-			if AllocatorType == undefined :
-				macro { Allocator : PAL.Allocator }
-		;
+		tt macro OptionalAllocator
+		{
+			tt if AllocatorType == undefined :
+				exe { Allocator : PAL.Allocator }
+			;
+		}
 
 		OptionalAllocator;
 		Capacity  : uw;
@@ -28,28 +36,22 @@ DArray
 		Data      : ptr byte;
 	}
 
+	tt macro
+	if AllocatorType == undefined :
+		OptionalAllocatorParam exe { _Allocator : PAL.Allocator }
+	;
+
 	proc :
 		GrowFormula (_capacity : uw) -> uw inline;
-		
-		// tt + exe = generate inplace
-		OptionalAllocator tt exe :
-			// tt if (params must be tt time) will be dissolved
-			if AllocatorType == undefined :
-				macro 
-				{
-					"_Allocator : PAL.Allocator"
-				}
-			;
-		;
 	;
 
 	expose proc (self : ptr <Type> DArray) : 
-		Init        (OptionalAllocator) inline;
+		Init        (OptionalAllocatorParam) inline;
 		InitCopy	(_other : ptr <Type> DArray)
-		InitReserve (_capacity : uw, OptionalAllocator);
+		InitReserve (_capacity : uw, OptionalAllocatorParam);
 
-		Append  (_obj  :    Type);
-		AppendAt(_obj  :    Type, _index  : uw);
+		Append  (_obj  : Type);
+		AppendAt(_obj  : Type, _index  : uw);
 
 		Append  (_objs : [] Type, _amount : uw);
 		AppendAt(_objs : [] Type, _amount : uw, _index uw);
@@ -70,4 +72,8 @@ DArray
 		SetCapacity(_capacity : uw);
 	;
 }
-d
+
+// Explicitly generate a DArray of u32.
+tt exe DArray(u32);
+// DArray__depend_u32_undef
+

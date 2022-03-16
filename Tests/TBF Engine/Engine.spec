@@ -1,1 +1,0 @@
-LoadGame proc -> ptr StateObj;

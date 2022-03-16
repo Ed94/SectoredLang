@@ -1,0 +1,11 @@
+// ABI is the Application Binary Interface Library
+// It is provided by the Platform Toolchain
+meta CallConvention(ABI.cdecl) 
+proc CConventionProcedure :
+		stack AVar : bool = false;
+		exe
+		{
+			AVar = true;
+			ret;
+		}
+;

@@ -1,4 +1,3 @@
-expose :
 tt NumKeystracked : uword = 6;
 
 State : 
@@ -67,5 +66,5 @@ expose proc :
 // CSV Order: I-D-S-P
 // I, D, S, P, ParamsHASH, DefHASH
 // I, D, S, P, NumOfParams, Params, DefHASH    (Alternative Format)
-Subscribe, expose, Input, proc, 2, OS.KeyCode, ptr<Event>, ##########
+// Subscribe, expose, Input, proc, 2, OS.KeyCode, ptr<Event>, ##########
 

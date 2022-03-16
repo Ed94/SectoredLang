@@ -3,7 +3,7 @@ LTP     : Interpreter ;
 layers  : Explicit ;
 
 dependencies :
-PAL
+PAL : bp, 
 ;
 
 alias :
@@ -12,9 +12,9 @@ Console : PAL.Console;
 ;
 
 units : 
-	Cycler     : bp, spec;
+	Cycler     : bp, ;
 	Execution  : bp, spec;			
-	Engine     : bp;
+	Engine     ;
 	Input      : bp, spec;
 	Memory     : bp, spec;
 	Renderer   : bp, spec;
@@ -24,4 +24,3 @@ units :
 ;
 
 entrypoint : Entrypoint;
-the lan

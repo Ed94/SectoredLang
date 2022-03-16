@@ -1,0 +1,33 @@
+// Declare a symbol
+LoadGame 
+{
+	// Translation time sector, deduce the following at translation time.
+	tt
+	{
+		// Epxose symbols within 'LoadGame tt'
+		expose Config.Game;
+
+		// Switch block sector
+		switch ModuleLinkage
+		{
+			expose ModuleLinkMode;
+
+			// If ModuleLinkage is static, generate the following (tt + exe : generates code to *.gen.*)
+			case Static : exe
+			{
+				// Anything inside the generation block is put
+				// into the .gen.* file or unit container
+				// within the correlated symbol's scope
+				proc -> ptr StateObj;
+			};
+
+			case Dynamic : exe
+			{
+				// Associate LoadGame with a static memory allocation, 
+				// with type ptr to a function of symbol: proc -> ptr StateObj
+				static : ptr 	proc -> ptr StateObj;
+			};
+		}
+
+	}
+}

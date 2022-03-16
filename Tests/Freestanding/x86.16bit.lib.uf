@@ -1,0 +1,231 @@
+context 
+{
+	context: x86 Real Mode - Library;
+	LTP    : Boostrap;
+	layer  : Boostrap;
+
+	dependencies :
+		// Library provided by Boostrap LTP.
+		x86 : ISA.x86;
+	;
+}
+
+b8  : type   byte;
+b16 : type 2 byte;
+b32 : type 4 byte;
+b64 : type 8 byte; 
+
+expose x86;
+
+
+inline proc Wait (_high, _low : b16) exe
+{
+	mov(AH, BIOS.Wait);
+	mov(CX, _high);
+	mov(DX, _low);
+	interrupt(SystemService);
+}
+
+Video
+{
+	expose BIOS;
+
+	inline proc SetMode (_mode : b8) exe :
+		mov(AH, Video.SetMode);
+		mov(AL, _mode);
+		interrupt(VideoService);
+	;
+
+	proc Out
+	{
+		inline Char (_char : b8) exe :
+			mov(AH, Video.Teletype);
+			mov(AL, _char);
+			interrupt(VideoService);
+		;
+
+		inline NewLine exe :
+			mov(AH, Vidoe.Teletype);
+			mov(AL, '\n');
+			interrupt(VideoService);
+			mov(AL, '\r');
+			interrupt(VideoService);
+		;
+	}
+
+	proc :
+		Hex ToStr :
+
+		;;
+
+		MemDump (_startLocation, _byteCount : b16) :
+		static
+		{
+			hexNum :    b32 = 0x0000;
+			hexStr : [] b32 = '    ';
+		}
+		exe
+		{
+			push(BX);
+			push(SI);
+
+			mov(BX, _startLoation);
+			mov(CX, _byteCount);
+
+			xor(SI, SI);
+
+		label	rloop:
+			cmp(SI, _byteCount);
+			goto rBreak;
+
+			push(BX)
+			push(DX)
+			push(SI)
+
+			mov(AX, StartLocation);
+			add(AX, SI);
+
+			Hex.ToStr(AX, HexStr.ptr);
+			Out.String(HexStr.ptr, 4);
+
+			pop(SI);
+			pop(DX);
+			pop(BX);
+			Out.Char(' ');
+
+			// Get next set of bytes, organize to big endian.
+			mov(AH, _startLoation + SI);
+			mov(SI, 1);
+			mov(AL, _startLoation + SI);
+			mov(HexNum, AX);
+
+			push(BX);
+			push(DX);
+			push(SI);
+
+			Hex.ToStr(HexNum, HexStr.ptr);
+			Out.String(HexStr.ptr, AX);
+
+			pop(SI);
+			pop(DX);
+			pop(BX);
+
+			Out.Char(' ');
+
+			Wait(0x02, 0x0);
+
+			inc(SI);
+			goto rloop;
+
+		label	rbreak:
+			pop(SI);
+			pop(BX);
+			ret;
+		};
+	;
+}
+
+
+%macro Hex16_ToString 2
+	mov	DX, %1
+	mov	CX, %2
+	push	CX
+	call	h16_toString
+	pop	CX
+%endmacro
+
+%macro String_Out 2
+	mov	BX, %1
+	mov	AX, %2
+	push	AX
+	call	out_string
+	pop	AX
+%endmacro
+
+; Prints out a 16-bit hex value.
+h16_toString:
+; Arg - DX : Hex Num
+; ArgStr: String
+%define argStr	BP + 6
+	push	BX
+	push	BP
+	mov	BP, SP
+
+;	Half-Byte index
+	push	SI
+	xor	SI, SI
+
+.loop:
+;	If all 4-bit slots translate, break
+	cmp	SI, 4
+	je	.break
+	
+;	Get latest half-byte from DX
+	mov	AX, DX
+;	Doing only the first right-most digit
+	and	AX, 0x000F
+;	Get ASCII numeral or alpha character
+	add	AL, 0x30
+;	0->9 (<= 0x39), A->F (>= 0x39)
+	cmp	AL, 0x39	; Numeral offset
+	jle	.SetCharVal
+	add	AL, 0x7		; A-F offset
+
+.SetCharVal:
+;	Add the char value to the string
+	mov	BX, [argStr]
+;	Move to last half-byte
+	add	BX, 3
+;	Go to the current half-byte via index offset
+	sub	BX, SI
+;	Write ascii hex value to half-byte in ArgStr
+	mov	[BX], AL
+;	Rotate the next half-byte over
+	ror	DX, 4
+
+	inc	SI
+	jmp	.loop
+
+.break:
+	pop	SI
+	pop 	BP
+	pop 	BX
+%undef argStr
+ret
+
+
+; Print out an ascii string of speicifed length
+out_string:
+; Arg - BX: String
+%define argLen	BP + 4	; String Length
+;	Store previous state of BP and set it to SP
+	; pusha				; 14 bytes
+	push	BP			; 4 bytes
+	mov 	BP, SP
+;	Using the source index
+	push 	SI			; 0 bytes...
+	xor	SI, SI
+
+;	Backup BX for later
+	mov	CX, BX			
+	mov	AH, Video_TeleType
+
+.loop:	
+;	Bounds check
+	cmp	SI, [argLen]
+	je	.break
+
+;	Output a character
+	mov	BX, CX
+	mov	AL, [BX + SI]
+	xor	BH, BH			; Clear BH for correct active page
+	int	VideoService
+
+	add	SI, 0x1
+	jmp	.loop
+
+.break:
+	pop	SI
+	pop	BP
+%undef argLen
+ret

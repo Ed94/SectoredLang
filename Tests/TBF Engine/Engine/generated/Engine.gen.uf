@@ -1,0 +1,8 @@
+// Line 2
+LoadGame
+{
+	// Line 28
+	static : ptr 	proc -> ptr StateObj;
+}
+
+

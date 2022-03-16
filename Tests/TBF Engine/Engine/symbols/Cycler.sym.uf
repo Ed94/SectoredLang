@@ -1,0 +1,98 @@
+
+// Symbol table
+Exist, static, bool
+
+Initialize, expose, proc
+Lapse, expose, proc
+LoadModule, expose, proc
+
+// Library Symbols
+// mas__Iniitalize_proc
+
+// Execution Table
+Iniitalize, exe,
+	loop,
+		if, op_equal, exist, bool.true, 
+			break,
+		call Timing.TakeInitialSnapshot,
+		call Input.Update,
+		call Renderer.Update,
+		call Timing.TakeEndingSnapshot,
+		call Timing.Update
+
+Lapse, exe, 
+	op_assign, Exist, bool.false
+
+LoadModule, exe, 
+	op_assign, Exist, bool.true
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Notes:
+
+static Exist : bool;
+// LTD - Identifier - Def Body - Type - Definition End
+// Parsed Order: LTD-I-DDB-T-DE
+// CSV Order: I-LTD-T
+
+expose proc :
+	Initialize;
+	Lapse;
+	LoadModule;
+;
+// Sector Director - Sector Specifier - Def Body -
+// Identifier - Def End
+// Identifier - Def End
+// Identifier - Def End
+// Def End (Body)
+//
+// Parsed Order: SD-SS-DB-I-DE-I-DE-I-DE-DE
+// Unrolled
+// 		SD-SS-I-DE
+// 		SD-SS-I-DE
+// 		SD-SS-I-DE
+// CSV Order: I-SD-SS
+
+
+
+
+

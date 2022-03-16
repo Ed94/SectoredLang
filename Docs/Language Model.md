@@ -67,6 +67,7 @@ alias           Aliasing                sec_alias
 expose          Expose Symbols As       sec_expose   
 in              Expose Member Symbols   sec_in
         # Metaprogramming
+depend          Symbol depends on       sec_Depend
 layer           Explicit layer use      sec_layer
 meta            Metaprogramming         sec_meta          
 macro           Macro                   sec_macro
@@ -152,6 +153,7 @@ val             Value Accessor          op_val
             # Execution
 break           Jump out of block       op_break
 continue        Jump to start of loop   op_continue
+fall            Switch fall directive   op_fall
 goto            Jump to Label           op_goto
 pop             Pop current stack       op_pop
 push            Push current stack      op_push
@@ -204,6 +206,7 @@ hex             Hex     block           sec_Hex
 			# Control Flow
 label           Label                   sec_Lable
 loop            Loop execution          sec_Loop
+switch          Switch on value         sec_Switch
 			# Memory
 align           Alignment               sec_Align
 embed			Embed Data				sec_Embed

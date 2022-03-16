@@ -15,17 +15,18 @@ Interpreter    Runtime interpreter for the same language specification used of f
 <pre>
 These are metaprogramming platforms that may be provided by a MAS platform. 
 The language feature layering provides the default policy for what features are allowed from these directors.
+
+(Note: I may remove Alias, and Meta conceptaully as LTP, or )
+
 Alias      Provides similar to functionality to using statements c++ for namespace along with being able to 
            specify amendments the backend language modules such as the lexer, parser, and symbol table. 
            As such things related to the langauge model can be changed. (So long as the alias backend allows for it) 
            (I Don't have a fully fleshed out idea for how the extent of alias. 
            Its mostly a explicit context manipulation and language adaptation platform)
 
-Meta        Rudimentary macros, to advanced macro syntax systems. 
-            Templating, generics, etc.
-            Handles directives to tooling.
+Meta        Handles directives to tooling.
 
-TT          Translation Time: Allows for translation time execution. 
+TT          Translation Time: Allows for translation time execution and code generation. 
 </pre>
 
 ## LFLs (Language Feature Layering) :
@@ -68,7 +69,7 @@ symbols:
     exec                Specifies the execution entrypoint (if the context is a program)
 </pre>
 
-## .bp                     Blueprint
+## .bp.*                Blueprint
 <pre>
 Serve a few purposes :
 
@@ -83,12 +84,12 @@ Note: While it is ideal, blueprints could also be generated if desired (intended
 A blueprint's syntax closely follows the language model used for spec units  
 </pre>
 
-## .spec                   Specification
+## .spec.*              Specification
 
 Where a unit of implementation for a subject or context is defined  
 There can be multiple units for each bp (blueprint)
 
-## .gen.*                  Generated Specification
+## .gen.*.*             Generated Specification
 
 These are generated units that have completed the meta and/or ct pass.  
 These files are optionally outputted to the filesystem.  
@@ -96,7 +97,7 @@ These files are mainly intended to be rendered or debugged in a mas compatiable 
 
 The purpose is to provide an visual of how meta-programming (alias, meta, tt) features are generated in a clear way.  
 
-## .db                     Database
+## .db.*                Database
 
 This is a full image of a processed context.  
 Which includes the structured table organized by the context and subject units.  
@@ -105,7 +106,7 @@ These are meant to be saved to cache previous passes or as an intermediary betwe
 
 Should be viewable using a database viewer.  
 
-## .ast                    Abstract Syntax There
+## .ast.*               Abstract Syntax There
 
 This is a Dion (hopefully) formatted ast file that contains the raw parsed ast of a context.   
 This can be used as intermediary between tools or as a way to store the "live" source code.  

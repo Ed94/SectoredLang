@@ -1,4 +1,7 @@
-# MAS (Modular Alias Sectored)
+# Sector Langauge
+Previous called MAS (Modular Alias Sectored), 
+the first two are not as prevalent and the main feature of the language is really just
+the sectorization concept for symbols.
 
 An experimental langauge for figuring out stuff I wanted in langauges
 
@@ -8,7 +11,7 @@ A project is an encapsulated unit that specifies a program
 A package is an encapsulated unit that may be used by a project  
 Projects can be a package for another project.  
 
-The point of MAS was to see if it was possible to make a langauge that achieved the following goals:
+The point of Sector was to see if it was possible to make a langauge that achieved the following goals:
 1. Model a langauge where program structure modularity was a main priority.
 2. Provide a language syntax that is similar and practical to use across different 
 	language translation platforms (LTPs)

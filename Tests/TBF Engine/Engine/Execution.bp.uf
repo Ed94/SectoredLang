@@ -11,4 +11,4 @@ proc :
 	UnloadModules;
 ;
 
-expose Entrypoint proc -> ExecResult;
+Entrypoint proc -> ExecResult;
