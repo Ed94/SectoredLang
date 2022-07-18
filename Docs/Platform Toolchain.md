@@ -1,22 +1,22 @@
-## LTP (Language Translation Platform) :
-These are domain specific compatible translation platforms to handle MAS programs.
-MAS platforms can support different LTPs.
+## LP (Language Platform) :
+These are domain specific compatible platforms to handle MAS programs.
+MAS platforms can support different LPs.
 
 ## Backend Categories :
 <pre>
 ISA            Instruction Set Architecture (x86, ARM, RISC, etc). Machine code signal interface
 Assembler      ISA supported assembler
 IR             Intermediary representation compiler framework.
-Compiler       Low (L0) to high (L4) level compiled language. Can use the previous modules to support translation
+Compiler       Low (L0) to high (L4) level compiled language. Can use the previous modules to suppor translation
 Interpreter    Runtime interpreter for the same language specification used of for the compiler
 </pre>
 
-## LTP Directors :
+## LP Directors :
 <pre>
 These are metaprogramming platforms that may be provided by a MAS platform. 
 The language feature layering provides the default policy for what features are allowed from these directors.
 
-(Note: I may remove Alias, and Meta conceptaully as LTP, or )
+(Note: I may remove Alias, and Meta conceptaully as LP, or )
 
 Alias      Provides similar to functionality to using statements c++ for namespace along with being able to 
            specify amendments the backend language modules such as the lexer, parser, and symbol table. 
@@ -35,7 +35,7 @@ All language/module features can be explicitly disabled or enabled in context sp
 Generalized set of features are group into layers from layer 0 to layer 4.  
 With an extra sub-layer called "0.OS" for the 0th layer but ommiting features ussually handled by a OS kernel.  
 <br />
-*Optional, can practically skip but just making layer X in C or Forth, don't even need the ltp directors*  
+*Optional, can practically skip but just making layer X in C or Forth, don't even need the LP directors*  
 Layer Bootstrap &nbsp; &nbsp; &nbsp; Bootstrap target to build layer 0    
 <br />
 
@@ -59,7 +59,7 @@ Context unit for a project or package. Determines how the related content will b
 symbols:
     context             Provides a designated named context unit for a project
     description         Description for context
-    LTP                 States what backend modules to use for program specification
+    LP                  States what backend modules to use for program specification
     layers              Specifies which language layers are implicity allowed. (To allow none, leave empty)
     explicit layers     Whether or not layers may be explicitly allowed within units
     alias               Specifies either the model language standard or support for an external language syntax

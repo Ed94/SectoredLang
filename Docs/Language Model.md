@@ -52,7 +52,7 @@ EOF             End of file             comp_EOF
                                                         Literals
 '$'             Character               literal_Char
 0b{0-1}         Binary                  literal_Binary
-0t{0-2}         Ternary          		literal_Ternary
+0t{0-2}         Ternary                 literal_Ternary
 0o{0-7}         Octal                   literal_Octal
 0x{0-F}         Hex                     literal_Hex
 {0-9}...        Decimal Digits          literal_Digit                        
@@ -64,13 +64,12 @@ tt              Translation Time        sec_tt
 <!-- cc              CallingConvention       sec_callc -->
         # Alias
 alias           Aliasing                sec_alias
-expose          Expose Symbols As       sec_expose   
 in              Expose Member Symbols   sec_in
         # Metaprogramming
 depend          Symbol depends on       sec_Depend
+expose          Expose Symbols As       sec_expose   
 layer           Explicit layer use      sec_layer
 meta            Metaprogramming         sec_meta          
-macro           Macro                   sec_macro
     # Conditional
 if              Conditional If          sec_if
 else            Coniditonal Else        sec_else
@@ -209,11 +208,9 @@ loop            Loop execution          sec_Loop
 switch          Switch on value         sec_Switch
 			# Memory
 align           Alignment               sec_Align
-embed			Embed Data				sec_Embed
 mpage           Memory Paging Segments  sec_Mempage
 register        Register Type           sec_Register
 ro              Read-only               sec_Ro
-stack           Stack  Segment          sec_Stack
 static          Static Segment          sec_Static
 strict          Strict reference        sec_Strict
 struct          Data Record/ Structure  sec_Struct   
@@ -292,6 +289,9 @@ mpage
                                                         Parameters
 #------------------------------------------------------
                                                         Operators
+            # Memory
+allocate        allocate heap           op_Alloc
+deallocate      deallocate heap         op_Dealloc
 #------------------------------------------------------
                                                         Sector
 			# Memory
@@ -330,17 +330,11 @@ hex
                                                         Parameters
 #------------------------------------------------------
                                                         Operators
-			# Memory
-allocate        allocate heap           op_Alloc
-deallocate      deallocate heap         op_Dealloc
 			# Type System
 typeof          Type Accessor           op_TypeOf
 #------------------------------------------------------
                                                         Sector
-			# Memory
-heap            Heap Memory block       sec_Heap
 			# Execution
-for             For loop                sec_For
 soa             Structure of Arrays     sec_SOA
 #-------------------------------------------------------
                                                         Statements
@@ -380,13 +374,12 @@ interface   Dispatch Specification      sec_Interface
 trait       Static Dispatch             sec_Trait
 virtual     Dynamic Dispatch            sec_Virtual
 		# Memory
-gc          Garbage Collector           sec_GC
 mut         Mutable                     sec_Mut
 #-------------------------------------------------------
                                                         Statements
 #-------------------------------------------------------
                                                         Symbols
-ref         References                  sec_Ref                                                        
+ref         References                  sec_Ref          
 </pre>
 
 ## Grammar
@@ -406,6 +399,8 @@ Removed:
                                                         Operators
 #------------------------------------------------------
                                                         Sector
+        # Memory
+gc          Garbage Collector           sec_GC
 #-------------------------------------------------------
                                                         Statements
 #-------------------------------------------------------
