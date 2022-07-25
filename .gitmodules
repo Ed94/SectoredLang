@@ -1,0 +1,3 @@
+[submodule "Engine/gd"]
+	path = Engine/gd
+	url = https://github.com/godotengine/godot

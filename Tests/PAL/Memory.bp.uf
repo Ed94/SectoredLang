@@ -1,5 +1,0 @@
-Format 
-{
-	WithData tt <DataType : Type>;
-	WithData (_memoryAddress, _dataSource : ptr DataType, _dataLength : ) -> uw;
-}

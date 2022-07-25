@@ -96,8 +96,8 @@ Layer 4 ------------------
 # Identifier Symbol
 ***Note: Symbols provided by the program model***
 ```
-	: Member Resolution '.'  
-	| Identifier Sector  
+	: Identifier  Member Resolution '.'  
+	| Identifier 'Identifier Sector'
 	;
 ```
 

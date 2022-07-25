@@ -7,7 +7,7 @@ MAS platforms can support different LPs.
 ISA            Instruction Set Architecture (x86, ARM, RISC, etc). Machine code signal interface
 Assembler      ISA supported assembler
 IR             Intermediary representation compiler framework.
-Compiler       Low (L0) to high (L4) level compiled language. Can use the previous modules to suppor translation
+Compiler       Low (L0) to high (L4) level compiled language. Can use the previous modules to support translation
 Interpreter    Runtime interpreter for the same language specification used of for the compiler
 </pre>
 
@@ -36,7 +36,7 @@ Generalized set of features are group into layers from layer 0 to layer 4.
 With an extra sub-layer called "0.OS" for the 0th layer but ommiting features ussually handled by a OS kernel.  
 <br />
 *Optional, can practically skip but just making layer X in C or Forth, don't even need the LP directors*  
-Layer Bootstrap &nbsp; &nbsp; &nbsp; Bootstrap target to build layer 0    
+Layer Bootstrap : Bootstrap target to build layer 0    
 <br />
 
 <pre>

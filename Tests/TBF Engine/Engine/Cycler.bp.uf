@@ -1,9 +1,0 @@
-static Exist : bool;
-
-expose proc :
-	Initialize;
-	Lapse;
-	LoadModule;
-;
-
-
