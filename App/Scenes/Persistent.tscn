@@ -1,0 +1,178 @@
+[gd_scene load_steps=10 format=3 uid="uid://8tjfhosvma78"]
+
+[ext_resource type="StyleBox" uid="uid://nqey8i51uq6n" path="res://Scripts/Styles/AppBG.SBF.tres" id="1_cc3py"]
+[ext_resource type="Script" path="res://Scripts/Persistent.gd" id="1_p5snc"]
+[ext_resource type="Script" path="res://Scripts/AuxTab.gd" id="2_fr1oi"]
+[ext_resource type="Script" path="res://Scripts/Log/Log.gd" id="3_ihmcm"]
+[ext_resource type="Theme" path="res://Scripts/Styles/TextPipeline.tres" id="3_ykh8n"]
+[ext_resource type="Script" path="res://Scripts/TextPipeline/TextPipeline.gd" id="4_d3lki"]
+[ext_resource type="Theme" path="res://Scripts/Styles/AuxPanel.tres" id="4_hwwia"]
+[ext_resource type="Script" path="res://Scripts/Output.gd" id="7_xfrtc"]
+
+[sub_resource type="Theme" id="Theme_l44yk"]
+Panel/styles/panel = ExtResource("1_cc3py")
+
+[node name="Persistent" type="Panel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = SubResource("Theme_l44yk")
+script = ExtResource("1_p5snc")
+
+[node name="TextPipeline" type="Control" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 1
+theme = ExtResource("3_ykh8n")
+script = ExtResource("4_d3lki")
+
+[node name="HBox" type="HBoxContainer" parent="TextPipeline"]
+anchor_left = 0.02
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+metadata/_edit_layout_mode = 1
+metadata/_edit_use_custom_anchors = true
+
+[node name="ASTView" type="TextEdit" parent="TextPipeline/HBox"]
+offset_right = 390.0
+offset_bottom = 900.0
+grow_horizontal = 0
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.5
+theme_override_font_sizes/font_size = 12
+placeholder_text = "AST Viewer
+"
+editable = false
+metadata/_edit_use_custom_anchors = true
+
+[node name="CodeEdit" type="CodeEdit" parent="TextPipeline/HBox"]
+offset_left = 394.0
+offset_right = 1174.0
+offset_bottom = 900.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+placeholder_text = "MAS - IDE - V0.0.1"
+metadata/_edit_layout_mode = 1
+metadata/_edit_use_custom_anchors = true
+
+[node name="EnvView" type="TextEdit" parent="TextPipeline/HBox"]
+offset_left = 1178.0
+offset_right = 1568.0
+offset_bottom = 900.0
+grow_horizontal = 0
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.5
+placeholder_text = "Environment Viewer
+"
+editable = false
+metadata/_edit_use_custom_anchors = true
+
+[node name="AuxPanels" type="Control" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme = ExtResource("4_hwwia")
+
+[node name="Log" type="Panel" parent="AuxPanels"]
+visible = false
+anchor_right = 0.6
+anchor_bottom = 0.6
+offset_left = 26.0
+script = ExtResource("3_ihmcm")
+metadata/_edit_layout_mode = 1
+metadata/_edit_use_custom_anchors = true
+
+[node name="ScrollContainer" type="ScrollContainer" parent="AuxPanels/Log"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+follow_focus = true
+metadata/_edit_layout_mode = 1
+metadata/_edit_use_custom_anchors = true
+
+[node name="Entries" type="VBoxContainer" parent="AuxPanels/Log/ScrollContainer"]
+offset_right = 934.0
+offset_bottom = 540.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+metadata/_edit_layout_mode = 1
+
+[node name="OutPanel" type="Panel" parent="AuxPanels"]
+visible = false
+anchor_right = 0.6
+anchor_bottom = 0.6
+offset_left = 26.0
+script = ExtResource("7_xfrtc")
+metadata/_edit_layout_mode = 1
+metadata/_edit_use_custom_anchors = true
+
+[node name="OutView" type="TextEdit" parent="AuxPanels/OutPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+editable = false
+metadata/_edit_layout_mode = 1
+
+[node name="LogTab" type="Button" parent="AuxPanels" node_paths=PackedStringArray("AuxNode")]
+layout_direction = 1
+offset_top = 55.0
+offset_right = 55.0
+offset_bottom = 79.0
+rotation = -1.5708
+toggle_mode = true
+action_mode = 0
+text = "Logs
+"
+icon_alignment = 1
+script = ExtResource("2_fr1oi")
+AuxNode = NodePath("../Log")
+metadata/_edit_layout_mode = 1
+metadata/_edit_use_custom_anchors = true
+
+[node name="FileTab" type="Button" parent="AuxPanels" node_paths=PackedStringArray("AuxNode")]
+layout_direction = 1
+offset_top = 110.0
+offset_right = 55.0
+offset_bottom = 134.0
+rotation = -1.5708
+action_mode = 0
+text = "File"
+icon_alignment = 1
+script = ExtResource("2_fr1oi")
+AuxNode = NodePath("../FileDialog")
+metadata/_edit_layout_mode = 1
+metadata/_edit_use_custom_anchors = true
+
+[node name="OutTab" type="Button" parent="AuxPanels" node_paths=PackedStringArray("AuxNode")]
+layout_direction = 1
+anchor_bottom = 0.013
+offset_top = 165.0
+offset_right = 55.0
+offset_bottom = 177.3
+rotation = -1.5708
+toggle_mode = true
+action_mode = 0
+text = "Output"
+icon_alignment = 1
+script = ExtResource("2_fr1oi")
+AuxNode = NodePath("../OutPanel")
+metadata/_edit_layout_mode = 1
+metadata/_edit_use_custom_anchors = true
+
+[node name="FileDialog" type="FileDialog" parent="AuxPanels"]
+title = "Open a File or Directory"
+position = Vector2i(100, 100)
+size = Vector2i(400, 361)
+min_size = Vector2i(400, 300)
+ok_button_text = "Open"
+dialog_close_on_escape = false
+file_mode = 3
+show_hidden_files = true
