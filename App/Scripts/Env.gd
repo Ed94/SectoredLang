@@ -2,44 +2,74 @@ class_name MasEnv extends RefCounted
 
 const NType = SyntaxParser.NType
 
-var Parent : MasEnv
+var Parent  : MasEnv
 var Records : Dictionary
+var Interp  : Interpreter
 
 # TODO: Adapt this to accomadate for use as an identifier env as well.
 
+func resolve_Context(symbol):
+	var symbolID       = symbol
+	var contextRecords = Records
+	
+	if typeof(symbol) == TYPE_ARRAY:
+		symbolID = symbol.back().entry(1)
 
-func assign_Type(symbol : String, value):
-	G.check(Records.has(symbol), String("Symbol not found in environment records"))
-#	G.check( Records[symbol].has(NType.sec_Type), String("type symbol not found in symbol: " + symbol) )
+		var index = 0
+		while index < symbol.size() - 1:
+			var recordID = symbol[index]
+			contextRecords = contextRecords[ recordID ].Records
+			index += 1
+			
+	return [ symbolID, contextRecords ]
 	
-	Records[symbol][NType.sec_Type] = value
+func assign(symbol, value):
+	var context = resolve_Context(symbol)
 	
-	return Records[symbol][NType.sec_Type]
+	var symbolID = context[0]
+	var records  = context[1]
+
+	if records.has(NType.sec_Static) && records[NType.sec_Static].has( symbolID ):
+		records[NType.sec_Static][ symbolID ] = value
+		
+		return records[NType.sec_Static][ symbolID ] 
+
+	return null
+
+func assign_Type(value):
+	Records[NType.sec_Type] = value
 	
-func assign_Type_static(symbol : String, varSymbol, value):
-	G.check(Records.has(symbol), String("Symbol not found in environment records"))
+	return Records[NType.sec_Type]
 	
-	var record = Records[symbol]
+func assign_Static(varSymbol, value):
+	var record = Records
 	
-	if !record.has(NType.sec_Static):
+	if ! record.has(NType.sec_Static):
 		record[NType.sec_Static] = {}
 	
 	record[NType.sec_Static][varSymbol] = value
 	
 	return record[NType.sec_Static][varSymbol]
 
-func define(symbol : String):
-	Records[symbol] = {}
-	
-#func define_type(symbol : String, )
+func define(symbol : String, env : MasEnv):
+	Records[symbol] = env
 
 func has(symbol : String):
 	return Records.has(symbol)
 	
-func lookup(symbol : String):
-	G.check(Records.has(symbol), String("Symbol not found in environment records"))
+func lookup(symbol):
+	var context = resolve_Context(symbol)
+	
+	var symbolID = context[0]
+	var records  = context[1]
+	
+	if records.has(NType.sec_Static) && records[NType.sec_Static].has( symbolID ):
+		return records[NType.sec_Static][ symbolID ]
 
-	return Records[symbol]
+	if records.has( symbolID ):
+		return records[ symbolID ]
+
+	return Parent.lookup( symbol )
 
 func setup_Globals():
 	Records["null"]  = null
@@ -48,7 +78,8 @@ func setup_Globals():
 
 
 #region Object
-func _init(parent : MasEnv) -> void:
+func _init(parent : MasEnv, interp : Interpreter) -> void:
+	Interp = interp
 	Parent = parent
 	
 	return

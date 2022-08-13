@@ -14,6 +14,8 @@ const NType = \
 	
 	expression = "Expression",
 	
+	op_SMA = "Op: Member Resolution",
+	
 	op_Assign = "Op: Assign",
 	op_Add    = "Op: Add",
 	
@@ -173,13 +175,16 @@ func parse_sec_Identifier() -> ASTNode:
 	var \
 	node = ASTNode.new()
 	node.set_Type(NType.sec_Identifier)
-	
-	var identifier = parse_TokValue(NType.sym_Identifier, TType.sym_Identifier)
-	node.add_Entry( identifier )
+
+	if G.check(Tok.Type == TType.sym_Identifier, "Next token should have been an identifier symbol"):
+		return node
+		
+	node.add_TokVal(Tok)
+	eat(TType.sym_Identifier)
 	
 	if Tok == null:
 		return node
-
+		
 	# Check for body
 	if Tok.Type == TType.def_Start:
 		eat(TType.def_Start)
@@ -194,6 +199,9 @@ func parse_sec_Identifier() -> ASTNode:
 					node.add_Entry( parse_sec_Static() )
 					eat(TType.def_End)
 					
+				TType.sym_Identifier:
+					node.add_Entry( parse_sec_Identifier() )
+					
 				_:
 					var error = G.Error.new(false, "Failed to match token.")
 					G.throw(error)
@@ -206,6 +214,15 @@ func parse_sec_Identifier() -> ASTNode:
 			TType.sec_Type:
 				node.add_Entry( parse_sec_Type() )
 				eat(TType.def_End)	
+			
+			TType.sec_Static:
+				node.add_Entry( parse_sec_Static() )
+				eat(TType.def_End)
+					
+			TType.sym_Identifier:
+				node.add_Entry( parse_sec_Identifier() )
+			_:
+				eat(TType.def_End)
 
 	return node
 
@@ -255,31 +272,21 @@ func parse_sec_Static() -> ASTNode:
 		eat(TType.def_Start)
 		
 		while Tok.Type != TType.def_End:
-			var \
-			identifierNode = ASTNode.new()
-			identifierNode.set_Type(NType.sec_Identifier)
+			var identifier = parse_sym_Identifier()
+			var type       = parse_sec_Type()
 			
-			var identifier = parse_TokValue(NType.sym_Identifier, TType.sym_Identifier)
-			identifierNode.add_Entry( identifier )
+			identifier.add_Entry( type )
 			
-			var type = parse_sec_Type()
-			identifierNode.add_Entry( type )
-			
-			node.add_Entry(identifierNode)
+			node.add_Entry(identifier)
 			eat(TType.def_End)
 		
 	else:
-		var \
-		identifierNode = ASTNode.new()
-		identifierNode.set_Type(NType.sec_Identifier)
-			
-		var identifier = parse_TokValue(NType.sym_Identifier, TType.sym_Identifier)
-		identifierNode.add_Entry( identifier )
-			
-		var type = parse_sec_Type()
-		identifierNode.add_Entry( type )
-			
-		node.add_Entry(identifierNode)
+		var identifier = parse_sym_Identifier()
+		var type       = parse_sec_Type()
+		
+		identifier.add_Entry( type )
+		
+		node.add_Entry(identifier)
 	
 	return node
 
@@ -288,9 +295,7 @@ func parse_sec_Type() -> ASTNode:
 	node = ASTNode.new()
 	node.set_Type(NType.sec_Type)
 	eat(TType.sec_Type)
-	
-	var typeNode = ASTNode.new()
-	
+
 	if Tok == null:
 		return node
 	
@@ -298,36 +303,32 @@ func parse_sec_Type() -> ASTNode:
 		eat(TType.op_A_Infer)
 		
 		match Tok.Type:
-			TType.literal_Digit   : typeNode.set_Type(NType.builtin_int) 
-			TType.literal_Decimal : typeNode.set_Type(NType.builtin_float)
-			TType.literal_String  : typeNode.set_Type(NType.builtin_string)
-			TType.literal_Char    : typeNode.set_Type(NType.builtin_string) 
-			TType.literal_True    : typeNode.set_Type(NType.builtin_bool)
-			TType.literal_False   : typeNode.set_Type(NType.builtin_bool)
-			TType.literal_Binary  : typeNode.set_Type(NType.builtin_int) 
-			TType.literal_Octal   : typeNode.set_Type(NType.builtin_int) 
-			TType.literal_Hex     : typeNode.set_Type(NType.builtin_int) 
+			TType.literal_Digit   : node.add_Entry(NType.builtin_int) 
+			TType.literal_Decimal : node.add_Entry(NType.builtin_float)
+			TType.literal_String  : node.add_Entry(NType.builtin_string)
+			TType.literal_Char    : node.add_Entry(NType.builtin_string) 
+			TType.literal_True    : node.add_Entry(NType.builtin_bool)
+			TType.literal_False   : node.add_Entry(NType.builtin_bool)
+			TType.literal_Binary  : node.add_Entry(NType.builtin_int) 
+			TType.literal_Octal   : node.add_Entry(NType.builtin_int) 
+			TType.literal_Hex     : node.add_Entry(NType.builtin_int) 
 
-		typeNode.add_Entry( parse_ExprElement() )
+		node.add_Entry( parse_ExprElement() )
 
 	else:
 		match Tok.Type:
-			TType.sym_Bool   : typeNode.set_Type(NType.builtin_bool)
-			TType.sym_Int    : typeNode.set_Type(NType.builtin_int)
-			TType.sym_Float  : typeNode.set_Type(NType.builtin_float)
-			TType.sym_String : typeNode.set_Type(NType.builtin_string)
+			TType.sym_Bool   : node.add_Entry(NType.builtin_bool);   eat(TType.sym_Bool)
+			TType.sym_Int    : node.add_Entry(NType.builtin_int);    eat(TType.sym_Int)
+			TType.sym_Float  : node.add_Entry(NType.builtin_float);  eat(TType.sym_Float)
+			TType.sym_String : node.add_Entry(NType.builtin_string); eat(TType.sym_String)
 		
-			TType.sym_Identifier : typeNode.set_Type(NType.sym_Identifier)
-		
-		eat(typeNode.type())
+			TType.sym_Identifier : node.add_Entry(NType.sym_Identifier); eat(TType.sym_Identifier)
 	
 		if Tok.Type == TType.op_Assign:
 			eat(TType.op_Assign)
 			
-			typeNode.add_Entry( parse_ExprElement() )
-			
-	node.add_Entry( typeNode )
-	
+			node.add_Entry( parse_ExprElement() )
+
 	return node
 	
 func parse_BinaryExpression(elementFn : Callable, opTok : String, nodeType : String) -> ASTNode:
@@ -377,7 +378,7 @@ func parse_ExprElement() -> ASTNode:
 	var matched = false
 	match Tok.Type:
 		TType.sym_Identifier:
-			return parse_TokValue(NType.sym_Identifier, TType.sym_Identifier)
+			return parse_sym_Identifier()
 		
 		# Literal detection needs to be moved to its own block...
 		TType.literal_String:
@@ -413,6 +414,21 @@ func parse_sym_Identifier() -> ASTNode:
 	var \
 	node = ASTNode.new()
 	node.set_Type(NType.sym_Identifier)
+	node.add_TokVal(Tok)
+	
+	eat(TType.sym_Identifier)
+	
+	while Tok.Type == TType.op_SMA:
+		node.add_Entry( parse_op_SMA() )	
+		
+	return node
+	
+func parse_op_SMA() -> ASTNode:
+	eat(TType.op_SMA)
+	
+	var \
+	node = ASTNode.new()
+	node.set_Type(NType.op_SMA)
 	node.add_TokVal(Tok)
 	
 	eat(TType.sym_Identifier)

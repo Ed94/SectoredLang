@@ -32,7 +32,7 @@ const TType : Dictionary = \
 #	def_CD = "Comma delimiter",
 		
 # Operators
-#	op_SMA = "Member Resolution",
+	op_SMA = "Member Resolution",
 #	op_Map = "Map Resolution",
 	
 # Literals
@@ -241,8 +241,10 @@ const Spec : Dictionary = \
 	
 	TType.op_Add : "start \\+",
 		
-	TType.def_Start : "start set(: {)",
+	TType.def_Start : "start set(  {)",
 	TType.def_End   : "start set(; })",
+	
+	TType.op_SMA : "start \\.",
 	
 	TType.literal_Binary  : "start 0b set(0-1).repeat(1-)",
 	TType.literal_Octal   : "start 0o set(0-7).repeat(1-)",
@@ -259,10 +261,9 @@ const Spec : Dictionary = \
 	
 	TType.sec_Exe    : "start \"exe\"",
 	TType.sec_Static : "start \"static\"",
-	TType.sec_Type   : "start \"type\"",
+	TType.sec_Type   : "start (\"type\"|:)",
 	
-	
-		
+			
 #------------------------------------------- Godot specific symbols
 	TType.literal_True   : "start \"true\"",
 	TType.literal_False  : "start \"false\"",
@@ -272,8 +273,6 @@ const Spec : Dictionary = \
 	TType.sym_Float  : "start \"float\"",
 	TType.sym_String : "start \"String\"",
 #------------------------------------------- Godot specific symbols	END
-	
-	
 	
 	
 	# Must be last, as if none of the above matches this is the last thing it could be.
@@ -374,45 +373,3 @@ func tokenize(programSrcText):
 func _init():
 	if SpecRegex.size() == 0 :
 		compile_regex()
-
-
-# Lexing UNIT
-
-#class Unit:
-#	var SourceText : String
-#	var Tokens     : Array
-#	var TokenIndex : int = 0
-#
-#	func next_Token():
-#		var nextToken = null
-#
-#		if Tokens.size() > TokenIndex :
-#			nextToken   = Tokens[TokenIndex]
-#			TokenIndex += 1
-#
-#		return nextToken
-		
-		
-# Lexing UNIT END
-
-
-# Lexing Optimized Pipeline
-
-#class TUnit:
-#	var Handle : int
-#
-#class TUnits :
-#	var Sources      : Array
-#	var CursorSets   : Array
-#	var TokenSets    : Array
-#	var TokenIndexes : Array
-#
-#
-#var TextUnits : TUnits
-#
-#
-#func tunit_Tokenize():
-#	return
-
-# Lexing Optimized Pipeline END
-

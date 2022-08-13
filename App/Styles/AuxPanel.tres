@@ -1,0 +1,11 @@
+[gd_resource type="Theme" load_steps=3 format=3]
+
+[ext_resource type="StyleBox" path="res://Styles/AuxPanel.Button.SBF.tres" id="1_245u1"]
+[ext_resource type="StyleBox" path="res://Styles/AuxPanel.SytleBoxFlat.tres" id="1_i72ho"]
+
+[resource]
+default_font_size = 12
+Button/styles/normal = ExtResource("1_245u1")
+Panel/styles/panel = ExtResource("1_i72ho")
+RichTextLabel/colors/default_color = Color(1, 1, 1, 0.705882)
+RichTextLabel/font_sizes/normal_font_size = 14

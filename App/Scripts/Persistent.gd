@@ -21,6 +21,10 @@ func _input(event):
 			Out.write( result )
 		
 		return
+		
+
+	
+	
 
 func _ready() -> void:
 	MAS = Interpreter.new(null)
