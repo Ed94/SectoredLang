@@ -21,23 +21,25 @@ const TType : Dictionary = \
 # Captures
 	cap_PStart  = "Capture: Parenthesis Start",
 	cap_PEnd    = "Capture: Parenthesis End",
-#	params_ABStart = "Angle Bracket Start",
-#	params_ABEnd   = "Angle Bracket End",
-#	params_SBStart = "Square Bracket Start",
-#	params_SBEnd   = "Square Bracket End",
-#
+	cap_ABStart = "Angle Bracket Start",
+	cap_ABEnd   = "Angle Bracket End",
+	cap_SBStart = "Capture: Bracket Start",
+	cap_SBEnd   = "Capture: Square Bracket End",
+
 	def_Start = "start definition block",
 	def_End   = "end definition block",
 		
 # Operators
-	op_CD  = "Comma delimiter",
-	op_SMA = "Member Resolution",
-	op_Map = "Map Resolution",
+	op_Define = "Define",
+	op_CD     = "Comma delimiter",
+	op_SMA    = "Member Resolution",
+	op_Map    = "Map Resolution",
 	
 # Literals
+	literal_True    = "Bool: True",
+	literal_False   = "Bool: False",
 	literal_Char    = "Character",
 	literal_Binary  = "Binary",
-#	literal_Ternary = "Ternary",
 	literal_Octal   = "Octal",
 	literal_Hex     = "Hex",
 	literal_Decimal = "Decimal Format",  
@@ -47,16 +49,13 @@ const TType : Dictionary = \
 # Sectors
 	# Directors
 #	sec_Layer = "Explicit LP layer use",
-#	sec_LP    = "Language Platform",
+	sec_LP    = "Language Platform",
 #	sec_Meta  = "Metaprogramming",
 	sec_TT    = "Translation Time",
 	
 	# Symbol Context Aliasing
 #	sec_Alias = "Aliasing",
 #	sec_In    = "Expose Member Symbols",
-	
-	# Symbol Typesystem
-#	sec_Depend = "Symbol depends on",  # (May not need this)
 		
 	# Conditional
 	sec_If   = "Conditional If",
@@ -65,14 +64,13 @@ const TType : Dictionary = \
 	# General
 #	sec_Expose = "Expose symbol as",
 	sec_Enum   = "Enumeration",
-#	sec_Type   = "Type Definition",
 	
 # Symbols
-	sym_Identifier = "Module Defined Symbol",
+	sym_Identifier = "Module Defined Symbol",  # Also used as a sector
 	
 	# LP Symbols
 	sym_Self   = "Self Referiential Symbol", 
-	sym_Type   = "Type Symbol / Top Type",
+	sym_Type   = "Type Symbol / Top Type",     # Also used as a sector.
 #	sym_Invalid = "Invalid",
 #------------------------------------------------------------------------------------- Universal END
 
@@ -82,10 +80,9 @@ const TType : Dictionary = \
 #	op_Alignof  = "Alignment Accessor",
 #	op_OffsetOf = "Member Offset",
 #	op_PosOf    = "Member Position",
-#	op_SizeOf   = "Type Memory Footprint", 
+	op_SizeOf   = "Type Memory Footprint", 
 	
 	# Indirection
-#	op_Ptr = "Pointer Accessor",   // Same as ptr symbol.
 #	op_Val = "Value Accessor",
 	
 	# Execution
@@ -126,7 +123,6 @@ const TType : Dictionary = \
 	op_LesserEqual  = "Lesser Equal",
 	
 	# Assignment
-	op_Define     = "Define",
 	op_A_Infer    = "Type Inferred Assignment",
 	op_Assign     = "Assignment",
 #	op_AB_And     = "Assign Bit And",
@@ -144,7 +140,6 @@ const TType : Dictionary = \
 # Sectors
 	# Encoding
 #	sec_Binary  = "Binary Block",
-#	sec_Ternary = "Ternary Block",
 #	sec_Octal   = "Octal Block",
 #	sec_Hex     = "Hex BLock",
 	
@@ -156,7 +151,6 @@ const TType : Dictionary = \
 	# Memory 
 #	sec_Align    = "Alignment",
 #	sec_Mempage  = "Memory Paging Segments",
-#	sec_RO       = "Read-Only",
 	sec_Stack    = "Stack Segment",
 	sec_Static   = "Static Segment",
 #	sec_Strict   = "Strict Reference",
@@ -168,11 +162,12 @@ const TType : Dictionary = \
 	sec_Exe      = "Execution Block",
 #	sec_Inline   = "Redefine Inplace",
 #	sec_Operator = "Operator Defining",
-#	sec_Proc     = "Procedure",
+#	sec_Proc     = "Procedure",                          # May not need
 	
 # Symbols
 #	sym_Byte     = "Smallest Addressable Unit of Bits",
-	sym_Ptr      = "Address Pointer",
+	sym_RO       = "Read-Only",                          # ALso used as a sector
+	sym_Ptr      = "Address Pointer",                    # Also used as operator.
 #	sym_Register = "Register Type",
 #	sym_Word     = "Machine data model width"
 #------------------------------------------------------------------------------------- Layer 0   END
@@ -180,17 +175,20 @@ const TType : Dictionary = \
 #------------------------------------------------------------------------------------- Layer OS
 # Operators
 	# Memory
-#	op_Alloc   = "Heap Allocate",
-#	op_Dealloc = "Heap Deallocate",
-# Sectors
+	op_Alloc   = "Memory Allocate",
+	op_Free    = "Memory Free",
+	op_Resize  = "Memory Resize",
+	op_Wipe    = "Memory Wipe (Free All)",
+# Symbols
 	# Memory
-#	sec_Heap = "Heap Memory Block",
+	sym_Heap = "Heap Memory Block",     # Also used as sector.
+	sym_Allocator = "Allocator Symbol", # Also used as sector.
 #------------------------------------------------------------------------------------- Layer OS  END
 
 #------------------------------------------------------------------------------------- Layer 1
 # Operators
 	# Type System
-#	op_Cast   = "Type cast",
+	op_Cast   = "Type cast",
 #	op_TypeOf = "Type Accessor",
 	
 # Sectors
@@ -224,13 +222,12 @@ const TType : Dictionary = \
 
 #------------------------------------------------------------------------------------- Godot     
 # Symbols
-	literal_True  = "true",
-	literal_False = "false",
-	
-	sym_Bool   = "bool",
-	sym_Int    = "int",
-	sym_Float  = "float",
-	sym_String = "String",
+	sym_gd_Bool   = "bool",
+	sym_gd_Int    = "int",
+	sym_gd_Float  = "float",
+	sym_gd_Array  = "Array",
+	sym_gd_Dict   = "Dictionary",
+	sym_gd_String = "String",
 #------------------------------------------------------------------------------------- Godot     END
 }
 
@@ -241,8 +238,12 @@ const Spec : Dictionary = \
 	TType.cmt_SL : "start // inline.repeat(0-)",
 	TType.cmt_ML : "start /* set(whitespace !whitespace).repeat(0-).lazy */",
 	
-	TType.cap_PStart : "start \\(",
-	TType.cap_PEnd   : "start \\)",
+	TType.cap_PStart  : "start \\(",
+	TType.cap_PEnd    : "start \\)",
+	TType.cap_ABStart : "start \\<",
+	TType.cap_ABEnd   : "start \\>",
+	TType.cap_SBStart : "start \\[",
+	TType.cap_SBEnd   : "start \\]",
 	
 	TType.op_Equal        : "start ==",
 	TType.op_NotEqual     : "start \\!=",
@@ -250,7 +251,6 @@ const Spec : Dictionary = \
 	TType.op_LesserEqual  : "start <=",
 	TType.op_Greater      : "start >",
 	TType.op_Lesser       : "start <",
-		
 	
 	TType.op_A_Infer : "start :=",
 	TType.op_Assign  : "start =",
@@ -276,11 +276,21 @@ const Spec : Dictionary = \
 	TType.def_Start : "start set(  {)",
 	TType.def_End   : "start set(; })",
 	
-	TType.op_CD     : "start \\,",
-	TType.op_SMA    : "start \\.",
-	TType.op_Break  : "start \"break\"",
-	TType.op_Return : "start \"ret\"",
+	TType.op_CD  : "start \\,",
+	TType.op_SMA : "start \\.",
 	
+	TType.op_Break  : "start \"break\"",
+	TType.op_Cast   : "start \"cast\"",
+	TType.op_Return : "start \"ret\"",
+	TType.op_SizeOf : "start \"sizeof\"",
+	
+	TType.op_Alloc      : "start \"allocate\"",
+	TType.op_Free       : "start \"free\"",
+	TType.op_Resize     : "start \"resize\"",
+	TType.op_Wipe       : "start \"wipe\"",
+	
+	TType.literal_True   : "start \"true\"",
+	TType.literal_False  : "start \"false\"",
 	TType.literal_Binary  : "start 0b set(0-1).repeat(1-)",
 	TType.literal_Octal   : "start 0o set(0-7).repeat(1-)",
 	TType.literal_Hex     : "start 0x (set(0-9)|set(A-F)|set(a-f)).repeat(1-)",
@@ -299,26 +309,29 @@ const Spec : Dictionary = \
 	
 	TType.sec_Enum   : "start \"enum\"",
 	TType.sec_Exe    : "start \"exe\"",
+	TType.sec_LP     : "start \"LP\"",
 	TType.sec_Loop   : "start \"loop\"",
+	
 	TType.sec_Stack  : "start \"stack\"",
 	TType.sec_Static : "start \"static\"",
 	TType.sec_Struct : "start \"struct\"",
 	TType.sec_Switch : "start \"switch\"",
 	TType.sec_TT     : "start \"tt\"",
-	
-	
-	TType.sym_Self : "start \"self\"",
-	TType.sym_Ptr  : "start \"ptr\"",
-	TType.sym_Type : "start \"type\"",
+		
+	TType.sym_Allocator : "start \"allocator\"",
+	TType.sym_Heap      : "start \"heap\"",
+	TType.sym_Ptr       : "start \"ptr\"",
+	TType.sym_RO        : "start \"ro\"",
+	TType.sym_Self      : "start \"self\"",
+	TType.sym_Type      : "start \"type\"",
 	
 #------------------------------------------- Godot specific symbols
-	TType.literal_True   : "start \"true\"",
-	TType.literal_False  : "start \"false\"",
-
-	TType.sym_Bool   : "start \"bool\"",
-	TType.sym_Int    : "start \"int\"",
-	TType.sym_Float  : "start \"float\"",
-	TType.sym_String : "start \"String\"",
+	TType.sym_gd_Bool   : "start \"bool\"",
+	TType.sym_gd_Int    : "start \"int\"",
+	TType.sym_gd_Float  : "start \"float\"",
+	TType.sym_gd_Array  : "start \"darray\"",
+	TType.sym_gd_Dict   : "start \"dmap\"",
+	TType.sym_gd_String : "start \"string\"",
 #------------------------------------------- Godot specific symbols	END
 	
 	# Must be last, as if none of the above matches this is the last thing it could be.

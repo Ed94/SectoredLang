@@ -22,23 +22,23 @@ Memory
 		{
 			(tt Type : type)
 			{
-				allocate   (numDesired : uw)                     -> ptr Type;
-				reallocate (address : ptr Type, numDesired : uw) -> ptr Type;
+				allocate (numDesired : uw)                     -> ptr Type;
+				resize   (address : ptr Type, numDesired : uw) -> ptr Type;
 			}
 		}
 
-		deallocate;
+		free;
 	}
 
 	(heap)
 	{
 		(tt Type : type)
 		{
-			allocate   (numDesired : uw)                     -> ptr Type;
-			reallocate (address : ptr Type, numDesired : uw) -> ptr Type;
+			allocate (numDesired : uw)                     -> ptr Type;
+			resize   (address : ptr Type, numDesired : uw) -> ptr Type;
 		}
 
-		deallocate;
+		free;
 	}
 
 	// Format
@@ -106,7 +106,7 @@ Memory
 					ret cast(ptr Type, newBlock.Location);
 				}
 
-				reallocate(address : ptr Type, numDesired : uw) -> ptr Type exe
+				resize(address : ptr Type, numDesired : uw) -> ptr Type exe
 				{
 					stack index : uw = 0; loop 
 					{
@@ -120,27 +120,27 @@ Memory
 					stack newLocation : ptr uw = null;
 					heap  newLocation : LP.allocate(numDesired * Type.sizeof);
 
-					check(newLocation, "Failed to reallocate block")
+					check(newLocation, "Failed to resize block")
 
-					heap Data[index].Location : deallocate();
+					heap Data[index].Location : free();
 
 					Data[index].Location = newLocation;
 
 					ret cast(ptr Type, Data[index].Location)
 				}
 
-				deallocate exe
+				free exe
 				{
 					stack index : uw = 0; 
 					loop { if index == Length break;
 						heap 
 						{
-							Data[index].Location : deallocate();
-							Data[index]          : deallocate();
+							Data[index].Location : free();
+							Data[index]          : free();
 						}
 					}
 
-					heap Data : deallocate();
+					heap Data : free();
 				}
 			}
 		}
@@ -160,7 +160,7 @@ Memory
 				ret allocedMemory
 			}
 
-			reallocate(address : ptr Type, numDesired : uw) -> ptr Type exe
+			resize(address : ptr Type, numDesired : uw) -> ptr Type exe
 			{
 				stack index : uw = 0; loop 
 				{
@@ -171,12 +171,12 @@ Memory
 						break;
 				}
 
-				stack : reallocedMemory : ptr Type = null;
-				heap  : reallocedMemory : GlobalAllocs.reallocate(Type, numDesired);
+				stack : resizedMemory : ptr Type = null;
+				heap  : resizedMemory : GlobalAllocs.resize(Type, numDesired);
 
-				check(reallocedMemory, "Failed to globally reallocate memory");
+				check(resizedMemory, "Failed to globally reallocate memory");
 
-				ret reallocedMemory;
+				ret resizedMemory;
 			}
 		}
 

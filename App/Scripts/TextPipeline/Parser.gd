@@ -14,13 +14,17 @@ const NType = \
 	enum_Element = "Enumeration Element",
 	expression   = "Expression",
 	
-	op_Call = "Op: Call",
-	
+	op_Call   = "Op: Call",
 	op_CD     = "Op: Comma Delimiter",
 	op_Ptr    = "Op: Address Of (Get Pointer)",
 	op_SMA    = "Op: Member Resolution",
+	
 	op_Break  = "Op: Break",
+	op_Cast   = "Op: Cast",
 	op_Return = "Op: Return",
+	
+	op_Alloc   = "Op: Allocate",
+	op_Dealloc = "Op: Deallocate",
 	
 	op_LNot = "Op: Logical Not",
 	op_LOr  = "Op: Logical Or",
@@ -46,6 +50,8 @@ const NType = \
 	op_GreaterEqual = "Op: Greater Equal",
 	op_LesserEqual  = "Op: Lesser Equal",
 	
+	literal_True    = "Literal: True",
+	literal_False   = "Literal: False",
 	literal_Binary  = "Literal: Binary",
 	literal_Octal   = "Litearl: Octal",
 	literal_Hex     = "Literal: Hex",
@@ -53,8 +59,6 @@ const NType = \
 	literal_Digit   = "Literal: Digit",
 	literal_Char    = "Literal: Char",
 	literal_String  = "Literal: String",
-	literal_True    = "Literal: True",
-	literal_False   = "Literal: False",
 	
 #	sec_LP = "",
 	
@@ -64,6 +68,7 @@ const NType = \
 	sec_Cond       = "Secotr: Conditional",
 	sec_Enum       = "Sector: Enum",
 	sec_Exe        = "Sector: Execution",
+	sec_Heap       = "Sector: Heap",
 	sec_Loop       = "Sector: Loop",
 	sec_Stack      = "Sector: Stack",
 	sec_Static     = "Sector: Static",
@@ -79,6 +84,7 @@ const NType = \
 	builtin_float  = "float",
 	builtin_string = "String",
 	
+	sym_Heap       = "Symbol: Heap",
 	sym_Proc       = "Symbol: Procedure",
 	sym_Ptr        = "Symbol: Pointer",
 	sym_Self       = "Symbol: Self",
@@ -321,9 +327,10 @@ func parse_sec_CaptureArgs() -> ASTNode:
 			TType.sym_Identifier: 
 				symbol = parse_sym_Identifier()
 				
-				var type = parse_sec_Type(TType.op_Define)
-				
-				symbol.add_Entry( type )
+				if Tok.Type != TType.op_CD:
+					var type = parse_sec_Type(TType.op_Define)
+					
+					symbol.add_Entry( type )
 
 		node.add_Entry(symbol)
 		
@@ -562,6 +569,46 @@ func parse_sec_ExeConditional() -> ASTNode:
 	
 	return node
 
+func parse_sec_Heap() -> ASTNode:
+	var \
+	node = ASTNode.new()
+	node.set_Type( NType.sec_Heap )
+	eat(TType.sec_Heap)
+	
+	var result = chk_Tok( TType.def_Start )
+	if result == null:
+		return node
+	
+	if result:
+		eat(TType.def_Start)
+		
+		while Tok.Type != TType.def_End:
+			var identifier = parse_sym_Identifier()
+			var op         = parse_sec_HeapOp()
+			
+			node.add_Entry(identifier)
+			node.add_Entry(op)
+			
+			eat( TType.def_End )
+		
+	else:
+		var identifier = parse_sym_Identifier()
+		var op         = parse_sec_HeapOp()
+			
+		node.add_Entry(identifier)
+		node.add_Entry(op)
+	
+	return node
+	
+func parse_sec_HeapOp() -> ASTNode:
+	eat(TType.op_Define)
+	
+	var \
+	node = ASTNode.new()
+
+	
+	return null
+
 func parse_sec_Loop() -> ASTNode:
 	var \
 	node = ASTNode.new()
@@ -794,15 +841,16 @@ func parse_sec_Type(typeTok : String) -> ASTNode:
 
 	else:
 		match Tok.Type:
-			TType.sym_Bool   : node.add_Entry(NType.builtin_bool);   eat(TType.sym_Bool)
-			TType.sym_Int    : node.add_Entry(NType.builtin_int);    eat(TType.sym_Int)
-			TType.sym_Float  : node.add_Entry(NType.builtin_float);  eat(TType.sym_Float)
-			TType.sym_String : node.add_Entry(NType.builtin_string); eat(TType.sym_String)
+			TType.sym_gd_Bool   : node.add_Entry(NType.builtin_bool);   eat(TType.sym_gd_Bool)
+			TType.sym_gd_Int    : node.add_Entry(NType.builtin_int);    eat(TType.sym_gd_Int)
+			TType.sym_gd_Float  : node.add_Entry(NType.builtin_float);  eat(TType.sym_gd_Float)
+			TType.sym_gd_String : node.add_Entry(NType.builtin_string); eat(TType.sym_gd_String)
 		
 			TType.sym_Identifier : node.add_Entry( parse_sym_Identifier() )
 			TType.cap_PStart     : node.add_Entry( parse_sym_Proc() )
 			TType.sec_Exe        : node.add_Entry( parse_sym_Proc() )
 			TType.sym_Ptr        : node.add_Entry( parse_sym_Ptr() )
+			TType.cap_SBStart    : node.add_Entry( parse_sym_CapSB() )
 	
 		if Tok.Type == TType.op_Assign:
 			eat(TType.op_Assign)
@@ -948,10 +996,10 @@ func parse_expr_Element() -> ASTNode:
 		TType.sym_Identifier:
 			return parse_sym_Identifier()
 			
-		TType.sym_Bool   : return parse_Simple(NType.builtin_bool, TType.sym_Bool);
-		TType.sym_Int    : return parse_Simple(NType.builtin_int, TType.sym_Int);
-		TType.sym_Float  : return parse_Simple(NType.builtin_float, TType.sym_Float);
-		TType.sym_String : return parse_Simple(NType.builtin_string, TType.sym_String);
+		TType.sym_gd_Bool   : return parse_Simple(NType.builtin_bool, TType.sym_gd_Bool);
+		TType.sym_gd_Int    : return parse_Simple(NType.builtin_int, TType.sym_gd_Int);
+		TType.sym_gd_Float  : return parse_Simple(NType.builtin_float, TType.sym_gd_Float);
+		TType.sym_gd_String : return parse_Simple(NType.builtin_string, TType.sym_gd_String);
 		
 		# Literal detection needs to be moved to its own block...
 		TType.literal_String  : return parse_Literal(NType.literal_String,  TType.literal_String)
@@ -966,10 +1014,29 @@ func parse_expr_Element() -> ASTNode:
 		
 	return null
 
-func parse_expr_Call() -> ASTNode:
-	var element = parse_expr_Element()
+func parse_expr_Cast() -> ASTNode:
+	if Tok.Type == TType.op_Cast:
+		eat(TType.op_Cast)
+		
+		var node = ASTNode.new()
+		node.set_Type(NType.op_Cast)
+		node.add_Entry( parse_expr_Capture() )
+		
+		return node
+	
+	return parse_expr_Element()
 
-	if element.type() == NType.sym_Identifier && Tok.Type == TType.cap_PStart:
+func op_Callable(node):
+	match node.Type():
+		NType.op_Cast        : return true
+		TType.sym_Identifier : return true
+		_:
+			return false
+
+func parse_expr_Call() -> ASTNode:
+	var element = parse_expr_Cast()
+
+	if op_Callable(element) && Tok.Type == TType.cap_PStart:
 		var \
 		node = ASTNode.new()
 		node.set_Type(NType.op_Call)
@@ -1096,6 +1163,9 @@ func parse_expr_Delimited() -> ASTNode:
 	return parse_expr_Binary_tok(parse_expr_Assignment, TType.op_CD, NType.op_CD)
 #endregion Expressions
 
+func parse_sym_CapSB() -> ASTNode:
+	return null
+
 func parse_sym_Proc() -> ASTNode:
 	var \
 	node = ASTNode.new()
@@ -1134,10 +1204,10 @@ func parse_sym_Ptr() -> ASTNode:
 	eat(TType.sym_Ptr)
 	
 	match Tok.Type:
-		TType.sym_Bool   : node.add_Entry(NType.builtin_bool);   eat(TType.sym_Bool)
-		TType.sym_Int    : node.add_Entry(NType.builtin_int);    eat(TType.sym_Int)
-		TType.sym_Float  : node.add_Entry(NType.builtin_float);  eat(TType.sym_Float)
-		TType.sym_String : node.add_Entry(NType.builtin_string); eat(TType.sym_String)
+		TType.sym_gd_Bool   : node.add_Entry(NType.builtin_bool);   eat(TType.sym_gd_Bool)
+		TType.sym_gd_Int    : node.add_Entry(NType.builtin_int);    eat(TType.sym_gd_Int)
+		TType.sym_gd_Float  : node.add_Entry(NType.builtin_float);  eat(TType.sym_gd_Float)
+		TType.sym_gd_String : node.add_Entry(NType.builtin_string); eat(TType.sym_gd_String)
 		
 		TType.sym_Identifier : node.add_Entry(NType.sym_Identifier); eat(TType.sym_Identifier)
 		TType.sec_Exe        : node.add_Entry(NType.sec_Exe);        eat(TType.sec_Exe)

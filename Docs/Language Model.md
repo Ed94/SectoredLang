@@ -31,7 +31,7 @@ Statement       # Used to delimit what a (statement) should be in MAS.
 EOF             End of file             comp_EOF
 '"'             Stirng Dilimiter        comp_SDilim
 #------------------------------------------------------
-                                                        Formatting (Ignored by the compiler)
+                                                        Formatting
 " ..."          Whitespace String       fmt_WSS
 \n              NewLine                 fmt_NL
 <!-- {               Open Brace              fmt_OB -->
@@ -46,16 +46,20 @@ EOF             End of file             comp_EOF
 ]               Square Bracket End       params_SBEnd
 #------------------------------------------------------
                                                         Operators
+,               Comma delimiter         op_CD
+:               Define                  op_Define
 .               Member Resolution       op_SMA
 ->              Map Resolution          op_Map
 #------------------------------------------------------
                                                         Literals
+true            Boolean True            literal_True
+false           Boolean False           literal_False
 '$'             Character               literal_Char
 0b{0-1}         Binary                  literal_Binary
-0t{0-2}         Ternary                 literal_Ternary
 0o{0-7}         Octal                   literal_Octal
 0x{0-F}         Hex                     literal_Hex
-{0-9}...        Decimal Digits          literal_Digit                        
+{0-9}...        Integer Digits          literal_Digit
+{0-9.0-9}...    Decimal Format          literal_Decimal
 "..."           String                  literal_String
 #------------------------------------------------------
                                                         Sectors
@@ -66,74 +70,31 @@ tt              Translation Time        sec_tt
 alias           Aliasing                sec_alias
 in              Expose Member Symbols   sec_in
         # Metaprogramming
-depend          Symbol depends on       sec_Depend
-expose          Expose Symbols As       sec_expose   
+depend          Symbol depends on       sec_Depend (*)
+expose          Expose Symbols As       sec_expose (*)
 layer           Explicit layer use      sec_layer
-meta            Metaprogramming         sec_meta          
+meta            Metaprogramming         sec_meta
     # Conditional
 if              Conditional If          sec_if
 else            Coniditonal Else        sec_else
     # General
-enum            Enumeration             sec_enum    
+enum            Enumeration             sec_enum
+type            Type Sector             sec_Type
 {Identifer}     Symbol Definitions      sec_DefSym
-type            Type definition         sec_Type
 #-------------------------------------------------------
                                                         Statements
-:               start def block         def_Start
-;               end   def block         def_End
-{               start def block (brace) def_Start 
-}               end   def block (brace) def_End
-,               Comma delimiter         def_CD
+;               end statemnt            def_End
+{               start def block         def_Start
+}               end   def block         def_End
 #-------------------------------------------------------
                                                         Symbols
 {Identifier}    User defined symbol     sym_Identifier
-Type            Top Type                sym_TType
+self            Self Referiential       sym_Self
+type            Top / Type Symbol       sym_Type
 {undefined}     Invalid                 sym_Invalid
 </pre>
 
-## Grammar:
-
-<pre>
-...                             Symbol pattern generator
-
-{identifier : body ;            Symbol defining statement
-identifier : symbol ;           Symbol associated with identifier
-
-(symbol, ...)                   Parenthesized expression symbol defining statement
-&lt;symbol, ...&gt;                   Angle bracketed expression symbol defining statement
-[symbol, ...]                   Square bracketed expression symbol defining statement
-
-symbol[symbol]                  Access element of symbol
-symbol.symbol                   Access symbol associated with symbol
-
-specifier {(..., ...)} symbol   Specify specifier with optional parameterized flags for symbol
-
-symbol -> symbol                Symbol mapping to other symbol
-
-{symbol} identifier             specify symbol for one identifier
-{symbol} : body ;               specify symbol for body
-
-typeof(identifier)              Accessor to associated type of identifier
-</pre>
-
-## LTP Directors
-### Alias
-<pre>
-{aliasIdentifier} : {symbol} ;	            Expose a mybol
-</pre>
-
-### Meta
-### Translation Time
-
-
 # Layer 0
-
-| | |
-|:--|:--|
-| APS | 1 |
-| CNL                 | 1        # (AKA Context Nesting Limit) {unit} : {sector} : {identifier} : {identifier}; ;; |
-| Typing              | Weak |
-| Implicit Mutability | mut |
 
 ## Tokens
 
@@ -157,6 +118,7 @@ goto            Jump to Label           op_goto
 pop             Pop current stack       op_pop
 push            Push current stack      op_push
 ret             Return                  op_return
+
 
 {PI};		
 {PI}<...>(...); Call Procedure          op_callproc
@@ -199,7 +161,6 @@ ret             Return                  op_return
                                                         Sectors
 			# Encoding
 binary          Binary  block           sec_Binary
-ternay          Ternary block           sec_Ternary
 octal           Octal   block           sec_Octal
 hex             Hex     block           sec_Hex
 			# Control Flow
@@ -224,52 +185,11 @@ op              Operator Defining       sec_Operator
 proc            Procedure               sec_Proc
 #-------------------------------------------------------
                                                         Symbols
+ro              Read-only                           sym_Ro
 ptr             Address Pointer                     sym_Ptr
 byte            Smallest addressable unit of bits   sym_Byte
 word            Machine data model width            sym_Word
 </pre>
-
-## Grammar
-
-<pre>
-ret   symbol;                   Return a valid symbol for the context   
-label identifier;               Deifne label with identifier
-goto  identifier;               Jump to identitfier
-
-alignof(identifier)             Alignment of struct member
-offsetof(identifier)            Offset of struct member
-posof(identifier)               Position of struct member
-sizeof(identifier)              Size of struct or a type symbol
-
-ptr type                        Defines a pointer to a type
-symbol.ptr                      Accessor to pointer of a symbol
-symbol.val                      Value of pointer type associated symbol
-
-identfier {assign op} value     Assign value to identifier
-value op ...                    perform operation on value (delimiter)
-op(value, ...)                  perform operation on values (functional)
-
-struct :                        Define a data record or structure
-    {data member definitions}
-;
-
-union :
-    {data member associations}  Define a untagged union
-;
-
-[{enum}] union :
-    {data member associations}  Define a tagged union
-;
-</pre>
-
-## Directors
-
-### Alias
-
-### Meta
-
-### Translation Time
-
 
 # Layer 0.OS
 
@@ -290,16 +210,21 @@ mpage
 #------------------------------------------------------
                                                         Operators
             # Memory
-allocate        allocate heap           op_Alloc
-deallocate      deallocate heap         op_Dealloc
+allocate        Memory Allocate         op_Alloc
+free            Memory Free             op_Free
+resize          Memory Resize           op_Resize
+wipe            Memory Wipe             op_Wipe
 #------------------------------------------------------
                                                         Sector
 			# Memory
 heap            Heap Memory block       sec_Heap
+allocator       User Defined Allocator  sec_Allocator
 #-------------------------------------------------------
                                                         Statements
 #-------------------------------------------------------
                                                         Symbols
+heap            Heap Symbol             sym_Heap
+allocator       Allocator Symbol        sym_Allocator
 </pre>
 
 ## Grammar
@@ -307,21 +232,8 @@ heap            Heap Memory block       sec_Heap
 
 # Layer 1
 
-| | |
-| :-- | :-- |
-| APS | 1 |
-| CNL                 | 1 ```# {unit} : {sector} : {identifier} : {identifier}; ;;``` |
-| Typing              | Weak |
-| Implicit Mutability | mut |
-
 ## Feature Removal
-Direct Stack Manipulation
-Direct Encoding injection  
-
-## Removed:
-binary  
-ternary  
-hex  
+* Direct Stack Manipulation
 
 ## Tokens
 
@@ -331,6 +243,7 @@ hex
 #------------------------------------------------------
                                                         Operators
 			# Type System
+cast            Type Cast
 typeof          Type Accessor           op_TypeOf
 #------------------------------------------------------
                                                         Sector
@@ -347,15 +260,7 @@ soa             Structure of Arrays     sec_SOA
 
 # Layer 2
 
-| | |
-| :-- | :-- |
-| CNL                 | 4  ```{unit} {sector} {identifier} : {identifier} : {identifier} : {identifier}; ;;``` |
-| Typing              | Strong |
-| Implicit Mutability | ro |
-| MN                  | | 
-| Borrow Checker ||
-
-Removed:  
+# Featuree Removed:  
 * label
 * goto
 
@@ -382,14 +287,7 @@ mut         Mutable                     sec_Mut
 ref         References                  sec_Ref          
 </pre>
 
-## Grammar
-
-
 # Layer 3
-
-Typing : Strong  
-
-Removed:
 
 ## Tokens
 <pre>
@@ -407,14 +305,10 @@ gc          Garbage Collector           sec_GC
                                                         Symbols
 </pre>
 
-## Grammar :
-
-
 # Layer 4
 
 Strong-Typing  
 Purely-functional
-
 
 ## Tokens
 <pre>
@@ -430,88 +324,3 @@ fn          Function                    sec_FN
 #-------------------------------------------------------
                                                         Symbols
 </pre>
-
-## Grammar
-
-
-# Layer Boostrap
-(This does not use the universal context)  
-
-| | |
-| :-- | :-- |
-| APS                 | 1 |
-| CNL                 | 0         ```{sector} {identifier} : {definition} ; (Only one definition, bodies are not allowed)``` |
-| Typing              | Untyped |
-| Implicit Mutability | mut |
-| Math Notation       | op(a, b) |
-
-## Tokens
-<pre>
-#------------------------------------------------------
-                                                        Comments
-//              Comment Line            cmt_SS
-#------------------------------------------------------
-                                                        Components
-' '             Whitespace              comp_WS
-'_'             Underscore              comp_UnderS
-\0              Null Terminator         comp_Null             
-EOF             End of file             comp_EOF
-'"'             Stirng Dilimiter        comp_SDilim
-#------------------------------------------------------
-                                                        Formatting (Ignored by the compiler)
-" ..."          Whitespace String       fmt_WSS
-\n              NewLine                 fmt_NL
-{               Open Brace              fmt_OB
-}               Close Brace             fmt_CB
-#------------------------------------------------------
-                                                        Operators
-.               Member Resolution       op_SMA
-->              Map Resolution          op_Map 
-            # Execution
-pop             Pop current stack       op_pop
-push            Push current stack      op_push
-goto            Jump to Label           op_goto                 
-ret             Return                  op_return
-            # Logical (If machine available)
-!               Logical NOT             op_LNOT
-&&              Logical And             op_LAND
-||              Logical OR              op_LOR    
-&               Bitwise And             op_BAND
-|               Bitwise Or              op_BOR
-^               Bitwise XOr             op_BXOR
-~               Bitwise Not             op_BNOT
-<<              Bitwise Shift Left      op_BSL
->>              Bitwise Shift Right     op_BSR
-            # Arithmetic (If machine available)
-+               Addition                op_Add
--               Subtraction             op_Subtract
-*               Multiply                op_Multiply
-/               Divide                  op_Divide
-#------------------------------------------------------
-                                                        Literals
-'$'             Character               literal_Char
-0b{0-1}         Binary                  literal_Binary
-0t{0-2}         Ternary          		literal_Ternary
-0o{0-7}         Octal                   literal_Octal
-0x{0-F}         Hex                     literal_Hex
-{0-9}...        Decimal Digits          literal_Digit                        
-"..."           String                  literal_String
-#-------------------------------------------------------
-                                                        Sectors
-			# Control Flow
-label           Label                   sec_Label
-            # Memory
-stack           Stack  Segment          sec_Stack
-static          Static Segment          sec_Static
-struct          Data Record/ Structure  sec_Struct   
-            # Execution
-exec            Execution               sec_Exec
-proc            Procedure               sec_Proc
-#-------------------------------------------------------
-                                                        Symbols
-byte            Smallest addressable unit of bits   sym_Byte                                                        
-word            Machine data model width            sym_Word
-
-</pre>
-
-## LFL : unsupported

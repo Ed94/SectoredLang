@@ -13,20 +13,16 @@ Interpreter    Runtime interpreter for the same language specification used of f
 
 ## LP Directors :
 <pre>
-These are metaprogramming platforms that may be provided by a MAS platform. 
+These are metaprogramming platforms that may be provided by a Language Platform. 
 The language feature layering provides the default policy for what features are allowed from these directors.
 
-(Note: I may remove Alias, and Meta conceptaully as LP, or )
+(Note: I may remove Alias)
 
-Alias      Provides similar to functionality to using statements c++ for namespace along with being able to 
-           specify amendments the backend language modules such as the lexer, parser, and symbol table. 
-           As such things related to the langauge model can be changed. (So long as the alias backend allows for it) 
-           (I Don't have a fully fleshed out idea for how the extent of alias. 
-           Its mostly a explicit context manipulation and language adaptation platform)
+Alias      Not sure how far this is going to go, but its going to be for symbol aliasing.
 
-Meta        Handles directives to tooling.
+LP         Handles directives to tooling.
 
-TT          Translation Time: Allows for translation time execution and code generation. 
+TT         Translation Time: Allows for translation time execution and code generation. 
 </pre>
 
 ## LFLs (Language Feature Layering) :
@@ -34,19 +30,15 @@ TT          Translation Time: Allows for translation time execution and code gen
 All language/module features can be explicitly disabled or enabled in context specification  
 Generalized set of features are group into layers from layer 0 to layer 4.  
 With an extra sub-layer called "0.OS" for the 0th layer but ommiting features ussually handled by a OS kernel.  
-<br />
-*Optional, can practically skip but just making layer X in C or Forth, don't even need the LP directors*  
-Layer Bootstrap : Bootstrap target to build layer 0    
-<br />
 
 <pre>
-Layer 0     Low-level features, binary, hex, interrupts, paging, stack, registers, etc
+Layer 0     Low-level features, binary, hex, interrupts, paging, stack, registers, etc (C/Asm - Freesatnding)
 Lyaer 0.OS  Removes features handled by the OS kernel and provides a standard interface to OS
             Features
-Layer 1     C Features
-Layer 2     Memory and execution safety, garbage collection, V-Table generation, etc        
+Layer 1     C Features (Non-Freestanding)
+Layer 2     Memory and execution safety, garbage collection, V-Table generation, etc
 Layer 3     C++ level of expressability
-Layer 4 Purely functional
+Layer 4     Purely functional
 </pre>
 
 # File/Unit associations :
@@ -108,9 +100,8 @@ Should be viewable using a database viewer.
 
 ## .ast.*               Abstract Syntax There
 
-This is a Dion (hopefully) formatted ast file that contains the raw parsed ast of a context.   
+This is a Dion (hopefully) formatted ast file that contains the raw parsed ast of a context.
 This can be used as intermediary between tools or as a way to store the "live" source code.  
-Unit text files can be generated from the ast.    
+Unit text files can be generated from the ast.
 
-This is meant to be the live "code" the user writes source code in with a toolchain. ASTs should be rendered live in "tiled" or "tokened" text.  
-
+This is meant to be the live "code" the user writes source code in with a toolchain. ASTs should be rendered live in "tiled" or "tokened" text.

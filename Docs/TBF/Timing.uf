@@ -8,7 +8,7 @@ Timing
 		MicrosecondToSecond := 10000000;
 	}
 
-	pub_ro
+	ro
 	{
 		static 
 		{

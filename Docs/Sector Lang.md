@@ -1,5 +1,5 @@
-# Sector Langauge
-Previous called MAS (Modular Alias Sectored), 
+# Sectored Langauge
+Previously called MAS (Modular Alias Sectored), 
 the first two are not as prevalent and the main feature of the language is really just
 the sectorization concept for symbols.
 

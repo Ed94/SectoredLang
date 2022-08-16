@@ -1,3 +1,6 @@
+# NOTE: This needs to be redone, making the RD parser naturally had me go through this with a comb...
+
+
 # UNIVERSAL PATTERNS: 
 
 ## SECTOR DECLARATION
