@@ -1,0 +1,57 @@
+
+(tt NumType : type)
+{
+	(value : NumType) -> NumType 
+	{
+		Abs exe
+		{
+			stack 
+			posOrZero : bool;
+			posOrZero = value >= cast(NumType, 0);
+
+			if posOrZero
+				ret value
+			else
+				ret -value;
+		}
+
+		Sign exe
+		{
+			static 
+			isPos : bool;
+			isPos = value > cast(NumType, 0)
+
+			if isPos
+				ret cast(NumType, 1);
+
+			else
+			{
+				static 
+				isNeg : bool;
+				isNeg = value < cast(NumType, 0);
+
+				if isNeg
+					ret cast(NumType, -1);
+				else
+					ret cast(NumType, 0);
+			}
+		}
+	}
+}
+
+
+f32 (self)
+{
+	IsNearlyZero (errorTolerance : f32 = FloatAccuracy.Micro) -> bool exe
+	{
+		ret Abs(f32, self) <= errorTolerance;
+	}
+}
+
+f64 (self)
+{
+	IsNearlyZero (errorTolerance : f64 = FloatAccuracy.Micro) -> bool exe
+	{
+		ret Abs(f64, self) <= errorTolerance;
+	}
+}

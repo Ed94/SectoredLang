@@ -10,14 +10,41 @@ const NType = \
 	empty = "Empty Statement",
 	unit = "Module Unit",
 	
-	capture = "Capture",
+	capture      = "Capture",
+	enum_Element = "Enumeration Element",
+	expression   = "Expression",
 	
-	expression = "Expression",
+	op_Call = "Op: Call",
 	
-	op_SMA = "Op: Member Resolution",
+	op_CD     = "Op: Comma Delimiter",
+	op_Ptr    = "Op: Address Of (Get Pointer)",
+	op_SMA    = "Op: Member Resolution",
+	op_Break  = "Op: Break",
+	op_Return = "Op: Return",
 	
-	op_Assign = "Op: Assign",
-	op_Add    = "Op: Add",
+	op_LNot = "Op: Logical Not",
+	op_LOr  = "Op: Logical Or",
+	op_LAnd = "Op: Logical And",
+	op_BNot = "Op: Bitwise Not",
+	op_BAnd = "Op: Bitwise And",
+	op_BOr  = "Op: Bitwise Or",
+	op_BXOr = "Op: Bitwise XOr",
+	op_BSL  = "Op: Bitshift Left",
+	op_BSR  = "Op: Bitshift Right",
+	
+	op_Assign   = "Op: Assign",
+	op_Add      = "Op: Add",
+	op_Subtract = "Op: Subtract",
+	op_Multiply = "Op: Multiply",
+	op_Divide   = "Op: Divide",
+	op_Modulo   = "Op: Modulo",
+	
+	op_Equal        = "Op: Equal",
+	op_NotEqual     = "Op: NotEqual",
+	op_Greater      = "Op: Greater",
+	op_Lesser       = "Op: Lesser",
+	op_GreaterEqual = "Op: Greater Equal",
+	op_LesserEqual  = "Op: Lesser Equal",
 	
 	literal_Binary  = "Literal: Binary",
 	literal_Octal   = "Litearl: Octal",
@@ -30,9 +57,20 @@ const NType = \
 	literal_False   = "Literal: False",
 	
 #	sec_LP = "",
-
+	
+	sec_Cap        = "Sector: Capture",
+	sec_CapArgs    = "Capture Sector - Arguments",
+	sec_CapRet     = "Capture Sector - Return Map",
+	sec_Cond       = "Secotr: Conditional",
+	sec_Enum       = "Sector: Enum",
 	sec_Exe        = "Sector: Execution",
+	sec_Loop       = "Sector: Loop",
+	sec_Stack      = "Sector: Stack",
 	sec_Static     = "Sector: Static",
+	sec_Struct     = "Sector: Struct",
+	sec_Switch     = "Sector: Switch",
+	sec_SwitchCase = "Switch Sector - Case",
+	sec_TT         = "Sector: Translation Time", 
 	sec_Type       = "Sector: Type",
 	sec_Identifier = "Sector: Identifier",
 	
@@ -41,6 +79,9 @@ const NType = \
 	builtin_float  = "float",
 	builtin_string = "String",
 	
+	sym_Proc       = "Symbol: Procedure",
+	sym_Ptr        = "Symbol: Pointer",
+	sym_Self       = "Symbol: Self",
 	sym_Identifier = "Symbol: Identifier",
 }
 
@@ -104,7 +145,7 @@ class ASTNode:
 
 const TType = Lexer.TType
 var   Lex   : Lexer
-var   Tok
+var   Tok 
 
 func chk_Tok( tokenType ):
 	if G.check(Tok != null, "Tok is null!"):
@@ -130,7 +171,7 @@ func eat( tokenType ):
 	
 	return currToken
 
-func parse( ) -> ASTNode:
+func parse() -> ASTNode:
 	Tok = Lex.next_Token()
 	
 	var \
@@ -140,8 +181,13 @@ func parse( ) -> ASTNode:
 	while Tok != null :
 		var matched = false
 		match Tok.Type:
-			TType.sym_Identifier:
-				node.add_Entry( parse_sec_Identifier() )
+			TType.cap_PStart:
+				node.add_Entry( parse_sec_Capture() )
+				matched = true
+			
+		#region LP_Sectors
+			TType.sec_If:
+				node.add_Entry( parse_sec_Conditional() )
 				matched = true
 				
 			TType.sec_Exe:
@@ -151,17 +197,26 @@ func parse( ) -> ASTNode:
 			TType.sec_Static:
 				node.add_Entry( parse_sec_Static() )
 				matched = true
-				
+								
+			TType.sec_TT:
+				node.add_Entry( parse_sec_TranslationTime() )
+				matched = true
+		#endregion LP_Sectors
+			
+			TType.sym_Identifier:
+				node.add_Entry( parse_sec_Identifier() )
+				matched = true
+
 			# Empty statement
 			TType.def_End:
 				eat(TType.def_End)
 				matched = true
-				
+
 		if !matched:
-			var literalNode = parse_ExprElement();
+			var literalNode = parse_expr_Element();
 			if literalNode != null:
 				node.add_Entry( literalNode )
-				eat(TType.def_End)
+				eat(TType.def_End)  
 				matched = true
 				
 		if !matched:
@@ -171,6 +226,591 @@ func parse( ) -> ASTNode:
 			
 	return node
 
+func parse_sec_Capture() -> ASTNode:
+	var \
+	node = ASTNode.new()
+	node.set_Type(NType.sec_Cap)
+	node.add_Entry( parse_sec_CaptureArgs() )
+	
+	if Tok == null:
+		return node
+	
+	if Tok.Type == TType.op_Map:
+		node.add_Entry( parse_sec_CaptureReturnMap() )
+	
+	var result = chk_Tok(TType.def_Start)
+	if result == null:
+		return node
+		
+	if result:
+		eat(TType.def_Start)
+		
+		while Tok.Type != TType.def_End:
+			match Tok.Type:
+				TType.cap_PStart:
+					node.add_Entry( parse_sec_Capture() )
+					eat(TType.def_End)
+			
+			#region LP_Sectors
+				TType.sec_Exe:
+					node.add_Entry( parse_sec_Exe() )
+					eat(TType.def_End)
+				
+				TType.sec_If:
+					node.add_Entry( parse_sec_Conditional() )
+					eat(TType.def_End)
+					
+				TType.sec_Static:
+					node.add_Entry( parse_sec_Static() )
+					eat(TType.def_End)
+				
+				TType.sec_TT:
+					node.add_Entry( parse_sec_TranslationTime() )
+					eat(TType.def_End)
+			#endregion LP_Sectors
+					
+				TType.sym_Identifier:
+					node.add_Entry( parse_sec_Identifier() )
+					eat(TType.def_End)
+
+				_:
+					var error = G.Error.new(false, "Failed to match token.")
+					G.throw(error)
+					return null
+		
+	else:
+		match Tok.Type:
+			TType.cap_PStart:
+				node.add_Entry( parse_sec_Capture() )
+			
+		#region LP_Sectors
+			TType.sec_Exe:
+				node.add_Entry( parse_sec_Exe() )
+				
+			TType.sec_If:
+				node.add_Entry( parse_sec_Conditional() )
+			
+			TType.sec_Static:
+				node.add_Entry( parse_sec_Static() )
+				
+			TType.sec_TT:
+				node.add_Entry( parse_sec_TranslationTime() )
+		#endregion LP_Sectors
+			
+			TType.sec_Exe:
+				node.add_Entry( parse_sec_Exe() )
+				
+			TType.sym_Identifier:
+				node.add_Entry( parse_sec_Identifier() )
+
+	return node
+	
+func parse_sec_CaptureArgs() -> ASTNode:
+	var \
+	node = ASTNode.new()
+	node.set_Type(NType.sec_CapArgs)
+	
+	eat(TType.cap_PStart)
+	
+	while ! chk_Tok(TType.cap_PEnd):
+		var symbol
+		match Tok.Type:
+			TType.sym_Self: 
+				symbol = parse_Simple(NType.sym_Self, TType.sym_Self)
+				
+			TType.sym_Identifier: 
+				symbol = parse_sym_Identifier()
+				
+				var type = parse_sec_Type(TType.op_Define)
+				
+				symbol.add_Entry( type )
+
+		node.add_Entry(symbol)
+		
+		match chk_Tok(TType.op_CD):
+			true: eat(TType.op_CD)
+			null: return node
+	
+	eat(TType.cap_PEnd)
+	
+	return node
+	
+func parse_sec_CaptureReturnMap() -> ASTNode:
+	var \
+	node = ASTNode.new()
+	node.set_Type(NType.sec_CapRet)
+	eat(TType.op_Map)
+	
+	node.add_Entry( parse_expr_Call() )
+				
+	return node
+	
+#region LP_Sectors
+func parse_sec_Conditional() -> ASTNode:
+	var \
+	node = ASTNode.new()
+	node.set_Type( NType.sec_Cond )
+	eat(TType.sec_If)
+	
+	node.add_Entry( parse_Expression() )
+	
+	var result = chk_Tok(TType.def_Start)
+	if result == null:
+		return null
+	
+	parse_sec_ConditionalBody(node)
+	
+	if Tok && Tok.Type == TType.sec_Else:
+		result = chk_Tok(TType.def_Start)
+		if result == null:
+			return node
+		
+		parse_sec_ConditionalBody(node)
+
+	return node
+	
+func parse_sec_ConditionalBody(node):
+	eat(TType.def_Start)
+		
+	while Tok.Type != TType.def_End:
+		match Tok.Type:
+			TType.cap_PStart:
+				node.add_Entry( parse_sec_Capture() )
+				eat(TType.def_End)
+			
+		#region LP_Sectors
+			TType.sec_Exe:
+				node.add_Entry( parse_sec_Exe() )
+				eat(TType.def_End)
+				
+			TType.sec_If:
+				node.add_Entry( parse_sec_Conditional() )
+				eat(TType.def_End)
+					
+			TType.sec_Static:
+				node.add_Entry( parse_sec_Static() )
+				eat(TType.def_End)
+				
+			TType.sec_TT:
+				node.add_Entry( parse_sec_TranslationTime() )
+				eat(TType.def_End)
+		#endregion LP_Sectors
+					
+			TType.sym_Identifier:
+				node.add_Entry( parse_sec_Identifier() )
+				eat(TType.def_End)
+
+			_:
+				var error = G.Error.new(false, "Failed to match token.")
+				G.throw(error)
+				return null
+			
+	eat(TType.def_End)
+	
+func parse_sec_Enum() -> ASTNode:
+	var \
+	node = ASTNode.new()
+	node.set_Type(NType.sec_Enum)
+	eat(TType.sec_Enum)
+	
+	if Tok.Type == TType.cap_PStart:
+		node.add_Entry( parse_expr_Capture() )
+	
+	var result = chk_Tok(TType.def_Start)
+	if result == null:
+		return node
+		
+	if result:
+		eat(TType.def_Start)
+		
+		while Tok.Type != TType.def_End:
+			if Tok.Type == TType.sym_Identifier:
+				node.add_Entry( parse_sec_EnumElement() )
+				eat(TType.def_End)
+			else:
+				var error = G.Error.new(false, "Failed to match token.")
+				G.throw(error)
+				return null
+		
+	else:
+		if Tok.Type == TType.sym_Identifier:
+			node.add_Entry( parse_sec_EnumElement() )
+			eat(TType.def_End)
+		
+	return node
+	
+func parse_sec_EnumElement() -> ASTNode:
+	var \
+	node = ASTNode.new()
+	node.set_Type(NType.enum_Element)
+	node.add_Entry( parse_expr_Element() )
+	
+	if Tok.Type == TType.op_Assign:
+		eat(TType.op_Assign)
+		node.add_Entry( parse_expr_Element() )
+		
+	return node
+
+func parse_sec_Exe() -> ASTNode:
+	var \
+	node = ASTNode.new()
+	node.set_Type(NType.sec_Exe)
+	eat(TType.sec_Exe)
+	
+	parse_sec_ExeBody(node)
+	
+	return node
+		
+func parse_sec_ExeBody(node):
+	var result = chk_Tok(TType.def_Start)
+	if result == null:
+		return
+		
+	if result:
+		eat(TType.def_Start)
+		
+		while Tok.Type != TType.def_End:
+			var matched = false
+			match Tok.Type:
+				TType.op_Break:
+					node.add_Entry( parse_op_Break() )
+					eat(TType.def_End)
+					matched = true
+				
+				TType.sec_If:
+					node.add_Entry( parse_sec_ExeConditional() )
+					eat(TType.def_End)
+					matched = true
+					
+				TType.sec_Loop:
+					node.add_Entry( parse_sec_Loop() )
+					matched = true
+					
+				TType.sec_Switch:
+					node.add_Entry( parse_sec_Switch() )
+					matched = true
+					
+				TType.op_Return:
+					node.add_Entry( parse_op_Return() )
+					matched = true
+			
+			if ! matched:
+				var expression = parse_Expression()
+			
+				if expression != null:
+					node.add_Entry( expression )
+					
+				result = chk_Tok(TType.def_End)
+				if result == null || result == false:
+					return node
+					
+				eat(TType.def_End)
+					
+	else:
+		var matched = false
+		match Tok.Type:
+			TType.sec_If:
+				node.add_Entry( parse_sec_ExeConditional() )
+				matched = true
+				
+			TType.sec_Loop:
+				node.add_Entry( parse_sec_Loop() )
+				matched = true
+					
+			TType.sec_Switch:
+					node.add_Entry( parse_sec_Switch() )
+					matched = true
+
+		if ! matched:
+			var expression = parse_Expression()
+		
+			if expression != null:
+				node.add_Entry( expression )
+
+func parse_sec_ExeConditional() -> ASTNode:
+	var \
+	node = ASTNode.new()
+	node.set_Type(NType.sec_Cond)
+	eat(TType.sec_If)
+	
+	node.add_Entry( parse_Expression() )
+	
+	var result = chk_Tok(TType.def_Start)
+	if result == null:
+		return null
+		
+	var \
+	ifBlock = ASTNode.new()
+	ifBlock.set_Type(NType.sec_Exe)
+	
+	parse_sec_ExeBody(ifBlock)
+	
+	node.add_Entry(ifBlock)
+
+	result = chk_Tok(TType.def_Start)
+	if result == null || result == false:
+		return node
+			
+	var \
+	elseBlock = ASTNode.new()
+	elseBlock.set_Type(NType.sec_Exe)
+	
+	parse_sec_ExeBody(elseBlock)
+	eat(TType.def_End)
+	
+	node.add_Entry(elseBlock)
+	
+	return node
+
+func parse_sec_Loop() -> ASTNode:
+	var \
+	node = ASTNode.new()
+	node.set_Type(NType.sec_Loop)
+	eat(TType.sec_Loop)
+	
+	parse_sec_ExeBody(node)
+	eat(TType.def_End)
+	
+	return node
+	
+func parse_sec_Stack() -> ASTNode:
+	var \
+	node = ASTNode.new()
+	node.set_Type(NType.sec_Stack)
+	eat(TType.sec_Stack)
+	
+	var result = chk_Tok( TType.def_Start )
+	if result == null:
+		return node
+		
+	if result:
+		eat(TType.def_Start)
+		
+		while Tok.Type != TType.def_End:
+			var identifier = parse_sym_Identifier()
+			var type       = parse_sec_Type(TType.op_Define)
+			
+			identifier.add_Entry( type )
+			
+			node.add_Entry(identifier)
+			eat( TType.def_End )
+		
+	else:
+		var identifier = parse_sym_Identifier()
+		var type       = parse_sec_Type(TType.op_Define)
+		
+		identifier.add_Entry( type )
+		
+		node.add_Entry(identifier)
+	
+	return node
+
+func parse_sec_Static() -> ASTNode:
+	var \
+	node = ASTNode.new()
+	node.set_Type( NType.sec_Static )
+	eat(TType.sec_Static)
+	
+	var result = chk_Tok( TType.def_Start )
+	if result == null:
+		return node
+		
+	if result:
+		eat(TType.def_Start)
+		
+		while Tok.Type != TType.def_End:
+			var identifier = parse_sym_Identifier()
+			var type       = parse_sec_Type(TType.op_Define)
+			
+			identifier.add_Entry( type )
+			
+			node.add_Entry(identifier)
+			eat( TType.def_End )
+		
+	else:
+		var identifier = parse_sym_Identifier()
+		var type       = parse_sec_Type(TType.op_Define)
+		
+		identifier.add_Entry( type )
+		
+		node.add_Entry(identifier)
+	
+	return node
+	
+func parse_sec_Struct() -> ASTNode:
+	var \
+	node = ASTNode.new()
+	node.set_Type(NType.sec_Struct)
+	eat(TType.sec_Struct)
+	
+	var result = chk_Tok( TType.def_Start )
+	if result == null || result == false:
+		return node
+		
+	eat(TType.def_Start)
+	
+	while !chk_Tok(TType.def_End):
+		var identifier = parse_sym_Identifier()
+		var type       = parse_sec_Type(TType.op_Define)
+		
+		identifier.add_Entry(type)
+		node.add_Entry(identifier)
+		eat(TType.def_End)
+	
+	return node
+
+func parse_sec_Switch() -> ASTNode:
+	var \
+	node = ASTNode.new()
+	node.set_Type(NType.sec_Switch)
+	eat(TType.sec_Switch)
+	
+	node.add_Entry( parse_Expression() )
+		
+	var result = chk_Tok( TType.def_Start )
+	if result == null:
+		return node
+		
+	if result:
+		eat(TType.def_Start)
+		
+		while Tok.Type != TType.def_End:
+			node.add_Entry( parse_sec_SwitchCase() )
+			eat(TType.def_End)
+	
+	else:
+		node.add_Entry( parse_sec_SwitchCase() )
+	
+	return node
+	
+func parse_sec_SwitchCase() -> ASTNode:
+	var \
+	node = ASTNode.new()
+	node.set_Type(NType.sec_SwitchCase)
+	
+	node.add_Entry( parse_Expression() )
+	
+	parse_sec_ExeBody(node)
+	
+	return node
+
+func parse_sec_TranslationTime() -> ASTNode:
+	var \
+	node = ASTNode.new()
+	node.set_Type(NType.sec_TT)
+
+	if G.check(Tok.Type == TType.sec_TT, "Next token should have been an identifier symbol"):
+		return node
+		
+	node.add_TokVal(Tok)
+	eat(TType.sec_TT)
+	
+	if Tok == null:
+		return node
+		
+	# Check for body
+	if Tok.Type == TType.def_Start:
+		eat(TType.def_Start)
+		
+		while Tok.Type != TType.def_End:	
+			match Tok.Type:
+				TType.cap_PStart:
+					node.add_Entry( parse_sec_Capture() )
+					eat(TType.def_End)
+				
+			#region LP_Sectors
+				TType.sec_Enum:
+					node.add_Entry( parse_sec_Enum() )
+					eat(TType.def_End)
+					
+				TType.sec_Exe:
+					node.add_Entry( parse_sec_Exe() )
+					eat(TType.def_End)
+					
+				TType.sec_Static:
+					node.add_Entry( parse_sec_Static() )
+					eat(TType.def_End)
+			#endregion LP_Sectors
+
+				TType.sym_Identifier:
+					node.add_Entry( parse_sec_Identifier() )
+					eat(TType.def_End)
+
+				_:
+					var error = G.Error.new(false, "Failed to match token.")
+					G.throw(error)
+					return null
+
+	else:
+		match Tok.Type:
+			TType.cap_PStart:
+				node.add_Entry( parse_sec_Capture() )
+				
+		#region LP_Sectors
+			TType.sec_Enum:
+				node.add_Entry( parse_sec_Enum() )
+				
+			TType.sec_Exe:
+				node.add_Entry( parse_sec_Exe() )
+			
+			TType.sec_Static:
+				node.add_Entry( parse_sec_Static() )
+		#endregion LP_Sectors
+		
+			TType.sym_Identifier:
+				node.add_Entry( parse_sec_Identifier() )
+
+	return node
+#endregion LP_Sectors
+
+func parse_sec_Type(typeTok : String) -> ASTNode:
+	var \
+	node = ASTNode.new()
+	node.set_Type(NType.sec_Type)
+
+	if typeTok == TType.op_Define && Tok.Type == TType.op_A_Infer:
+		pass
+	else:
+		eat(Tok.Type)
+
+	if Tok == null:
+		return node
+	
+	if Tok.Type == TType.op_A_Infer:
+		eat(TType.op_A_Infer)
+		
+		match Tok.Type:
+			TType.literal_Digit   : node.add_Entry(NType.builtin_int) 
+			TType.literal_Decimal : node.add_Entry(NType.builtin_float)
+			TType.literal_String  : node.add_Entry(NType.builtin_string)
+			TType.literal_Char    : node.add_Entry(NType.builtin_string) 
+			TType.literal_True    : node.add_Entry(NType.builtin_bool)
+			TType.literal_False   : node.add_Entry(NType.builtin_bool)
+			TType.literal_Binary  : node.add_Entry(NType.builtin_int) 
+			TType.literal_Octal   : node.add_Entry(NType.builtin_int) 
+			TType.literal_Hex     : node.add_Entry(NType.builtin_int) 
+
+		node.add_Entry( parse_expr_Element() )
+
+	else:
+		match Tok.Type:
+			TType.sym_Bool   : node.add_Entry(NType.builtin_bool);   eat(TType.sym_Bool)
+			TType.sym_Int    : node.add_Entry(NType.builtin_int);    eat(TType.sym_Int)
+			TType.sym_Float  : node.add_Entry(NType.builtin_float);  eat(TType.sym_Float)
+			TType.sym_String : node.add_Entry(NType.builtin_string); eat(TType.sym_String)
+		
+			TType.sym_Identifier : node.add_Entry( parse_sym_Identifier() )
+			TType.cap_PStart     : node.add_Entry( parse_sym_Proc() )
+			TType.sec_Exe        : node.add_Entry( parse_sym_Proc() )
+			TType.sym_Ptr        : node.add_Entry( parse_sym_Ptr() )
+	
+		if Tok.Type == TType.op_Assign:
+			eat(TType.op_Assign)
+			
+			node.add_Entry( parse_expr_Element() )
+
+	return node
+	
 func parse_sec_Identifier() -> ASTNode:
 	var \
 	node = ASTNode.new()
@@ -191,224 +831,285 @@ func parse_sec_Identifier() -> ASTNode:
 		
 		while Tok.Type != TType.def_End:	
 			match Tok.Type:
-				TType.sec_Type:
-					node.add_Entry( parse_sec_Type() )
+				TType.cap_PStart:
+					node.add_Entry( parse_sec_Capture() )
+					eat(TType.def_End)
+				
+			#region LP_Sectors
+				TType.sec_Enum:
+					node.add_Entry( parse_sec_Enum() )
+					eat(TType.def_End)
+					
+				TType.sec_Exe:
+					node.add_Entry( parse_sec_Exe() )
 					eat(TType.def_End)
 					
 				TType.sec_Static:
 					node.add_Entry( parse_sec_Static() )
 					eat(TType.def_End)
 					
+				TType.sec_Struct:
+					node.add_Entry( parse_sec_Struct() )
+					eat(TType.def_End)
+					
+				TType.sec_TT:
+					node.add_Entry( parse_sec_TranslationTime() )
+					eat(TType.def_End)
+			#endregion LP_Sectors
+
 				TType.sym_Identifier:
 					node.add_Entry( parse_sec_Identifier() )
+					eat(TType.def_End)
+					
+				TType.sym_Type:
+					node.add_Entry( parse_sec_Type(TType.sym_Type) )
+					eat(TType.def_End)
 					
 				_:
 					var error = G.Error.new(false, "Failed to match token.")
 					G.throw(error)
 					return null
 
-		eat(TType.def_End)
-
 	else:
 		match Tok.Type:
-			TType.sec_Type:
-				node.add_Entry( parse_sec_Type() )
-				eat(TType.def_End)	
+			TType.cap_PStart:
+				node.add_Entry( parse_sec_Capture() )
+				
+		#region LP_Sectors
+			TType.sec_Enum:
+				node.add_Entry( parse_sec_Enum() )
+				
+			TType.sec_Exe:
+				node.add_Entry( parse_sec_Exe() )
+				
+			TType.sec_Struct:
+				node.add_Entry( parse_sec_Struct() )
 			
 			TType.sec_Static:
 				node.add_Entry( parse_sec_Static() )
-				eat(TType.def_End)
-					
+		#endregion LP_Sectors
+		
 			TType.sym_Identifier:
 				node.add_Entry( parse_sec_Identifier() )
-			_:
-				eat(TType.def_End)
+							
+			TType.sym_Type:
+				node.add_Entry( parse_sec_Type(TType.sym_Type) )
 
 	return node
 
-func parse_sec_Exe() -> ASTNode:
-	var \
-	node = ASTNode.new()
-	node.set_Type(NType.sec_Exe)
-	eat(TType.sec_Exe)
+#region Expressions
+func parse_Expression() -> ASTNode:
+	return parse_expr_Delimited()
 	
-	var result = chk_Tok(TType.def_Start)
-	if result == null:
-		return node
-		
-	if result:
-		eat(TType.def_Start)
-		
-		while Tok.Type != TType.def_End:
-			var expression = parse_Expression()
-			
-			if expression != null:
-				node.add_Entry( expression )
-				eat(TType.def_End)
-				
-		eat(TType.def_End)
-	
-	else:
-		var expression = parse_Expression()
-		
-		if expression != null:
-			node.add_Entry( expression )
-			
-		eat(TType.def_End)
-	
-	return node
-	
-func parse_sec_Static() -> ASTNode:
-	var \
-	node = ASTNode.new()
-	node.set_Type(NType.sec_Static)
-	eat(TType.sec_Static)
-	
-	var result = chk_Tok(TType.def_Start)
-	if result == null:
-		return node
-		
-	if result:
-		eat(TType.def_Start)
-		
-		while Tok.Type != TType.def_End:
-			var identifier = parse_sym_Identifier()
-			var type       = parse_sec_Type()
-			
-			identifier.add_Entry( type )
-			
-			node.add_Entry(identifier)
-			eat(TType.def_End)
-		
-	else:
-		var identifier = parse_sym_Identifier()
-		var type       = parse_sec_Type()
-		
-		identifier.add_Entry( type )
-		
-		node.add_Entry(identifier)
-	
-	return node
-
-func parse_sec_Type() -> ASTNode:
-	var \
-	node = ASTNode.new()
-	node.set_Type(NType.sec_Type)
-	eat(TType.sec_Type)
-
-	if Tok == null:
-		return node
-	
-	if Tok.Type == TType.op_A_Infer:
-		eat(TType.op_A_Infer)
-		
-		match Tok.Type:
-			TType.literal_Digit   : node.add_Entry(NType.builtin_int) 
-			TType.literal_Decimal : node.add_Entry(NType.builtin_float)
-			TType.literal_String  : node.add_Entry(NType.builtin_string)
-			TType.literal_Char    : node.add_Entry(NType.builtin_string) 
-			TType.literal_True    : node.add_Entry(NType.builtin_bool)
-			TType.literal_False   : node.add_Entry(NType.builtin_bool)
-			TType.literal_Binary  : node.add_Entry(NType.builtin_int) 
-			TType.literal_Octal   : node.add_Entry(NType.builtin_int) 
-			TType.literal_Hex     : node.add_Entry(NType.builtin_int) 
-
-		node.add_Entry( parse_ExprElement() )
-
-	else:
-		match Tok.Type:
-			TType.sym_Bool   : node.add_Entry(NType.builtin_bool);   eat(TType.sym_Bool)
-			TType.sym_Int    : node.add_Entry(NType.builtin_int);    eat(TType.sym_Int)
-			TType.sym_Float  : node.add_Entry(NType.builtin_float);  eat(TType.sym_Float)
-			TType.sym_String : node.add_Entry(NType.builtin_string); eat(TType.sym_String)
-		
-			TType.sym_Identifier : node.add_Entry(NType.sym_Identifier); eat(TType.sym_Identifier)
-	
-		if Tok.Type == TType.op_Assign:
-			eat(TType.op_Assign)
-			
-			node.add_Entry( parse_ExprElement() )
-
-	return node
-	
-func parse_BinaryExpression(elementFn : Callable, opTok : String, nodeType : String) -> ASTNode:
+func parse_expr_Binary_tok(elementFn : Callable, tType : String, nType) -> ASTNode:
 	var left = elementFn.call()
 	
-	if Tok.Type != opTok:
-		return left
-	
-	var \
-	node = ASTNode.new()
-	node.set_Type(nodeType)
-	eat(opTok)
-	
-	var right = elementFn.call()
-	
-	node.add_Entry(left)
-	node.add_Entry(right)
-	
-	return node
-	
-func parse_Expression() -> ASTNode:
-	return parse_AssignmentExpression()
-
-func parse_AssignmentExpression() -> ASTNode:
-	var left = parse_ExprElement()
-	
 	# If there is no assign its just an element.
-	if Tok.Type != TType.op_Assign:
+	if Tok.Type != tType:
 		return left
 		
 	var \
 	node = ASTNode.new()
-	node.set_Type(NType.op_Assign)
-	eat(TType.op_Assign)
+	node.set_Type(nType)
+	eat(tType)
 	
-	var right = parse_BinaryExpression(parse_ExprElement, TType.op_Add, NType.op_Add)
-	
-	# TODO:
-#	node.add_Entry( parse_ElementType() )
-	
+	var right = elementFn.call()
+
 	node.add_Entry(left)
 	node.add_Entry(right)
 	
 	return node
+	
+func parse_expr_Binary(elementFn : Callable, op_CheckFn : Callable) -> ASTNode:
+	var left = elementFn.call()
+	
+	var result = op_CheckFn.call()
+	while result:
+		var \
+		node = ASTNode.new()
+		node.set_Type(result)
+		eat(Tok.Type)
+	
+		var right = elementFn.call()
+	
+		node.add_Entry(left)
+		node.add_Entry(right)
+		
+		left   = node
+		result = op_CheckFn.call()
+	
+	return left
 
-func parse_ExprElement() -> ASTNode:
+# Sorted by precedence (First is highest)
+	
+func parse_expr_Element() -> ASTNode:
 	var matched = false
 	match Tok.Type:
 		TType.sym_Identifier:
 			return parse_sym_Identifier()
+			
+		TType.sym_Bool   : return parse_Simple(NType.builtin_bool, TType.sym_Bool);
+		TType.sym_Int    : return parse_Simple(NType.builtin_int, TType.sym_Int);
+		TType.sym_Float  : return parse_Simple(NType.builtin_float, TType.sym_Float);
+		TType.sym_String : return parse_Simple(NType.builtin_string, TType.sym_String);
 		
 		# Literal detection needs to be moved to its own block...
-		TType.literal_String:
-			return parse_Literal(NType.literal_String, TType.literal_String)
-			
-		TType.literal_Digit:
-			return parse_Literal(NType.literal_Digit, TType.literal_Digit)
-
-		TType.literal_Decimal:
-			return parse_Literal(NType.literal_Decimal, TType.literal_Decimal)
-			
-		TType.literal_Char:
-			return parse_Literal(NType.literal_Char, TType.literal_Char)
-			
-		TType.literal_True:
-			return parse_Literal(NType.literal_True, TType.literal_True)
-		
-		TType.literal_False:
-			return parse_Literal(NType.literal_False, TType.literal_False)
-			
-		TType.literal_Hex:
-			return parse_Literal(NType.literal_Hex, TType.literal_Hex)
-
-		TType.literal_Octal:
-			return parse_Literal(NType.literal_Octal, TType.literal_Octal)
-
-		TType.literal_Binary:
-			return parse_Literal(NType.literal_Binary, TType.literal_Binary)
+		TType.literal_String  : return parse_Literal(NType.literal_String,  TType.literal_String)
+		TType.literal_Digit   : return parse_Literal(NType.literal_Digit,   TType.literal_Digit)
+		TType.literal_Decimal : return parse_Literal(NType.literal_Decimal, TType.literal_Decimal)
+		TType.literal_Char    : return parse_Literal(NType.literal_Char,    TType.literal_Char)
+		TType.literal_True    : return parse_Literal(NType.literal_True,    TType.literal_True)
+		TType.literal_False   : return parse_Literal(NType.literal_False,   TType.literal_False)
+		TType.literal_Hex     : return parse_Literal(NType.literal_Hex,     TType.literal_Hex)
+		TType.literal_Octal   : return parse_Literal(NType.literal_Octal,   TType.literal_Octal)
+		TType.literal_Binary  : return parse_Literal(NType.literal_Binary,  TType.literal_Binary)
 		
 	return null
+
+func parse_expr_Call() -> ASTNode:
+	var element = parse_expr_Element()
+
+	if element.type() == NType.sym_Identifier && Tok.Type == TType.cap_PStart:
+		var \
+		node = ASTNode.new()
+		node.set_Type(NType.op_Call)
+		node.add_Entry( 
+		[
+			element,
+			parse_expr_Capture()
+		])
+	
+		return node
+		
+	return element
+	
+func parse_expr_Capture() -> ASTNode:
+	eat(TType.cap_PStart)
+	
+	var expression = parse_Expression()
+	
+	eat(TType.cap_PEnd)
+	
+	var \
+	node = ASTNode.new()
+	node.set_Type(NType.capture)
+	node.add_Entry(expression)
+		
+	return node
+	
+func op_Unary():
+	match Tok.Type:
+		TType.op_LNot : return NType.op_LNot
+		TType.op_BNot : return NType.op_BNot
+		_:
+			return null
+
+func parse_expr_Unary() -> ASTNode:
+	var operator = op_Unary()
+	
+	if operator == null:
+		if Tok.Type == TType.cap_PStart:
+			return parse_expr_Capture()
+		else:
+			return parse_expr_Call()
+		
+	var \
+	node = ASTNode.new()
+	node.set_Type(operator)
+	node.add_Entry( parse_expr_Unary() )
+	eat(operator)
+	
+	return node
+
+func op_Multiplicative():
+	match Tok.Type:
+		TType.op_Multiply : return NType.op_Multiply
+		TType.op_Divide   : return NType.op_Divide
+		TType.op_Modulo   : return NType.op_Modulo
+		_:
+			return null;
+			
+func parse_expr_Multiplicative() -> ASTNode:
+	return parse_expr_Binary(parse_expr_Unary, op_Multiplicative)
+	
+func op_Additive():
+	match Tok.Type:
+		TType.op_Add      : return NType.op_Add
+		TType.op_Subtract : return NType.op_Subtract
+		_:
+			return null
+	
+func parse_expr_Additive() -> ASTNode:
+	return parse_expr_Binary(parse_expr_Multiplicative, op_Additive)
+	
+func op_Bitshift():
+	match Tok.Type:
+		TType.op_BSL : return NType.op_BSL
+		TType.op_BSR : return NType.op_BSR
+		_:
+			return null
+	
+func parse_expr_Bitshift() -> ASTNode:
+	return parse_expr_Binary(parse_expr_Additive, op_Bitshift)
+	
+func parse_expr_BitwiseAnd() -> ASTNode:
+	return parse_expr_Binary_tok(parse_expr_Bitshift, TType.op_BAnd, NType.op_BAnd)
+	
+func parse_expr_BitwiseXOr() -> ASTNode:
+	return parse_expr_Binary_tok(parse_expr_BitwiseAnd, TType.op_BXOr, NType.op_BXOr)
+
+func parse_expr_BitwiseOr() -> ASTNode:
+	return parse_expr_Binary_tok(parse_expr_BitwiseXOr, TType.op_BOr, NType.op_BOr)
+	
+func op_Relational():
+	match Tok.Type:
+		TType.op_Greater      : return NType.op_Greater
+		TType.op_Lesser       : return NType.op_Lesser
+		TType.op_GreaterEqual : return NType.op_GreaterEqual
+		TType.op_LesserEqual  : return NType.op_LesserEqual
+		_:
+			return null
+	
+func parse_expr_Relational() -> ASTNode:
+	return parse_expr_Binary(parse_expr_BitwiseOr, op_Relational)
+	
+func op_Equality():
+	match Tok.Type:
+		TType.op_Equal    : return NType.op_Equal
+		TType.op_NotEqual : return NType.op_NotEqual
+		_:	
+			return null
+
+func parse_expr_Equality() -> ASTNode:
+	return parse_expr_Binary(parse_expr_Relational, op_Equality)
+	
+func parse_expr_LogicalAnd() -> ASTNode:
+	return parse_expr_Binary_tok(parse_expr_Equality, TType.op_LAnd, NType.op_LAnd)
+	
+func parse_expr_LogicalOr() -> ASTNode:
+	return parse_expr_Binary_tok(parse_expr_LogicalAnd, TType.op_LOr, NType.op_LOr)
+	
+func parse_expr_Assignment() -> ASTNode:
+	return parse_expr_Binary_tok(parse_expr_LogicalOr, TType.op_Assign, NType.op_Assign)
+	
+func parse_expr_Delimited() -> ASTNode:
+	return parse_expr_Binary_tok(parse_expr_Assignment, TType.op_CD, NType.op_CD)
+#endregion Expressions
+
+func parse_sym_Proc() -> ASTNode:
+	var \
+	node = ASTNode.new()
+	node.set_Type(NType.sym_Proc)
+	
+	if Tok.Type == TType.cap_PStart:
+		node.add_Entry( parse_sec_CaptureArgs() )
+	
+	if Tok.Type == TType.op_Map:
+		node.add_Entry( parse_sec_CaptureReturnMap() )
+		
+	eat(TType.sec_Exe)
+		
+	return node
 
 func parse_sym_Identifier() -> ASTNode:
 	var \
@@ -419,19 +1120,70 @@ func parse_sym_Identifier() -> ASTNode:
 	eat(TType.sym_Identifier)
 	
 	while Tok.Type == TType.op_SMA:
-		node.add_Entry( parse_op_SMA() )	
+		parse_op_SMA(node)
 		
+	if Tok.Type == TType.cap_PStart:
+		node.add_Entry( parse_expr_Capture() )
+	
 	return node
 	
-func parse_op_SMA() -> ASTNode:
+func parse_sym_Ptr() -> ASTNode:
+	var \
+	node = ASTNode.new()
+	node.set_Type(NType.sym_Ptr)
+	eat(TType.sym_Ptr)
+	
+	match Tok.Type:
+		TType.sym_Bool   : node.add_Entry(NType.builtin_bool);   eat(TType.sym_Bool)
+		TType.sym_Int    : node.add_Entry(NType.builtin_int);    eat(TType.sym_Int)
+		TType.sym_Float  : node.add_Entry(NType.builtin_float);  eat(TType.sym_Float)
+		TType.sym_String : node.add_Entry(NType.builtin_string); eat(TType.sym_String)
+		
+		TType.sym_Identifier : node.add_Entry(NType.sym_Identifier); eat(TType.sym_Identifier)
+		TType.sec_Exe        : node.add_Entry(NType.sec_Exe);        eat(TType.sec_Exe)
+	
+	return node
+	
+func parse_op_Break() -> ASTNode:
+	var \
+	node = ASTNode.new()
+	node.set_Type(NType.op_Break)
+	eat(TType.op_Break)
+	
+	return node
+	
+func parse_op_SMA(node : ASTNode):
 	eat(TType.op_SMA)
 	
 	var \
-	node = ASTNode.new()
-	node.set_Type(NType.op_SMA)
-	node.add_TokVal(Tok)
+	nodeSMA = ASTNode.new()
+	nodeSMA.set_Type(NType.op_SMA)
 	
+	match Tok.Type:
+		TType.sym_Ptr:
+			nodeSMA.add_Entry( parse_Simple(NType.op_Ptr, TType.sym_Ptr) )
+			node.add_Entry( nodeSMA )
+			return
+	
+	nodeSMA.add_TokVal(Tok)
+		
 	eat(TType.sym_Identifier)
+		
+	if Tok.Type == TType.cap_PStart:
+		nodeSMA.add_Entry( parse_expr_Capture() )		
+
+	node.add_Entry( nodeSMA)
+
+func parse_op_Return() -> ASTNode:
+	var \
+	node = ASTNode.new()
+	node.set_Type(NType.op_Return)
+	eat(TType.op_Return)
+	
+	match Tok.Type:			
+		_:
+			node.add_Entry( parse_Expression() )
+
 	return node
 
 func parse_Simple(nType, tType) -> ASTNode:
@@ -464,5 +1216,3 @@ func parse_TokValue(nType, tType) -> ASTNode:
 func _init( lexer : Lexer ) -> void:
 	Lex = lexer
 # Object END
-
-

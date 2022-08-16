@@ -19,8 +19,8 @@ const TType : Dictionary = \
 	fmt_S  = "Formatting",
 	
 # Captures
-#	params_PStart  = "Parenthesis Start",
-#	params_PEnd    = "Parenthesis End",
+	cap_PStart  = "Capture: Parenthesis Start",
+	cap_PEnd    = "Capture: Parenthesis End",
 #	params_ABStart = "Angle Bracket Start",
 #	params_ABEnd   = "Angle Bracket End",
 #	params_SBStart = "Square Bracket Start",
@@ -28,12 +28,11 @@ const TType : Dictionary = \
 #
 	def_Start = "start definition block",
 	def_End   = "end definition block",
-	
-#	def_CD = "Comma delimiter",
 		
 # Operators
+	op_CD  = "Comma delimiter",
 	op_SMA = "Member Resolution",
-#	op_Map = "Map Resolution",
+	op_Map = "Map Resolution",
 	
 # Literals
 	literal_Char    = "Character",
@@ -50,29 +49,30 @@ const TType : Dictionary = \
 #	sec_Layer = "Explicit LP layer use",
 #	sec_LP    = "Language Platform",
 #	sec_Meta  = "Metaprogramming",
-#	sec_TT    = "Translation Time",
+	sec_TT    = "Translation Time",
 	
 	# Symbol Context Aliasing
 #	sec_Alias = "Aliasing",
 #	sec_In    = "Expose Member Symbols",
 	
 	# Symbol Typesystem
-#	sec_Depend = "Symbol depends on",
+#	sec_Depend = "Symbol depends on",  # (May not need this)
 		
 	# Conditional
-#	sec_If   = "Conditional If",
-#	sec_Else = "Conditional Else",
+	sec_If   = "Conditional If",
+	sec_Else = "Conditional Else",
 	
 	# General
 #	sec_Expose = "Expose symbol as",
-#	sec_Enum   = "Enumeration",
-	sec_Type   = "Type Definition",
+	sec_Enum   = "Enumeration",
+#	sec_Type   = "Type Definition",
 	
 # Symbols
 	sym_Identifier = "Module Defined Symbol",
 	
 	# LP Symbols
-#	sym_TType   = "Top Type",
+	sym_Self   = "Self Referiential Symbol", 
+	sym_Type   = "Type Symbol / Top Type",
 #	sym_Invalid = "Invalid",
 #------------------------------------------------------------------------------------- Universal END
 
@@ -85,44 +85,48 @@ const TType : Dictionary = \
 #	op_SizeOf   = "Type Memory Footprint", 
 	
 	# Indirection
-#	op_Ptr = "Pointer Accessor",
+#	op_Ptr = "Pointer Accessor",   // Same as ptr symbol.
 #	op_Val = "Value Accessor",
 	
 	# Execution
-#	op_Break    = "Jump out of block",
+	op_Break    = "Jump out of block",
 #	op_Continue = "Jump to start of loop",
 #	op_Fall     = "Switch fall directive",
 #	op_GoTo     = "Jump to label",
 #	op_Pop      = "Pop current stack",
 #	op_Push     = "Push current stack",
-#	op_Return   = "Return",
+	op_Return   = "Return",
 	
 	# Logical
-#	op_LNot  = "Logical Not",
-#	op_LAND  = "Logical Amd",
-#	op_LOR   = "Logical Or",
-#	op_BAND  = "Bitwise And",
-#	op_BXOR  = "Bitwise XOr",
-#	op_BNOT  = "Bitwise Not",
-#	op_BSL   = "Bitwise Shift Left",
-#	op_BSR   = "Bitwise Shift Right",
+	op_LNot  = "Logical Not",
+	op_LAnd  = "Logical And",
+	op_LOr   = "Logical Or",
+	op_BAnd  = "Bitwise And",
+	op_BOr   = "Bitwise Or",
+	op_BXOr  = "Bitwise XOr",
+	op_BNot  = "Bitwise Not",
+	op_BSL   = "Bitwise Shift Left",
+	op_BSR   = "Bitwise Shift Right",
 	
 	# Arithmetic
 	op_Add       = "Addition",
-#	op_Subtract  = "Subtraction",
-#	op_Multiply  = "Multiply",
-#	op_Divide    = "Divide",
-#	op_Modulo    = "Modulo",
+	op_Subtract  = "Subtraction",
+	op_Multiply  = "Multiply",
+	op_Divide    = "Divide",
+	op_Modulo    = "Modulo",
 #	op_Increment = "Increment",
 #	op_Decreemnt = "Decrement",
 	
 	# Relational
-#	op_Equals       = "Equals",
-#	op_NotEqual     = "Not Equal",
-#	op_GreaterEqual = "Greater Equal",
-#	op_LesserEqual  = "Lesser Equal",
+	op_Equal        = "Equals",
+	op_NotEqual     = "Not Equal",
+	op_Greater      = "Greater",
+	op_Lesser       = "Lesser",
+	op_GreaterEqual = "Greater Equal",
+	op_LesserEqual  = "Lesser Equal",
 	
 	# Assignment
+	op_Define     = "Define",
 	op_A_Infer    = "Type Inferred Assignment",
 	op_Assign     = "Assignment",
 #	op_AB_And     = "Assign Bit And",
@@ -146,16 +150,17 @@ const TType : Dictionary = \
 	
 	# Control Flow
 #	sec_Label   = "Label",
-#	sec_Loop    = "Loop execution",
-#	sec_Switch  = "Switch on value",
+	sec_Loop    = "Loop execution",
+	sec_Switch  = "Switch on value",
 	
 	# Memory 
 #	sec_Align    = "Alignment",
 #	sec_Mempage  = "Memory Paging Segments",
 #	sec_RO       = "Read-Only",
+	sec_Stack    = "Stack Segment",
 	sec_Static   = "Static Segment",
 #	sec_Strict   = "Strict Reference",
-#	sec_Struct   = "Data Record/ Structure", 
+	sec_Struct   = "Data Record/ Structure", 
 #	sec_Volatile = "Volatile Reference",
 #	sec_Union    = "Discriminated Union",
 	
@@ -167,7 +172,7 @@ const TType : Dictionary = \
 	
 # Symbols
 #	sym_Byte     = "Smallest Addressable Unit of Bits",
-#	sym_Ptr      = "Address Pointer",
+	sym_Ptr      = "Address Pointer",
 #	sym_Register = "Register Type",
 #	sym_Word     = "Machine data model width"
 #------------------------------------------------------------------------------------- Layer 0   END
@@ -235,16 +240,46 @@ const Spec : Dictionary = \
 	
 	TType.cmt_SL : "start // inline.repeat(0-)",
 	TType.cmt_ML : "start /* set(whitespace !whitespace).repeat(0-).lazy */",
+	
+	TType.cap_PStart : "start \\(",
+	TType.cap_PEnd   : "start \\)",
+	
+	TType.op_Equal        : "start ==",
+	TType.op_NotEqual     : "start \\!=",
+	TType.op_GreaterEqual : "start >=",
+	TType.op_LesserEqual  : "start <=",
+	TType.op_Greater      : "start >",
+	TType.op_Lesser       : "start <",
 		
+	
 	TType.op_A_Infer : "start :=",
 	TType.op_Assign  : "start =",
+	TType.op_Define  : "start :",
+	TType.op_Map     : "start \\->",
 	
-	TType.op_Add : "start \\+",
-		
+	TType.op_LNot : "start \\!",
+	TType.op_LAnd : "start &&",
+	TType.op_LOr  : "start ||",
+	TType.op_BNot : "start \\~",
+	TType.op_BAnd : "start \\&",
+	TType.op_BOr  : "start \\|",
+	TType.op_BXOr : "start \\^",
+	TType.op_BSL  : "start <<",
+	TType.op_BSR  : "start >>",
+	
+	TType.op_Add       : "start \\+",
+	TType.op_Subtract  : "start \\\\-",
+	TType.op_Multiply  : "start *",
+	TType.op_Divide    : "start \\/",
+	TType.op_Modulo    : "start \\%",
+
 	TType.def_Start : "start set(  {)",
 	TType.def_End   : "start set(; })",
 	
-	TType.op_SMA : "start \\.",
+	TType.op_CD     : "start \\,",
+	TType.op_SMA    : "start \\.",
+	TType.op_Break  : "start \"break\"",
+	TType.op_Return : "start \"ret\"",
 	
 	TType.literal_Binary  : "start 0b set(0-1).repeat(1-)",
 	TType.literal_Octal   : "start 0o set(0-7).repeat(1-)",
@@ -259,11 +294,23 @@ const Spec : Dictionary = \
 	TType.literal_Char   : "start \\\' !set( \\\' ).repeat(1) \\\'",
 	TType.literal_String : "start \\\" !set( \\\" ).repeat(0-) \\\" ",
 	
-	TType.sec_Exe    : "start \"exe\"",
-	TType.sec_Static : "start \"static\"",
-	TType.sec_Type   : "start (\"type\"|:)",
+	TType.sec_If     : "start \"if\"",
+	TType.sec_Else   : "start \"else\"",
 	
-			
+	TType.sec_Enum   : "start \"enum\"",
+	TType.sec_Exe    : "start \"exe\"",
+	TType.sec_Loop   : "start \"loop\"",
+	TType.sec_Stack  : "start \"stack\"",
+	TType.sec_Static : "start \"static\"",
+	TType.sec_Struct : "start \"struct\"",
+	TType.sec_Switch : "start \"switch\"",
+	TType.sec_TT     : "start \"tt\"",
+	
+	
+	TType.sym_Self : "start \"self\"",
+	TType.sym_Ptr  : "start \"ptr\"",
+	TType.sym_Type : "start \"type\"",
+	
 #------------------------------------------- Godot specific symbols
 	TType.literal_True   : "start \"true\"",
 	TType.literal_False  : "start \"false\"",
@@ -273,7 +320,6 @@ const Spec : Dictionary = \
 	TType.sym_Float  : "start \"float\"",
 	TType.sym_String : "start \"String\"",
 #------------------------------------------- Godot specific symbols	END
-	
 	
 	# Must be last, as if none of the above matches this is the last thing it could be.
 	TType.sym_Identifier : 

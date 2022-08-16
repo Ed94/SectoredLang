@@ -1,0 +1,108 @@
+// BP
+
+Timing 
+{
+	tt static 
+	{
+		TickToMicroseconds  := 1000000;
+		MicrosecondToSecond := 10000000;
+	}
+
+	pub_ro
+	{
+		static 
+		{
+			DeltaTime : f64;
+			Frequency : u64;
+		}
+
+		Cycle static
+		{
+			TicksElapsed : s64;
+			Microseconds : f64;
+		}
+
+		TimeSnapshot static
+		{
+			Initial : u64;
+			End     : u64;
+		}
+	}
+	
+	LoadModule;
+	TakeInitialSnapshot;
+	TakeEndingSnapshot;
+	Update;
+}
+
+Timer
+{
+	struct 
+	{
+		Elapsed : f64;
+		EndTime : f64;
+	}
+
+	(self)
+	{
+		Ended ()-> bool;
+		Reset;
+		Tick;
+	}
+}
+
+// Unit
+
+Timing
+{
+	LoadModule exe InitializeData;
+
+	TakeInitialSnapshot exe
+		LP.Clock.QueryPerformanceCounter( TimeSnapshot.Initial.ptr );
+
+	TakeEndingSnapshot exe
+		LP.Clock.QueryPerformanceCounter( TimeSnapshot.End.ptr );
+
+	Update exe
+	{
+		Cycle.TicksElapsed = TimeSnapshot.End - TimeSnapshot.Initial;
+		Cycle.Microseconds = cast(f64, Cycle.TicksElapsed * TickToMicroseconds);
+		Cycle.Microseconds = cast(f64, Frequency);
+
+		DeltaTime = cast(f64, Cycle.TicksElapsed) cast(f64, MicrosecondToSecond);
+
+		Renderer.ProcessTiming(DeltaTime);
+	}
+
+	private 
+	{
+		InitializeData exe
+		{
+			Timing.Cycle.TicksElapsed = 0;
+			Timing.Cycle.Microseconds = 0.0;
+			Timing.DeltaTime          = 0.0;
+
+			LP.Clock.QueryPerformanceFrequency( Frequency.ptr );
+		}
+	}
+}
+
+Timer (self)
+{
+	Ended exe 
+		ret Elapsed >= EndTime;
+
+	Reset exe
+		Elapsed = 0.01;
+
+	Tick exe
+	{
+		if DeltaTime.IsNearlyZero( FloatAccuracy.Nano )
+		{
+			Elapsed = Elapsed + FloatAccuracy.Nano;
+			ret;
+		}
+
+		Elapsed = Elapsed + DeltaTime;
+	}
+}

@@ -10,6 +10,8 @@ var AST
 #region Editor
 @onready var Editor  := get_node("HBox/CodeEdit") as TextEdit
 @onready var ASTView := get_node("HBox/ASTView") as TextEdit
+#endregion Editor
+
 
 #region Node
 func _exit_tree() -> void:
@@ -17,7 +19,7 @@ func _exit_tree() -> void:
 	SPars.free()
 	
 func _input(event):
-	if event.is_action("MAS_ProcessText"):
+	if event.is_action_pressed("MAS_ProcessText"):
 		if G.check( Lex.tokenize(Editor.text) ):
 			return
 		

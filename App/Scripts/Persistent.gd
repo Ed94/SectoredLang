@@ -9,22 +9,20 @@ var MAS : Interpreter
 @onready var EnvView := get_node("TextPipeline/HBox/EnvView")
 @onready var Out := get_node("AuxPanels/OutPanel") as Output
 
+
 func on_EnvUpdated():
 	EnvView.text = JSON.new().stringify(MAS.Env.to_SExpression(), "\t")
 
 
+#region Node
 func _input(event):
-	if event.is_action("MAS_Interpret"):
+	if event.is_action_pressed("MAS_Interpret"):
 		var result = MAS.eva(G.AST)
 	
 		if result != null:
 			Out.write( result )
 		
 		return
-		
-
-	
-	
 
 func _ready() -> void:
 	MAS = Interpreter.new(null)
@@ -33,3 +31,4 @@ func _ready() -> void:
 	G.MAS_EnvUpdated.connect( on_EnvUpdated )
 	G.Log.out(LogType.log, "Initialized Persistent MAS Interpreter.")
 	return
+#endregion Node

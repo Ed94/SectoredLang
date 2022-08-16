@@ -1,0 +1,185 @@
+// BP
+
+Memory 
+{
+	Block struct
+	{
+		Location : ptr uw;
+		Size     :     uw;
+	}
+
+	BlockArray struct
+	{
+		Data   : []ptr Block;
+		Length : uw
+	}
+
+	BlockArray (self)
+	{
+		Add -> ptr Block;
+
+		(heap)
+		{
+			(tt Type : type)
+			{
+				allocate   (numDesired : uw)                     -> ptr Type;
+				reallocate (address : ptr Type, numDesired : uw) -> ptr Type;
+			}
+		}
+
+		deallocate;
+	}
+
+	(heap)
+	{
+		(tt Type : type)
+		{
+			allocate   (numDesired : uw)                     -> ptr Type;
+			reallocate (address : ptr Type, numDesired : uw) -> ptr Type;
+		}
+
+		deallocate;
+	}
+
+	// Format
+	// {
+	// 	WithData()
+	// }
+}
+
+// Unit
+
+Memory
+{
+	static GlobalAllocs : BlockArray;
+
+	BlockArray (self)
+	{
+		Add -> ptr Block exe
+		{
+			if Data == null
+			{
+				heap Data : LP.allocate(1);
+
+				check(Data, "Failed to globally allocate block array")
+
+				Length = 1;
+			}
+			else
+			{
+				stack {
+					newSize  : u32       = Length + 1;
+					newBlock : ptr Block = null;
+				}
+
+				heap newBlock : LP.allocate(newSize);
+
+				if newBlock
+				{
+					Format.Set(newBlock, Data, Length);
+
+					Data = newBlock;
+				}
+				
+				else throw("Failed to globally reallocate block array");
+			}
+
+			heap Data[Length - 1] : LP.allocate(1);
+			ret  Data[Length - 1];
+		}
+
+		(heap)
+		{
+			(tt Type : type)
+			{
+				// ResolvedSymbol: Memory.BlockArray.allocate (self, heap, tt Type : type, numDesired : uw) -> ptr Type exe
+				allocate (numDesired : uw) -> ptr Type exe
+				{
+					stack newBlock : ptr Block = Add();
+
+					newBlock.Size = numDesired * Type.sizeof;
+					
+					heap newBlock.Location : LP.allocate(numDesired * Type.sizeof);
+
+					check(newBlock.Location, "Failed to allocate block")
+
+					ret cast(ptr Type, newBlock.Location);
+				}
+
+				reallocate(address : ptr Type, numDesired : uw) -> ptr Type exe
+				{
+					stack index : uw = 0; loop 
+					{
+						if index >= Length 
+							ret null
+
+						if Data[index].Location == address
+							break;
+					}
+
+					stack newLocation : ptr uw = null;
+					heap  newLocation : LP.allocate(numDesired * Type.sizeof);
+
+					check(newLocation, "Failed to reallocate block")
+
+					heap Data[index].Location : deallocate();
+
+					Data[index].Location = newLocation;
+
+					ret cast(ptr Type, Data[index].Location)
+				}
+
+				deallocate exe
+				{
+					stack index : uw = 0; 
+					loop { if index == Length break;
+						heap 
+						{
+							Data[index].Location : deallocate();
+							Data[index]          : deallocate();
+						}
+					}
+
+					heap Data : deallocate();
+				}
+			}
+		}
+	} // BlockArray (self)
+
+	(heap)
+	{
+		(tt Type : type)
+		{
+			allocate (numDesired : uw) -> ptr Type exe
+			{
+				stack allocedMemory : ptr Type = null;
+				heap  allocedMemory : GlobalAllocs.allocate(Type, numDesired);
+
+				check(allocedMemory, "Failed to globally allocate memory");
+
+				ret allocedMemory
+			}
+
+			reallocate(address : ptr Type, numDesired : uw) -> ptr Type exe
+			{
+				stack index : uw = 0; loop 
+				{
+					if index >= GlobalAllocs.Length 
+						ret null
+
+					if GlobalAllocs.Data[index].Location == address
+						break;
+				}
+
+				stack : reallocedMemory : ptr Type = null;
+				heap  : reallocedMemory : GlobalAllocs.reallocate(Type, numDesired);
+
+				check(reallocedMemory, "Failed to globally reallocate memory");
+
+				ret reallocedMemory;
+			}
+		}
+
+		deallocate exe heap GlobalAllocs : deallocate();
+	}
+}

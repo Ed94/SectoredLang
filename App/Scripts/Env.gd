@@ -2,6 +2,8 @@ class_name MasEnv extends RefCounted
 
 const NType = SyntaxParser.NType
 
+const SecContext = "Sector Context"
+
 var Parent  : MasEnv
 var Records : Dictionary
 var Interp  : Interpreter
@@ -28,6 +30,11 @@ func assign(symbol, value):
 	
 	var symbolID = context[0]
 	var records  = context[1]
+	
+	if records.has(NType.sec_Stack) && records[NType.sec_Stack].has( symbolID ):
+		records[NType.sec_Stack][ symbolID ] = value
+		
+		return records[NType.sec_Stack][ symbolID ]
 
 	if records.has(NType.sec_Static) && records[NType.sec_Static].has( symbolID ):
 		records[NType.sec_Static][ symbolID ] = value
@@ -40,7 +47,17 @@ func assign_Type(value):
 	Records[NType.sec_Type] = value
 	
 	return Records[NType.sec_Type]
+
+func assign_Stack(varSymbol, value):
+	var record = Records
 	
+	if ! record.has(NType.sec_Stack):
+		record[NType.sec_Stack] = {}
+	
+	record[NType.sec_Stack][varSymbol] = value
+	
+	return record[NType.sec_Stack][varSymbol]
+
 func assign_Static(varSymbol, value):
 	var record = Records
 	
@@ -53,6 +70,15 @@ func assign_Static(varSymbol, value):
 
 func define(symbol : String, env : MasEnv):
 	Records[symbol] = env
+	
+func store_SectorContext(symbol, value):
+	if ! Records.has(SecContext):
+		Records[SecContext] = []
+		
+	Records[SecContext][symbol] = value
+	
+#func assign_Unresolved(symbol):
+	
 
 func has(symbol : String):
 	return Records.has(symbol)
@@ -62,6 +88,9 @@ func lookup(symbol):
 	
 	var symbolID = context[0]
 	var records  = context[1]
+	
+	if records.has(NType.sec_Stack) && records[NType.sec_Stack].has( symbolID ):
+		return records[NType.sec_Stack][ symbolID ]
 	
 	if records.has(NType.sec_Static) && records[NType.sec_Static].has( symbolID ):
 		return records[NType.sec_Static][ symbolID ]

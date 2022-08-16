@@ -1,0 +1,97 @@
+// BP
+
+Proc type exe;
+
+State 
+{
+	struct {
+		Load   : ptr Proc;
+		Unload : ptr Proc;
+		Update : ptr Proc;
+		Render : ptr Proc;
+	}
+	
+	LoadModule;
+	SetState(state : ptr State);
+	Update;
+	Render;
+	LoadGame;
+}
+
+// Unit
+
+EFocusState enum (u32)
+{
+	Game;
+	Logs;
+}
+
+static
+{	
+	CurrentState : ptr State   = null;
+	FocusState   : EFocusState = EFocusState.Game;
+}
+
+State 
+{
+	private (inputState : Input.EState)
+	{
+		OnKeyArrowUp exe switch (inputState)
+		{
+			Input.EState.Pressed 
+				switch (FocusState)
+					EFocusState.Logs
+						Renderer.Logs.ScrollUp;
+		}
+
+		OnKeyArrowDown exe switch (inputState)
+		{
+			Input.EState.Pressed
+				switch (FocusState) 
+					EFocusState.Logs
+						Renderer.Logs.ScrollDown;
+		}
+
+		OnKeyTab exe switch (inputState)
+		{
+			Input.EState.Pressed
+				switch (FocusState)
+				{
+					EFocusState.Game
+						FocusState = EFocusState.Logs;
+
+					EFocusState.Logs
+						FocusState = EFocusState.Game;
+				}
+		}
+	}
+
+	LoadModule exe
+	{
+		CurrentState = Intro.GetState;
+		CurrentState.Load;
+
+		Input.SubscribeTo(Key.ArrowUp,   State.OnKeyArrowUp.  ptr);
+		Input.SubscribeTo(Key.ArrowDown, State.OnKeyArrowDown.ptr);
+		Input.SubscribeTo(Key.Tab,       State.OnKeyTab.      ptr);
+	}
+
+	SetState (state : ptr State) exe
+	{
+		if (CurrentState)
+			CurrentState.Unload;
+
+		CurrentState = state;
+		CurrentState.Load;
+	}
+
+	Update exe 
+		if (CurrentState) CurrentState.Update;
+
+	Render exe
+		if (CurrentState) CurrentState.Render;
+
+	LoadGame exe SetState( Engine.LoadGame );
+
+} // State
+

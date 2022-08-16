@@ -1,0 +1,41 @@
+// BP
+
+Cycler {
+
+Initialize;
+Lapse;
+LaodModule;
+
+} // Cycler
+
+// Unit
+
+Cycler {
+
+	private Exist type bool;
+
+
+	Initialize exe 
+	{
+		loop { if Exist == false break;
+			Timing. TakeInitialSnapshot;
+			
+			Input.    Update;
+			State.    Update;
+			Renderer. Update;
+			
+			Timing. TakeEndingSnapshot;
+			Timing. Update;
+		}
+	}
+
+	Lapse exe {
+		Exist = false;
+	}
+
+	LoadModule exe {
+		Exist = true;
+	}
+
+} // Cycler
+

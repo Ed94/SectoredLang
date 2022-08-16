@@ -1,8 +1,4 @@
-
-
-
-
-checked tt( objType : type )
+checked (tt objType : type)
 {
 	Tags enum {
 		obj,
@@ -59,13 +55,13 @@ check ( condition : bool, messsage : String ) exe
 	}
 }
 
-SomeData
+SomeType
 {
 	static A : float = 1.23;
 	
 	type int;
 
-	nestedSym type := 0xFF; 
+	NestedSym type := 0xFF; 
 	
 				   // "checked(int)" is generated in "ModuleName.gen.uf" 
 				   // when the dependency resolution pass is done.
@@ -83,16 +79,16 @@ SomeData
 
 
 // Type is derived from SomeData's assigned type.
-static inst : SomeData;
+static inst : SomeType;
 
 demo exe 
 {
-	symbol.nestedSym = 0x01;
+	SomeType.NestedSym = 0x01;
 	inst             = 4;
 	
 	stack possibleError : Error;
 	
-	possibleError = SomeData.RandomAction( symbol )
+	possibleError = SomeType.RandomAction( symbol )
 }
 
 exe demo;
