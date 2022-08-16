@@ -55,14 +55,14 @@ In the above example its stacked with an `exe` sector which has its context reso
 The stacking allows for this execution to now be referenced throughout the program using the identifier.
 So you can call it by just putting it in an `exe`!
 
-What if you need context to be passed? 
+What a context needs to be passed? 
 
 ## Captures
 
 ```
 (...)
 ```
-Allow for the capturing of a context which be used by other sectors within its context.
+Allow for the capturing of a context which can be used by other sectors within its context.
 
 Captures can contain the following:
 
@@ -106,10 +106,20 @@ Now we have everything needed for a traditional main entrypoint! :
 main (args : darray(string)) -> u32 exe
 {
 	"Hello World!";
+
+	ret 0;
 }
 
 exe main( LP.CLI.Args )
 ```
 
+`ret` is the return keyword. It behaves like it ussually does in most most other imperative languages (C/C++, D, Python, Rust, JS, Zig etc)
+
+The `LP` is a special symbol that repressents the program model's access to the language platform's context.
+
 ### LP (Langauge Platform)
 
+The langauge platform is this language's explicit handling of the platform toolchain for the langauge model. 
+Within a program's model the program may reference specific features the LP has allowed the program to have exposure to.
+
+In the entrypoint example within Maps, its using its CLI context to provide access to the possible arguments provided to the program on launch from command-line.
