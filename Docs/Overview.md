@@ -122,7 +122,6 @@ Within a program's model the program may reference specific features the LP has 
 
 In the entrypoint example within Maps, its using its CLI context to provide access to the possible arguments provided to the program on launch from command-line.
 
-
 ## Static Memory
 ```
 static variable : byte;
@@ -165,8 +164,8 @@ exe
 ```
 Manual memory management using the OS provided heap (if using an LP with access to the OS).
 
-Unlike static or stack heap is an allocator sector and thus cannot declare variables.  
-Instead you must provide it a pointer to a stack or static memory region.  
+Unlike static or stack, heap is an allocator sector and thus cannot declare variables.  
+Instead you must provide it a pointer stored in a stack or static memory region.  
 
 Like any manually managed heap. It must be manually freed.
 
@@ -178,10 +177,10 @@ Arena allocator
 
 	(self)
 	{
-		allocate (Type : tt type, )             exe { ... }
-		free                                    exe { ... }
-		resize   (Type : tt type, newSize : uw) exe { ... }
-		wipe                                    exe { ... }
+		allocate (Type : tt type, numDesired : uw) -> ptr Type exe { ... }
+		free     (_allocationID : ptr Type)                    exe { ... }
+		resize   (Type : tt type, numDesired : uw) -> ptr Type exe { ... }
+		wipe                                                   exe { ... }
 	}
 
 	Snapshot
@@ -202,8 +201,22 @@ These are respectively:
 * resize
 * wipe
 
-The default captures are shown in the Arena example, however the captures may be extended to suit the requirements of the allocator.  
+The default captures are shown in the Arena example.
 
+***_allocationID*** is a special capture used by free to represent the object reference being freed.  
+Its automatically assigned with the syntax for the sector:
+```
+<allocator> <_allocationID> : free;
+```
+
+So it does not need to be passed.
+
+wipe does not need an identifier as such you can just call it via:
+```
+<allocator> wipe;
+```
+
+Captures for the allocation procedures may be extended to suit the requirements of the allocator.  
 One of the extensions shown is the ***self*** capture.  
 
 ## Self Capture
@@ -244,5 +257,17 @@ Vehicle
 		Velocity...
 		...
 	}
+}
+```
+
+Thus if desired, the infix syntax is completely optional and the functions may be called using traiditonal syntax:
+```
+static Cobra427 : Vehicle;
+
+exe
+{
+	Cobra427.Drive();
+	// or
+	Drive( Cobra427 );
 }
 ```
