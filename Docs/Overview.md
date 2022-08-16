@@ -9,22 +9,12 @@ Will output: `Hello World!` to the *default output device* specified by the **LP
 
 All *literals* and *built-in* data types have support for LP output.
 
-## Static Memory
-```
-static variable : byte;
-```
-
-The most basic memory allocation feature supported by LP. Will be reserved during program startup. Released on shutdown (So its static relative to the program).
-
-```
-static varaible : byte = 0x01;
-```
-*Simple* assigment is supported for static varaibles. Anything else requires assignment in an `exe` sector.
+`exe` is also considered a sector.
 
 ## Sectors
 | sector   | context           | end statement   |
 | :----:   | :----:            | :----:          |
-| `static` | `variable : byte` | `;`             |
+| `exe`    | `"Hello World!`   | `;`             |
 
 ```
 exe
@@ -33,10 +23,9 @@ exe
 	1 + 2;
 }
 ```
+ Sectors are special keywords that are used to resolve a **context**.
 
 A context may either be a single statement or be defined with multiple statements with a context body.
-
-`exe` and `static` are also considered sectors. Sectors are special keywords that are used to resolve a **context**.
 
 What a context can do depends on how sectors are stacked. Not all sectors allow just any other sector to be stacked within them as well.
 
@@ -49,13 +38,22 @@ Print_HelloWorld exe
 exe Print_HelloWorld;
 ```
 
-`Print_HelloWorld` is an **identifier sector**. It provides a symbol that *associates the name with its contents.  
+`Print_HelloWorld` is an **identifier sector**. It provides a symbol that *associates* the name with its contents.  
 In the above example its stacked with an `exe` sector which has its context resolve to the `exe` context.  
 
 The stacking allows for this execution to now be referenced throughout the program using the identifier.
 So you can call it by just putting it in an `exe`!
 
-What a context needs to be passed? 
+Note that certain sectors may not share association with the same identifier:  
+* type
+* struct
+* union
+* exe
+* ... etc (Defined in BNF eventually...)
+
+These would need their own identifier.  
+
+*What if a context needs to be passed?*
 
 ## Captures
 
@@ -78,7 +76,7 @@ These should look familiar if you've used other programming langauges.
 ```
 (self, allocator)
 ```
-Just like any sector you can stack em!
+Just like any sector they may be stacked!
 
 ```
 main (args : []ptr u8, count : uw) exe
@@ -86,7 +84,7 @@ main (args : []ptr u8, count : uw) exe
 	"Hello World!";
 }
 ```
-Starting to look familiar huh. Were just missing a return...
+Starting to look familiar huh. Just missing a return...
 
 ## Maps
 ```
@@ -123,3 +121,128 @@ The langauge platform is this language's explicit handling of the platform toolc
 Within a program's model the program may reference specific features the LP has allowed the program to have exposure to.
 
 In the entrypoint example within Maps, its using its CLI context to provide access to the possible arguments provided to the program on launch from command-line.
+
+
+## Static Memory
+```
+static variable : byte;
+```
+
+The most basic memory allocation feature supported by LP. Will be reserved during program startup. Released on shutdown (So its static relative to the program).
+
+```
+static varaible : byte = 0x01;
+```
+
+*Simple* assigment is supported for static varaibles. Anything else requires assignment in an `exe` sector.
+
+## Stack Memory
+
+```
+exe 
+{
+	stack message : string = "Hello World!";
+
+	message;
+}
+```
+
+Just like stack memory in most procedural langauges. Can only be used within execution blocks.  
+Freed when execution exits the context where the memory identifier was declared.
+
+## Heap Memory
+```
+exe
+{
+	stack message : ptr u8;
+	heap  message : allocate(u8, 12);
+
+	LP.Memory.Set(message, "Hello World!", 12);
+	LP.Log(message);
+
+	heap message : free;
+}
+```
+Manual memory management using the OS provided heap (if using an LP with access to the OS).
+
+Unlike static or stack heap is an allocator sector and thus cannot declare variables.  
+Instead you must provide it a pointer to a stack or static memory region.  
+
+Like any manually managed heap. It must be manually freed.
+
+## Allocator
+```
+Arena allocator
+{
+	struct { ... }
+
+	(self)
+	{
+		allocate (Type : tt type, )             exe { ... }
+		free                                    exe { ... }
+		resize   (Type : tt type, newSize : uw) exe { ... }
+		wipe                                    exe { ... }
+	}
+
+	Snapshot
+	{
+		struct { ... }
+
+		Begin;
+		End;
+	}
+}
+```
+A sector defining custom allocators. It has special **procedures** that must be implemented.  
+
+These are respectively:
+
+* allocate
+* free
+* resize
+* wipe
+
+The default captures are shown in the Arena example, however the captures may be extended to suit the requirements of the allocator.  
+
+One of the extensions shown is the ***self*** capture.  
+
+## Self Capture
+```
+Vehicle
+{
+	struct
+	{
+		Velocity : f32;
+		...
+	}
+
+	Drive (self) exe
+	{
+		Velocity += ...;
+		...
+	}
+}
+```
+
+Allows for a resolved object of the identifier type to be automatically captured when using an infix call to a named execution which has self in its capture resolution.  
+
+Its pure syntactic sugar and resolves to a function symbol with the object passed as a pointer:
+```
+// Symbol implementation during runtime generation stage.
+Vehicle.Drive (self : ptr Vehicle) exe
+{
+	self.Velocity += ...;
+	...
+}
+```
+If a pointer is not desired, self can have its type manually specified: 
+```
+Vehicle
+{
+	Drive (self : Vehicle struct) exe
+	{
+		Velocity...
+		...
+	}
+}
+```
