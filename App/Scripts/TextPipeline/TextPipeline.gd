@@ -23,7 +23,7 @@ func _input(event):
 		if G.check( Lex.tokenize(Editor.text) ):
 			return
 		
-		var ast = SPars.parse()
+		var ast = SPars.parse_unit()
 
 		if G.check(ast, "Failed to get ast from parser"):
 			return

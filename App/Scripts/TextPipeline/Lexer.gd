@@ -16,13 +16,13 @@ const TType : Dictionary = \
 	cmt_ML = "Comment Multi-Line",
 
 # Formatting
-	fmt_S  = "Formatting",
+	fmt_S  = "Formatting",							# Regex yeets it all with one expr.
 	
 # Captures
 	cap_PStart  = "Capture: Parenthesis Start",
 	cap_PEnd    = "Capture: Parenthesis End",
-	cap_ABStart = "Angle Bracket Start",
-	cap_ABEnd   = "Angle Bracket End",
+	cap_ABStart = "Angle Bracket Start",			# Not used yet...
+	cap_ABEnd   = "Angle Bracket End",				# Not used yet...
 	cap_SBStart = "Capture: Bracket Start",
 	cap_SBEnd   = "Capture: Square Bracket End",
 
@@ -35,7 +35,7 @@ const TType : Dictionary = \
 	op_SMA    = "Member Resolution",
 	op_Map    = "Map Resolution",
 	
-# Literals
+# Literals	(All literals are expression elements)
 	literal_True    = "Bool: True",
 	literal_False   = "Bool: False",
 	literal_Char    = "Character",
@@ -49,12 +49,10 @@ const TType : Dictionary = \
 # Sectors
 	# Directors
 #	sec_Layer = "Explicit LP layer use",
-	sec_LP    = "Language Platform",
 #	sec_Meta  = "Metaprogramming",
-	sec_TT    = "Translation Time",
-	
+
 	# Symbol Context Aliasing
-#	sec_Alias = "Aliasing",
+	sec_Alias = "Aliasing",
 	sec_Using = "Expose Member Symbols",
 		
 	# Conditional
@@ -62,16 +60,18 @@ const TType : Dictionary = \
 	sec_Else = "Conditional Else",
 	
 	# General
-#	sec_Expose = "Expose symbol as",
-	sec_Enum   = "Enumeration",
+#	sec_Expose = "Expose symbol as",			# Using sector seems to do the job...
 	
 # Symbols
-	sym_Identifier = "Module Defined Symbol",  # Also used as a sector
-	
-	# LP Symbols
-	sym_Self   = "Self Referiential Symbol", 
-	sym_Type   = "Type Symbol / Top Type",     # Also used as a sector.
+	sym_Enum   = "Enumeration",					# Sector, Type Constraint
+	sym_LP     = "Language Platform",			# Sector
+	sym_Self   = "Self Referiential Symbol",	# Capture Term
+	sym_TT     = "Translation Time",			# Sector, Specifier
+	sym_Type   = "Type Symbol / Top Type",      # Sector, Type
 #	sym_Invalid = "Invalid",
+
+	sym_Identifier = "Module Defined Symbol",	# Sector, Expression Element
+
 #------------------------------------------------------------------------------------- Universal END
 
 #------------------------------------------------------------------------------------- Layer 0
@@ -161,15 +161,13 @@ const TType : Dictionary = \
 	# Execution
 #	sec_Inline   = "Redefine Inplace",
 #	sec_Operator = "Operator Defining",
-#	sec_Proc     = "Procedure",                          # May not need
 	
 # Symbols
-	sym_Byte     = "Smallest Addressable Unit of Bits",
-	sym_Exe      = "Execution Block",					 # Also used as a sector.
-	sym_RO       = "Read-Only",                          # Also used as a sector.
-	sym_Ptr      = "Address Pointer",                    # Also used as operator.
+	sym_Byte     = "Smallest Addressable Unit of Bits",		# Type
+	sym_Exe      = "Execution Block",						# Sector, Type
+	sym_RO       = "Read-Only",								# Sector, Specifier
+	sym_Ptr      = "Address Pointer",						# Type
 #	sym_Register = "Register Type",
-#	sym_Word     = "Machine data model width"
 #------------------------------------------------------------------------------------- Layer 0   END
 
 #------------------------------------------------------------------------------------- Layer OS
@@ -179,9 +177,10 @@ const TType : Dictionary = \
 	op_Free    = "Memory Free",
 	op_Resize  = "Memory Resize",
 	op_Wipe    = "Memory Wipe (Free All)",
+# Sectors
+	sec_Heap = "Heap Memory Block",     # Sector, 
 # Symbols
 	# Memory
-	sym_Heap      = "Heap Memory Block",     # Also used as sector.
 	sym_Allocator = "Allocator Symbol", # Also used as sector.
 #------------------------------------------------------------------------------------- Layer OS  END
 
@@ -302,27 +301,28 @@ const Spec : Dictionary = \
 	TType.literal_Char   : "start \\\' !set( \\\' ).repeat(1) \\\'",
 	TType.literal_String : "start \\\" !set( \\\" ).repeat(0-) \\\" ",
 	
-	TType.sec_If     : "start \"if\"",
+	TType.sec_Alias  : "start \"alias\"",
 	TType.sec_Else   : "start \"else\"",
-	
-	TType.sec_Enum   : "start \"enum\"",
+	TType.sec_If     : "start \"if\"",
 	TType.sec_Stack  : "start \"stack\"",
 	TType.sec_Static : "start \"static\"",
 	TType.sec_Struct : "start \"struct\"",
 	TType.sec_Switch : "start \"switch\"",
-	TType.sec_TT     : "start \"tt\"",
+	
 	TType.sec_Union  : "start \"union\"",
 	TType.sec_Using  : "start \"using\"",
 		
 	TType.sym_Allocator : "start \"allocator\"",
 	TType.sym_Byte      : "start \"byte\"",
+	TType.sym_Enum      : "start \"enum\"",
 	TType.sym_Exe       : "start \"exe\"",
 	TType.sym_LP        : "start \"LP\"",
-	TType.sym_Loop      : "start \"loop\"",
-	TType.sym_Heap      : "start \"heap\"",
+	TType.sec_Loop      : "start \"loop\"",
+	TType.sec_Heap      : "start \"heap\"",
 	TType.sym_Ptr       : "start \"ptr\"",
 	TType.sym_RO        : "start \"ro\"",
 	TType.sym_Self      : "start \"self\"",
+	TType.sym_TT        : "start \"tt\"",
 	TType.sym_Type      : "start \"type\"",
 	
 #------------------------------------------- Godot specific symbols

@@ -1,21 +1,21 @@
 Cycler 
 {
-	private Exist type bool;
+	ro Exist type bool
 
 
 	Initialize exe 
 	loop if Exist == false 
 	{
-		Timing. TakeInitialSnapshot;
+		Timing. TakeInitialSnapshot
 		
-		Input.    Update;
-		State.    Update;
-		Renderer. Update;
+		Input.    Update
+		State.    Update
+		Renderer. Update
 		
-		Timing. TakeEndingSnapshot;
-		Timing. Update;
+		Timing. TakeEndingSnapshot
+		Timing. Update
 	}
 
-	Lapse      exe Exist = false;
-	LoadModule exe Exist = true;
+	Lapse      exe Exist = false
+	LoadModule exe Exist = true
 } // Cycler
