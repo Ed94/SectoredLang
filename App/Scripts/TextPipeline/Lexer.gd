@@ -230,7 +230,7 @@ const TType : Dictionary = \
 
 const Spec : Dictionary = \
 {
-	TType.fmt_S : "start whitespace.repeat(1-).lazy",
+	TType.fmt_S : "start (whitespace.repeat(1-).lazy | \\;.repeat(1-).lazy)",
 	
 	TType.cmt_SL : "start // inline.repeat(0-)",
 	TType.cmt_ML : "start /* set(whitespace !whitespace).repeat(0-).lazy */",
