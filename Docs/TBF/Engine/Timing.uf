@@ -1,6 +1,4 @@
-// BP
-
-Timing 
+Timing
 {
 	tt static 
 	{
@@ -28,33 +26,7 @@ Timing
 			End     : u64;
 		}
 	}
-	
-	LoadModule;
-	TakeInitialSnapshot;
-	TakeEndingSnapshot;
-	Update;
-}
 
-Timer
-{
-	struct 
-	{
-		Elapsed : f64;
-		EndTime : f64;
-	}
-
-	(self)
-	{
-		Ended ()-> bool;
-		Reset;
-		Tick;
-	}
-}
-
-// Unit
-
-Timing
-{
 	LoadModule exe InitializeData;
 
 	TakeInitialSnapshot exe
@@ -85,6 +57,13 @@ Timing
 			LP.Clock.QueryPerformanceFrequency( Frequency.ptr );
 		}
 	}
+}
+
+
+Timer struct 
+{
+	Elapsed : f64;
+	EndTime : f64;
 }
 
 Timer (self)

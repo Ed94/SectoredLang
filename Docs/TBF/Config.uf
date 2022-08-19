@@ -1,6 +1,0 @@
-// BP
-
-Config
-{
-	tt static Debug : bool = true;
-}

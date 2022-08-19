@@ -1,24 +1,4 @@
-// BP
-
 Proc type exe;
-
-State 
-{
-	struct {
-		Load   : ptr Proc;
-		Unload : ptr Proc;
-		Update : ptr Proc;
-		Render : ptr Proc;
-	}
-	
-	LoadModule;
-	SetState(state : ptr State);
-	Update;
-	Render;
-	LoadGame;
-}
-
-// Unit
 
 EFocusState enum (u32)
 {
@@ -34,6 +14,13 @@ static
 
 State 
 {
+	struct {
+		Load   : ptr Proc;
+		Unload : ptr Proc;
+		Update : ptr Proc;
+		Render : ptr Proc;
+	}
+
 	private (inputState : Input.EState)
 	{
 		OnKeyArrowUp exe switch (inputState)
@@ -93,5 +80,4 @@ State
 
 	LoadGame exe SetState( Engine.LoadGame );
 
-} // State
-
+}

@@ -10,9 +10,10 @@ const NType = \
 	empty = "Empty Statement",
 	unit = "Module Unit",
 	
-	capture      = "Capture",
 	enum_Element = "Enumeration Element",
-	expression   = "Expression",
+
+	expr     = "Expression",
+	expr_cap = "Capture",
 	
 	op_Call   = "Op: Call",
 	op_CD     = "Op: Comma Delimiter",
@@ -60,8 +61,6 @@ const NType = \
 	literal_Char    = "Literal: Char",
 	literal_String  = "Literal: String",
 	
-#	sec_LP = "",
-	
 	sec_Cap        = "Sector: Capture",
 	sec_CapArgs    = "Capture Sector - Arguments",
 	sec_CapRet     = "Capture Sector - Return Map",
@@ -69,6 +68,7 @@ const NType = \
 	sec_Enum       = "Sector: Enum",
 	sec_Exe        = "Sector: Execution",
 	sec_Heap       = "Sector: Heap",
+	sec_LP         = "Sector: Langauge Platform",
 	sec_Loop       = "Sector: Loop",
 	sec_Stack      = "Sector: Stack",
 	sec_Static     = "Sector: Static",
@@ -79,15 +79,18 @@ const NType = \
 	sec_Type       = "Sector: Type",
 	sec_Identifier = "Sector: Identifier",
 	
-	builtin_bool   = "bool",
-	builtin_int    = "int",
-	builtin_float  = "float",
-	builtin_string = "String",
+	builtin_bool   = "GD: bool",
+	builtin_int    = "GD: int",
+	builtin_float  = "GD: float",
+	builtin_Array  = "GD: Array",
+	builtin_Dict   = "GD: Dictionary",
+	builtin_string = "GD: String",
 	
 	sym_Heap       = "Symbol: Heap",
 	sym_Proc       = "Symbol: Procedure",
 	sym_Ptr        = "Symbol: Pointer",
 	sym_Self       = "Symbol: Self",
+
 	sym_Identifier = "Symbol: Identifier",
 }
 
@@ -1059,7 +1062,7 @@ func parse_expr_Capture() -> ASTNode:
 	
 	var \
 	node = ASTNode.new()
-	node.set_Type(NType.capture)
+	node.set_Type(NType.expr_cap)
 	node.add_Entry(expression)
 		
 	return node

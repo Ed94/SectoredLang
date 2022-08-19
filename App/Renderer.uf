@@ -1,0 +1,139 @@
+// BP 
+
+Renderer
+{
+	tt static 
+	{
+		Width  : u16 = 80;
+		
+		BorderLine   = 24;
+		DebugStart   = 25;
+		DebugLogSize = 18;
+
+		DebugPersistentStart  = 44;
+		PersistentSectionSize = 4;
+
+		GameEnd = 23;
+	}
+
+	if Config.Debug
+	{
+		tt static Height = 48;
+	}
+	else
+	{
+		tt static Height = 24;
+	}
+
+	Line type [Width] Cell;
+
+	Lines struct {
+		Data : ptr Line;
+		Num  : uw;
+	}
+
+	static
+	{
+		CharactersWritten : WIn32.DWORD
+
+		ScreenCenter   : Vec2(s32);
+		ScreenPosition : Vec2(s32);
+
+		RefreshTimer : Timer;
+	}
+
+	DebugLogSection static
+	{
+		Dynamic          : Lines;
+		RelativeLastLine : u32 = 1;
+	}
+
+	Border static
+	{
+		GameDebug     : Line;
+		LogPersistent : Line;
+	}
+
+	if Config.Debug 
+		static PersistentSection : [PersistentSectionSize] Line;
+
+	tt static
+	{
+		ConsoleTitle : string(u16) = "TBF SectoredLang Engine : C Phase 14";
+		ScreenPos_00 : Win32.COORD = 0,0;
+	}
+
+	Clear;
+
+	() -> bool
+	{
+		FillCellsWithWhitespace;
+		FormatCells;
+	}
+
+	LoadModule;
+	ProcessTiming (deltaTime : f64);
+	RenderFrame;
+	ResetDrawPosition;
+	UnloadModule;
+	Update;
+	
+	WriteToLog(logString : ro string(u16));
+	WriteToPersistentSection(row : s32, lineFormat : ro string(u16), ...);
+	
+	Log
+	{
+		ScrollUp; ScrollDown;
+	}
+}
+
+
+// Unit
+
+Renderer
+{
+	DrawGameScanlines;
+	InitalizeData;
+	SetupConsole;
+	ShouldRender -> bool;
+	UpdateConsoleInfo -> bool;
+	UpdateSizeAndPosition;
+
+
+	Clear exe if Console.UpdateInfo
+		Memory.Format.Set(Cell, Buffer, 0, Width * Height);
+
+	() -> bool
+	{
+		FillCellsWithWhitespace exe ret Conosole.FillConsoleOutputCharacter(
+			' ',
+			Conosle.BufferSize,
+			ScreenPos_00,
+			CharactersWritten.ptr
+		);
+
+		FormatCells exe ret Console.FillConsoleOutputAttribute(
+			Console.SBI.wAttributes,
+			Console.BufferSize,
+			ScreenPos_00,
+			CharactersWritten.ptr
+		);
+	}
+
+	LoadModule exe {
+		SetupConsole;
+		InitializeData;
+		SetupConsoleTitle(ConsoleTitle);
+		UpdateSizeAndPosition;
+	}
+
+	ProcessTiming (deltaTime : f64) exe 
+	{
+		RefreshTimer.Tick(deltaTime);
+	}
+
+	RnederFrame exe
+	{
+		
+	}
+}

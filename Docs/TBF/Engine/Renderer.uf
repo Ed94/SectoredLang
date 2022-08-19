@@ -1,0 +1,368 @@
+Renderer
+{
+	tt static 
+	{
+		Width  : u16 = 80;
+		
+		BorderLine   = 24;
+		DebugStart   = 25;
+		DebugLogSize = 18;
+
+		DebugPersistentStart  = 44;
+		PersistentSectionSize = 4;
+
+		GameEnd = 23;
+	}
+
+	if Config.Debug
+	{
+		tt static Height = 48;
+	}
+	else
+	{
+		tt static Height = 24;
+	}
+
+	Line type [Width] Cell;
+
+	Lines struct {
+		Data : ptr Line;
+		Num  : uw;
+	}
+
+	static
+	{
+		CharactersWritten : WIn32.DWORD
+
+		ScreenCenter   : Vec2(s32);
+		ScreenPosition : Vec2(s32);
+
+		RefreshTimer : Timer;
+	}
+
+	DebugLogSection static
+	{
+		Dynamic          : Lines;
+		RelativeLastLine : u32 = 1;
+	}
+
+	Border static
+	{
+		GameDebug     : Line;
+		LogPersistent : Line;
+	}
+
+	if Config.Debug 
+		static PersistentSection : [PersistentSectionSize] Line;
+
+	tt static
+	{
+		ConsoleTitle : string(u16) = "TBF SectoredLang Engine : C Phase 14";
+	}
+
+
+	() -> bool
+	{
+		FillCellsWithWhitespace exe ret Conosole.FillConsoleOutputCharacter(
+			' ',
+			Conosle.BufferSize,
+			ScreenPos_00,
+			CharactersWritten.ptr
+		);
+
+		FormatCells exe ret Console.FillConsoleOutputAttribute(
+			Console.SBI.wAttributes,
+			Console.BufferSize,
+			ScreenPos_00,
+			CharactersWritten.ptr
+		);
+	}
+
+	DrawGameScanline 
+	{
+		static cellIndex : Win32.COORD = { 0, 0 };
+
+		exe
+		{
+			stack
+			{
+				blockChar : const WideChar = '-';
+				cellUnit  : Cell;
+			}
+
+			cellUnit.Char.UnicodeChar = blockChar;
+			cellUnit.Attributes       = Console.AttributeFlag.Foreground_Intensity;
+
+			stack cellLine : [Renderer_Width] Cell;
+
+			stack index : uw = 0;
+			loop if index < Renderer_Width
+			{
+				cellLine[index] = cellUnit;
+
+				index += 1;
+			}
+
+			stack cellIndex_End : Win32.COORD = { Renderer_Width, cellIndex.Y };
+
+			Console.WriteToBufferCells( cast(ptr Cell, cellLine.ptr), cellIndex, cellIndex_End);
+
+			cellIndex.Y += 1;
+
+			if cellIndex.X >= Width
+			{
+				cellIndex.X  = 0;
+				cellIndex.Y += 1;
+			}
+
+			if cellIndex.Y > GameEnd
+			{
+				cellIndex.X = 0;
+				cellIndex.Y = 0;
+			}
+		}
+	}
+
+	Clear exe if Console.UpdateInfo
+		Memory.Format.Set(Cell, Buffer, 0, Width * Height);
+
+	InitializeData exe
+	{
+		ScreenCenter.X = Win32.GetSystemMetrics(Win32.SM_CXSCREEN) / 2;
+		ScreenCenter.Y = Win32.GetSystemMetrics(Win32.SM_CYSCREEN) / 2;
+
+		ScreenPosition.X = (ScreenCenter.X - ((Width  / 2) * 8)) - 20;
+		ScreenPosition.Y = (ScreenCenter.Y - ((Height / 2) * 8)) - 200;
+
+		RefreshTimer.Elapsed = 0.0;
+		RefreshTimer.EndTime = 1.0 / 60.0;
+
+		Console.CoordSize.X = Width ;
+		Console.CoordSize.Y = Height;
+
+		Console.Size.Left   = Console_ScreenPos_00.X;
+		Console.Size.Top    = Console_ScreenPos_00.Y;
+		Console.Size.Right  = Renderer_Width  - 1;
+		Console.Size.Bottom = Renderer_Height - 1;
+
+		Console.CursorSettings.dwSize   = Win32.Console_Cursor_MinSize;
+		Console.CursorSettings.bVisible = Win32.Console_Cursor_NotVisible;
+
+		Memory Console.Buffer : allocate(Cell, Width * Height);
+
+		Memory.Format.Fill(Cell, Console.Buffer, 0, Width * Height);
+
+		tt if Config.Debug
+		{
+			stack 
+			borderCell : Cell; 
+			borderCell.Char.UnicodeChar = '='; 
+			borderCell.Attributes       = Console_WhiteCell;
+
+			stack index : uw = 0;
+			loop if index < Width
+			{
+				Border.GameDebug    [index] = borderCell;
+				Border.LogPersistent[index] = borderCell;
+				index += 1;
+			}
+
+			DebugLogSection_Dynamic.Array = null;
+			DebugLogSection_Dynamic.Num   = 0;
+		}
+	}
+
+	LoadModule exe {
+		SetupConsole;
+		InitializeData;
+		Console.SetTitle(ConsoleTitle);
+		UpdateSizeAndPosition;
+	}
+
+	ProcessTiming (deltaTime : f64) exe 
+	{
+		RefreshTimer.Tick(deltaTime);
+	}
+
+	RenderFrame exe Conosle.WriteOutput;
+
+	ResetDrawPosition exe Console.SetCursorPosition(Console.ScreenPos_00);
+
+	SetupConsole exe
+	{
+		Console.Request
+	}
+
+	UnloadModule exe
+	{
+		check(Conosle.Unbind_IOBuffer, "Failed to unbind standard IO from renderer console");
+		check(Console.Free, "Failed to free renderer console properly.");
+
+	}
+
+	Update exe
+	{
+		if ! RefreshTimer.Ended 
+			ret;
+
+		Clear;
+
+		DrawGameScanlines;
+
+		State.Render;
+
+		tt if Debug
+		{
+			stack 
+			{
+				startingCell : Win32.COORD = {     0, BorderLine };
+				finalCell    : Win32.COORD = { Width, BorderLine };
+			}
+
+			Console.WriteToBufferCells( cast(ptr Cell, Border.GameDebug.ptr, startingCell, finalCell) );
+
+			startingCell.Y = DebugPersistentStart - 1;
+			finalCell.   Y = DebugPersistentStart - 1;
+
+			Conosle.WriteToBufferCells( cast(ptr Cell, Border.LogPersistent.ptr, startingCell, finalCell) );
+
+			stack index : uw = 0;
+
+			if DebugLogSection.Dynamic.Num <= 18
+			{
+				loop if index = 0, index < DebugLogSection.Dynamic.Num -1
+				{
+					startingCell.Y = DebugStart + cast(u16, index);
+					finalCell.   Y = DebugStart + cast(u16, index);
+
+					Console.WriteToBufferCells(DebugLogSection.Dynamic.Data[index], startingCell, finalCell);
+					index += 1;
+				}
+			}
+			else
+			{
+				stack LogStart : uw = DebugLogSection.Dynamic.Num - 18 - DebugLogSection.RelativeLastLine;
+
+				loop if index = 0, index < DebugLogSize
+				{
+					startingCell.Y = DebugStart + cast(u16, index);
+					finalCell.   Y = DebugStart + cast(u16, index);
+
+					Console.WriteToBufferCells( cast(ptr Cell, DebugLogSection.Dynamic.Data[LogStart + index]), startingCell, finalCell);
+					index += 1;
+				}
+			}
+
+			loop if index = 0, index < PersistentSectionSize
+			{
+				startingCell.Y = DebugPersistentStart + cast(u16, index);
+				finalCell.   Y = DebugPersistentStart + cast(u16, index);
+
+				Console.WriteToBufferCells( cast(ptr Cell, PersistentSection[index].ptr), startingCell, finalCell);
+				index += 1;
+			}
+		}
+
+		RenderFrame;
+		RefreshTimer.Reset;
+	}
+	
+	UpdateSizeAndPosition exe
+	{
+		SetCursorInfo(CursorSettings);
+
+		SetWindowInfo(true, Size);
+
+		SetScreenBufferSize(true, Size);
+
+		SetWindowPos(
+			ScreenPosition.X, ScreenPosition.Y,
+			0, 0,
+			Win32.SWP_NOSIZE
+		);
+	}
+
+	if Config.Debug
+	{
+		Log
+		{
+			AddLine exe
+				if DebugLogSection.Dynamic.Num == 0
+				{
+					Memory 
+					DebugLogSection.Dynamic.Data : allocate(1);
+					DebugLogSection.Dynamic.Num += 1;
+				}
+				else
+				{
+					DebugLogSection.Dynamic.Num += 1;
+
+					Memory DebugLogSection.Dynamic.Data : resize(DebugLogSection.Dynamic.Num);
+				}
+
+			Write (logString : ro string(u16)) exe
+			{
+				static { 
+					nextLine : u32 = 0;
+					linePos  : uw = 0;
+				}
+
+				if nextLine == 0
+					AddLine;
+
+				stack   index : uw = 0;
+				loop if index < logString.Length
+				{
+					if linePos > Width - 1
+					{
+						linePos   = 0;
+						nextLine += 1;
+						AddLine;
+					}
+
+					DebugLogSection.Dynamic.Data[nextLine][linePos].Char.UnicodeChar = logString[index];
+					DebugLogSection.Dynamic.Data[nextLine][linePos].Attributes       = Conosle.WhiteCell;
+					index += 1;
+				}
+
+				loop if index = 0, index < Width
+				{
+					DebugLogSection.Dynamic.Data[nextLine][index].Char.UnicodeChar = 0;
+					DebugLogSection.Dynamic.Data[nextLine][index].Attributes       = 0;
+					index += 1;
+				}
+
+				AddLine;
+				nextLine += 1;
+				DebugLogSection.RelativeLastLine = 1;
+			}
+		}
+
+		WriteToPersistentSection (row : s32, lineFormat : ro string(u16), ...) exe
+		{
+			stack
+			{
+				translationBuffer    : [Width]u16;
+				persistentSubSection : Line = PersistentSection[row - 1];
+				cellsFormatted       : ptr Cell;				
+			}
+
+			cellsFormatted = string.Format(translationBuffer, Width, lineFormat, ...);
+
+			stack   index : uw = 0;
+			loop if index < cellsFormatted
+			{
+				PersistentSection[index].Char.UnicodeChar = translationBuffer[index];
+				PersistentSection[index].Attributes       = Console.WhiteCell;
+				index += 1;
+			}
+
+			loop if index = cellsFormatted, index < Width; 
+			{
+				PersistentSection[index].Char.UnicodeChar = 0;
+				PersistentSection[index].Attributes       = 0;
+				index += 1;
+			}
+		}
+	}
+}

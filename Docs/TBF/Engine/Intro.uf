@@ -1,0 +1,237 @@
+Intro
+{
+	static
+	{
+		State : Engine.State;
+
+		DoneOnce : bool = false;
+
+		Title   : string(u16) = "Trial By Fire Engine";
+		Version : string(u16) = "Type SectoredLang (C Phase 14)";
+
+		RenderTitle   : bool = false;
+		RenderVersion : bool = false;
+	}
+
+	RenderCells static
+	{
+		Title   : ptr Console.Cell = null;
+		Version : ptr Console.Cell = null;
+	}
+
+	Timer 
+	{
+		static
+		{
+			Intro : Engine.Timer;
+			
+			Till_Title      : Engine.Timer;
+			Till_Version    : Engine.Timer;
+			Till_FadeToGrey : Engine.Timer;
+
+			Till_Title_ToWhite   : Engine.Timer;
+			Till_Version_ToWhite : Engine.Timer;
+
+			Till_FadeOut : Engine.Timer;
+		}
+	}
+
+	Change
+	{
+		TitleTo_Grey exe
+		{
+			stack   index : uw = 0; 
+			loop if index < Title.Length
+			{
+				RenderCells.Title[index].Attributes = Console.AttributeFlags.Foreground_Intensity;
+				index += 1;
+			}
+		}
+
+		VersionTo_Grey exe
+		{
+			stack   index : uw = 0; 
+			loop if index < Version.Length
+			{
+				RenderCells.Verson[index].Attributes = Console.AttributeFlags.Foreground_Intensity;
+				index += 1;
+			}
+		}
+
+		TitleTo_White exe
+		{
+			stack   index : uw = 0; 
+			loop if index < Title.Length
+			{
+				RenderCells.Title[index].Attributes = Console.WhiteCell;
+				index += 1;
+			}
+		}
+
+		VersionTo_White exe
+		{
+			stack   index : uw = 0; 
+			loop if index < Version.Length
+			{
+				RenderCells.Version[index].Attributes = Console.WhiteCell;
+				index += 1;
+			}
+		}
+	}
+
+	Load exe
+	{
+		if ! DoneOnce
+		{
+			using Timer
+			{
+				Intro.EndTime = 7.0;
+
+				Till_Title.  EndTime = 2.0;
+				Till_Version.EndTime = 1.2;
+
+				Till_FadeOut.EndTime = 0.134;
+
+				Till_Title_ToWhite.EndTime   = 0.134;
+				Till_Version_ToWhite.EndTime = 0.134;
+			}
+
+			Memory 
+			{
+				RenderCells.Title   : allocate(Cell, Title.Length);
+				RenderCells.Version : allocate(Cell, Version.Length)
+			}
+
+			stack   index : uw = 0;
+			loop if index < Title.Length
+			{
+				RenderCells.Title[index].Char.UnicodeChar = Title[index];
+				index += 1;
+			}
+
+			loop if index = 0, index < Version.Length
+			{
+				RenderCells.Version[index].Char.UnicodeChar = Version[index];
+				index += 1;
+			}
+
+			DoneOnce = true;
+		}
+
+		Change.TitleTo_Grey;
+		Change.VersionTo_Grey;
+	}
+
+	Unload exe Renderer.WriteLog("Intro State: Unloaded");
+
+	Update exe
+	{
+		static
+		{
+			LogTitle   = true;
+			LogVersion = true;
+			LogFade    = true;
+			LogEnd     = true;
+
+			Log_ChangeToWhite_Title   = true;
+			Log_ChangeToWhite_Version = true;
+
+			Log_FadeToGrey = true;
+		}
+
+		Timer.Intro.     Tick;
+		Timer.Till_Title.Tick;
+
+		Renderer.WriteToPersistentSection(4, "Intro Time Elapsed: %.7LF", Timer.Intro.Elapsed);
+
+		if Timer.Till_Title.Ended
+		{
+
+		}
+
+		Timer.Till_FadeToGrey.Tick;
+
+		if Timer.Till_FadeToGrey.Ended
+		{
+			Change.TitleTo_Grey;
+			Change.VersionTo_Grey;
+
+			if Log_FadeToGrey
+			{
+				Renderer.WriteLog("Title should fade to grey now.");
+				Log_FadeToGrey = false;
+			}
+
+			Timer.Till_FadeOut.Tick;
+
+			if LogFade && Timer.Till_FadeOut.Ended
+			{
+				Renderer.WriteLog("Title should fade out now.");
+
+				RenderTitle  = false;
+				RenderVersio = false;
+
+				LogFade = false;
+			}
+		}
+
+		if LogEnd && Timer.Intro.Ended
+		{
+			Renderer.WriteToLog("Intro ends now.");
+
+			LogEnd = false;
+
+			Engine.State.LoadGame;
+		}
+	}
+
+	Render exe
+	{
+		static 
+		{
+			startingCell : Win32.COORD = { 0, 9 };
+			endingCell   : Win32.COORD = { 0, 9 };
+		}
+
+		if RenderTitle
+		{
+			startingCell.X = (Renderer.Width / 2) - (cast(u16, Title.Length) / 2));
+			endingCell.  X = (Renderer.Width / 2) + (cast(u16, Title.Length) / 2));
+
+			startingCell.Y = 9;
+			endingCell.  Y = 9;
+
+			Renderer.WriteToBufferCells(RenderCells.Title, startingCell, endingCell);
+		}
+
+		if RenderVersion
+		{
+			startingCell.X = (Renderer.Width / 2) - (cast(u16, Version.Length / 2));
+			endingCell.  X = (Renderer.Width / 2) + (cast(u16, Version.Length / 2));
+
+			startingCell.Y = 11;
+			endingCell.  Y = 11;
+
+			Renderer.WriteToBufferCells(RenderCells.Version, startingCell, endingCell);
+		}
+	}
+
+	GetState -> ptr Engine.State
+	{
+		static firstGet : bool = true;
+
+		exe
+		{
+			if firstGet {
+				State.Load   = Load.ptr;
+				State.Unload = Unload.ptr;
+				State.Update = Update.ptr;
+				State.Render = Render.ptr;
+
+				firstGet = false;
+			}
+
+			ret State.ptr;
+		}
+	}
+}

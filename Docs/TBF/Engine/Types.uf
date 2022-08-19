@@ -29,3 +29,10 @@ FloatAccuracy
 		Nano  : f32 = 0.00000001;
 	}	
 }
+
+
+(tt Type : type) Vec2 struct
+{
+	X : Type;
+	Y : Type;
+}

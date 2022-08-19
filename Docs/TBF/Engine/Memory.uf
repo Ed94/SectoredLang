@@ -1,6 +1,4 @@
-// BP
-
-Memory 
+Memory
 {
 	Block struct
 	{
@@ -14,45 +12,6 @@ Memory
 		Length : uw
 	}
 
-	BlockArray (self)
-	{
-		Add -> ptr Block;
-
-		(allocator)
-		{
-			(tt Type : type)
-			{
-				allocate (numDesired : uw)                     -> ptr Type;
-				resize   (address : ptr Type, numDesired : uw) -> ptr Type;
-				free;
-			}
-		}
-
-		wipe;
-	}
-
-	(allocator)
-	{
-		(tt Type : type)
-		{
-			allocate (numDesired : uw)                     -> ptr Type;
-			resize   (address : ptr Type, numDesired : uw) -> ptr Type;
-			free;
-		}
-
-		wip;
-	}
-
-	// Format
-	// {
-	// 	WithData()
-	// }
-}
-
-// Unit
-
-Memory
-{
 	static GlobalAllocs : BlockArray;
 
 	BlockArray (self)
@@ -61,7 +20,7 @@ Memory
 		{
 			if Data == null
 			{
-				heap Data : LP.allocate(1);
+				heap Data : allocate(1);
 
 				check(Data, "Failed to globally allocate block array")
 
@@ -74,9 +33,8 @@ Memory
 					newBlock : ptr Block = null;
 				}
 
-				heap newBlock : LP.allocate(newSize);
-
-				if newBlock
+				heap newBlock : allocate(newSize);
+				if   newBlock
 				{
 					Format.Set(newBlock, Data, Length);
 
@@ -86,7 +44,7 @@ Memory
 				else throw("Failed to globally reallocate block array");
 			}
 
-			heap Data[Length - 1] : LP.allocate(1);
+			heap Data[Length - 1] : allocate(1);
 			ret  Data[Length - 1];
 		}
 
@@ -101,7 +59,7 @@ Memory
 
 					newBlock.Size = numDesired * Type.sizeof;
 					
-					heap newBlock.Location : LP.allocate(numDesired * Type.sizeof);
+					heap newBlock.Location : allocate(numDesired * Type.sizeof);
 
 					check(newBlock.Location, "Failed to allocate block")
 
@@ -120,7 +78,7 @@ Memory
 					}
 
 					stack newLocation : ptr uw = null;
-					heap  newLocation : LP.allocate(numDesired * Type.sizeof);
+					heap  newLocation : allocate(numDesired * Type.sizeof);
 
 					check(newLocation, "Failed to resize block")
 
@@ -130,20 +88,21 @@ Memory
 
 					ret cast(ptr Type, Data[index].Location)
 				}
+			}
 
-				wipe exe
+			wipe exe
+			{
+				stack   index : uw = 0; 
+				loop if index == Length
 				{
-					stack index : uw = 0; 
-					loop { if index == Length break;
-						heap 
-						{
-							Data[index].Location : free();
-							Data[index]          : free();
-						}
+					heap 
+					{
+						Data[index].Location : free();
+						Data[index]          : free();
 					}
-
-					heap Data : free();
 				}
+
+				heap Data : free();
 			}
 		}
 	} // BlockArray (self)
@@ -154,8 +113,8 @@ Memory
 		{
 			allocate (numDesired : uw) -> ptr Type exe
 			{
-				stack     allocedMemory : ptr Type = null;
-				allocator allocedMemory : GlobalAllocs.allocate(Type, numDesired);
+				stack        allocedMemory : ptr Type = null;
+				GlobalAllocs allocedMemory : allocate(Type, numDesired);
 
 				check(allocedMemory, "Failed to globally allocate memory");
 
@@ -173,8 +132,8 @@ Memory
 						break;
 				}
 
-				stack     : resizedMemory : ptr Type = null;
-				allocator : resizedMemory : GlobalAllocs.resize(Type, numDesired);
+				stack        resizedMemory : ptr Type = null;
+				GlobalAllocs resizedMemory : resize(Type, numDesired);
 
 				check(resizedMemory, "Failed to globally reallocate memory");
 

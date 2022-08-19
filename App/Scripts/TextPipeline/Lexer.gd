@@ -55,7 +55,7 @@ const TType : Dictionary = \
 	
 	# Symbol Context Aliasing
 #	sec_Alias = "Aliasing",
-#	sec_In    = "Expose Member Symbols",
+	sec_Using = "Expose Member Symbols",
 		
 	# Conditional
 	sec_If   = "Conditional If",
@@ -156,17 +156,17 @@ const TType : Dictionary = \
 #	sec_Strict   = "Strict Reference",
 	sec_Struct   = "Data Record/ Structure", 
 #	sec_Volatile = "Volatile Reference",
-#	sec_Union    = "Discriminated Union",
+	sec_Union    = "Discriminated Union",
 	
 	# Execution
-	sec_Exe      = "Execution Block",
 #	sec_Inline   = "Redefine Inplace",
 #	sec_Operator = "Operator Defining",
 #	sec_Proc     = "Procedure",                          # May not need
 	
 # Symbols
-#	sym_Byte     = "Smallest Addressable Unit of Bits",
-	sym_RO       = "Read-Only",                          # ALso used as a sector
+	sym_Byte     = "Smallest Addressable Unit of Bits",
+	sym_Exe      = "Execution Block",					 # Also used as a sector.
+	sym_RO       = "Read-Only",                          # Also used as a sector.
 	sym_Ptr      = "Address Pointer",                    # Also used as operator.
 #	sym_Register = "Register Type",
 #	sym_Word     = "Machine data model width"
@@ -181,7 +181,7 @@ const TType : Dictionary = \
 	op_Wipe    = "Memory Wipe (Free All)",
 # Symbols
 	# Memory
-	sym_Heap = "Heap Memory Block",     # Also used as sector.
+	sym_Heap      = "Heap Memory Block",     # Also used as sector.
 	sym_Allocator = "Allocator Symbol", # Also used as sector.
 #------------------------------------------------------------------------------------- Layer OS  END
 
@@ -216,8 +216,6 @@ const TType : Dictionary = \
 #------------------------------------------------------------------------------------- Layer 3   END
 
 #------------------------------------------------------------------------------------- Layer 4
-# Sectors
-#	sec_FN = "Function"
 #------------------------------------------------------------------------------------- Layer 4   END
 
 #------------------------------------------------------------------------------------- Godot     
@@ -308,17 +306,19 @@ const Spec : Dictionary = \
 	TType.sec_Else   : "start \"else\"",
 	
 	TType.sec_Enum   : "start \"enum\"",
-	TType.sec_Exe    : "start \"exe\"",
-	TType.sec_LP     : "start \"LP\"",
-	TType.sec_Loop   : "start \"loop\"",
-	
 	TType.sec_Stack  : "start \"stack\"",
 	TType.sec_Static : "start \"static\"",
 	TType.sec_Struct : "start \"struct\"",
 	TType.sec_Switch : "start \"switch\"",
 	TType.sec_TT     : "start \"tt\"",
+	TType.sec_Union  : "start \"union\"",
+	TType.sec_Using  : "start \"using\"",
 		
 	TType.sym_Allocator : "start \"allocator\"",
+	TType.sym_Byte      : "start \"byte\"",
+	TType.sym_Exe       : "start \"exe\"",
+	TType.sym_LP        : "start \"LP\"",
+	TType.sym_Loop      : "start \"loop\"",
 	TType.sym_Heap      : "start \"heap\"",
 	TType.sym_Ptr       : "start \"ptr\"",
 	TType.sym_RO        : "start \"ro\"",
