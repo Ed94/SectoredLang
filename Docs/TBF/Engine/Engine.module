@@ -1,32 +1,31 @@
-
-context : "Engine";
-LTP     : Compiler;
-layers  : AnythingGoes; 
+context : "Engine"
+LTP     : Compiler
+layers  : AnythingGoes
 
 
 dependencies {
 	// Language Platform Layer
-	LP; 
+	LP
 }
 
 
 alias {
-	OS      : LP.OS;
-	Win32   : LP.Win32;
+	OS      : LP.OS
+	Win32   : LP.Win32
 }
 
 
 units {
-	Cycler     : uf;
-	Execution  : uf;			
-	Engine     : uf;
-	Input      : uf;
-	Intro      : uf;
-	Memory     : uf;
-	Renderer   : uf;
-	State      : uf;
-	Timing     : uf;
+	Cycler     : uf
+	Execution  : uf			
+	Engine     : uf
+	Input      : uf
+	Intro      : uf
+	Memory     : uf
+	Renderer   : uf
+	State      : uf
+	Timing     : uf
 }
 
 
-// entrypoint : Entrypoint;
+// entrypoint : Entrypoint

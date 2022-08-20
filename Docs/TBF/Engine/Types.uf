@@ -1,20 +1,20 @@
 if LP.gdscript
 {
-	b8  type bool;
-	b16 type int;
-	b32 type int;
-	b64 type int;
+	b8  type bool
+	b16 type int
+	b32 type int
+	b64 type int
 
-	uw type int;
-	sw type int;
+	uw type int
+	sw type int
 
-	u8  type int;
-	u16 type int;
-	u32 type int;
-	u64 type int;
+	u8  type int
+	u16 type int
+	u32 type int
+	u64 type int
 
-	f32 type float;
-	f64 type float;
+	f32 type float
+	f64 type float
 }
 
 
@@ -22,17 +22,17 @@ FloatAccuracy
 {
 	tt static
 	{
-		Deci  : f32 = 0.1;
-		Centi : f32 = 0.01;
-		Milli : f32 = 0.001;
-		Micro : f32 = 0.00001;
-		Nano  : f32 = 0.00000001;
+		Deci  : f32 = 0.1
+		Centi : f32 = 0.01
+		Milli : f32 = 0.001
+		Micro : f32 = 0.00001
+		Nano  : f32 = 0.00000001
 	}	
 }
 
 
-(tt Type : type) Vec2 struct
+(Type : tt type) Vec2 struct
 {
-	X : Type;
-	Y : Type;
+	X : Type
+	Y : Type
 }

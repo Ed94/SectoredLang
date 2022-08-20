@@ -1,38 +1,38 @@
-(tt NumType : type)
+(NumType : tt type)
 {
 	(value : NumType) -> NumType 
 	{
 		Abs exe
 		{
 			stack 
-			posOrZero : bool;
-			posOrZero = value >= cast(NumType, 0);
+			posOrZero : bool
+			posOrZero = value >= cast(NumType, 0)
 
 			if posOrZero
 				ret value
 			else
-				ret -value;
+				ret -value
 		}
 
 		Sign exe
 		{
 			stack 
-			isPos : bool;
+			isPos : bool
 			isPos = value > cast(NumType, 0)
 
 			if isPos
-				ret cast(NumType, 1);
+				ret cast(NumType, 1)
 
 			else
 			{
 				stack
-				isNeg : bool;
-				isNeg = value < cast(NumType, 0);
+				isNeg : bool
+				isNeg = value < cast(NumType, 0)
 
 				if isNeg
-					ret cast(NumType, -1);
+					ret cast(NumType, -1)
 				else
-					ret cast(NumType, 0);
+					ret cast(NumType, 0)
 			}
 		}
 	}
@@ -42,15 +42,11 @@
 f32 (self : f32)
 {
 	IsNearlyZero (errorTolerance : f32 = FloatAccuracy.Micro) -> bool exe
-	{
-		ret Abs(f32, self) <= errorTolerance;
-	}
+		ret Abs(f32, self) <= errorTolerance
 }
 
 f64 (self : f64) 
 {
 	IsNearlyZero (errorTolerance : f64 = FloatAccuracy.Micro) -> bool exe
-	{
-		ret Abs(f64, self) <= errorTolerance;
-	}
+		ret Abs(f64, self) <= errorTolerance
 }

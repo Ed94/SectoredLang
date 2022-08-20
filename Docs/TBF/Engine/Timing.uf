@@ -2,59 +2,59 @@ Timing
 {
 	tt static 
 	{
-		TickToMicroseconds  := 1000000;
-		MicrosecondToSecond := 10000000;
+		TickToMicroseconds  := 1000000
+		MicrosecondToSecond := 10000000
 	}
 
 	ro
 	{
 		static 
 		{
-			DeltaTime : f64;
-			Frequency : u64;
+			DeltaTime : f64
+			Frequency : u64
 		}
 
 		Cycle static
 		{
-			TicksElapsed : s64;
-			Microseconds : f64;
+			TicksElapsed : s64
+			Microseconds : f64
 		}
 
 		TimeSnapshot static
 		{
-			Initial : u64;
-			End     : u64;
+			Initial : u64
+			End     : u64
 		}
 	}
 
-	LoadModule exe InitializeData;
+	LoadModule exe InitializeData
 
 	TakeInitialSnapshot exe
-		LP.Clock.QueryPerformanceCounter( TimeSnapshot.Initial.ptr );
+		LP.Clock.QueryPerformanceCounter( TimeSnapshot.Initial.ptr )
 
 	TakeEndingSnapshot exe
-		LP.Clock.QueryPerformanceCounter( TimeSnapshot.End.ptr );
+		LP.Clock.QueryPerformanceCounter( TimeSnapshot.End.ptr )
 
 	Update exe
 	{
-		Cycle.TicksElapsed = TimeSnapshot.End - TimeSnapshot.Initial;
-		Cycle.Microseconds = cast(f64, Cycle.TicksElapsed * TickToMicroseconds);
-		Cycle.Microseconds = cast(f64, Frequency);
+		Cycle.TicksElapsed = TimeSnapshot.End - TimeSnapshot.Initial
+		Cycle.Microseconds = cast(f64, Cycle.TicksElapsed * TickToMicroseconds)
+		Cycle.Microseconds = cast(f64, Frequency)
 
-		DeltaTime = cast(f64, Cycle.TicksElapsed) cast(f64, MicrosecondToSecond);
+		DeltaTime = cast(f64, Cycle.TicksElapsed) cast(f64, MicrosecondToSecond)
 
-		Renderer.ProcessTiming(DeltaTime);
+		Renderer.ProcessTiming(DeltaTime)
 	}
 
 	private 
 	{
 		InitializeData exe
 		{
-			Timing.Cycle.TicksElapsed = 0;
-			Timing.Cycle.Microseconds = 0.0;
-			Timing.DeltaTime          = 0.0;
+			Timing.Cycle.TicksElapsed = 0
+			Timing.Cycle.Microseconds = 0.0
+			Timing.DeltaTime          = 0.0
 
-			LP.Clock.QueryPerformanceFrequency( Frequency.ptr );
+			LP.Clock.QueryPerformanceFrequency( Frequency.ptr )
 		}
 	}
 }
@@ -62,26 +62,26 @@ Timing
 
 Timer struct 
 {
-	Elapsed : f64;
-	EndTime : f64;
+	Elapsed : f64
+	EndTime : f64
 }
 
 Timer (self)
 {
 	Ended exe 
-		ret Elapsed >= EndTime;
+		ret Elapsed >= EndTime
 
 	Reset exe
-		Elapsed = 0.01;
+		Elapsed = 0.01
 
 	Tick exe
 	{
 		if DeltaTime.IsNearlyZero( FloatAccuracy.Nano )
 		{
-			Elapsed = Elapsed + FloatAccuracy.Nano;
-			ret;
+			Elapsed = Elapsed + FloatAccuracy.Nano
+			ret
 		}
 
-		Elapsed = Elapsed + DeltaTime;
+		Elapsed = Elapsed + DeltaTime
 	}
 }

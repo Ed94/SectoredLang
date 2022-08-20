@@ -1,40 +1,40 @@
 Execution
 {
 	Flags enum (u32) {
-		Success;
-		Failure;
+		Success
+		Failure
 	}
 
 	private
 	{
 		PrepareModules exe {
-			Cycler.   LoadModule;
-			Timing.   LoadModule;
-			Input.    LoadModule;
-			Renderer. LoadModule;
-			State.    LoadModule;
+			Cycler.   LoadModule
+			Timing.   LoadModule
+			Input.    LoadModule
+			Renderer. LoadModule
+			State.    LoadModule
 		}
 		
 		Print_StartMessage exe {
-			Renderer. DLog("TBF MAS Engine");
-			Renderer. DLog("");
-			Renderer. DLog("Version: Prototype - C Translated");
+			Renderer. DLog("TBF MAS Engine")
+			Renderer. DLog("")
+			Renderer. DLog("Version: Prototype - C Translated")
 		}
 		
 		UnloadModules exe {
-			Renderer. UnloadModule;	
-			Memory  . UnloadModule;
+			Renderer. UnloadModule
+			Memory  . UnloadModule
 		}
 	}
 	
 	Entrypoint exe {
-		PrepareModules;
-		Print_StartMessage;
+		PrepareModules
+		Print_StartMessage
 		
-		Cycler.Initialize;
+		Cycler.Initialize
 		
-		UnloadModules;
+		UnloadModules
 		
-		ret Flags.Success;
+		ret Flags.Success
 	}
 }

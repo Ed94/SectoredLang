@@ -2,17 +2,17 @@ Memory
 {
 	Block struct
 	{
-		Location : ptr uw;
-		Size     :     uw;
+		Location : ptr uw
+		Size     :     uw
 	}
 
 	BlockArray struct
 	{
-		Data   : []ptr Block;
+		Data   : []ptr Block
 		Length : uw
 	}
 
-	static GlobalAllocs : BlockArray;
+	static GlobalAllocs : BlockArray
 
 	BlockArray (self)
 	{
@@ -20,50 +20,50 @@ Memory
 		{
 			if Data == null
 			{
-				heap Data : allocate(1);
+				heap Data : allocate(1)
 
 				check(Data, "Failed to globally allocate block array")
 
-				Length = 1;
+				Length = 1
 			}
 			else
 			{
 				stack {
-					newSize  : u32       = Length + 1;
-					newBlock : ptr Block = null;
+					newSize  : u32       = Length + 1
+					newBlock : ptr Block = null
 				}
 
-				heap newBlock : allocate(newSize);
+				heap newBlock : allocate(newSize)
 				if   newBlock
 				{
-					Format.Set(newBlock, Data, Length);
+					Format.Set(newBlock, Data, Length)
 
-					Data = newBlock;
+					Data = newBlock
 				}
 				
-				else throw("Failed to globally reallocate block array");
+				else throw("Failed to globally reallocate block array")
 			}
 
-			heap Data[Length - 1] : allocate(1);
-			ret  Data[Length - 1];
+			heap Data[Length - 1] : allocate(1)
+			ret  Data[Length - 1]
 		}
 
 		(allocator)
 		{
-			(tt Type : type)
+			(Type : tt type)
 			{
 				// ResolvedSymbol: Memory.BlockArray.allocate (self, heap, tt Type : type, numDesired : uw) -> ptr Type exe
 				allocate (numDesired : uw) -> ptr Type exe
 				{
-					stack newBlock : ptr Block = Add();
+					stack newBlock : ptr Block = Add()
 
-					newBlock.Size = numDesired * Type.sizeof;
+					newBlock.Size = numDesired * Type.sizeof
 					
-					heap newBlock.Location : allocate(numDesired * Type.sizeof);
+					heap newBlock.Location : allocate(numDesired * Type.sizeof)
 
 					check(newBlock.Location, "Failed to allocate block")
 
-					ret cast(ptr Type, newBlock.Location);
+					ret cast(ptr Type, newBlock.Location)
 				}
 
 				resize(address : ptr Type, numDesired : uw) -> ptr Type exe
@@ -74,17 +74,17 @@ Memory
 							ret null
 
 						if Data[index].Location == address
-							break;
+							break
 					}
 
-					stack newLocation : ptr uw = null;
-					heap  newLocation : allocate(numDesired * Type.sizeof);
+					stack newLocation : ptr uw = null
+					heap  newLocation : allocate(numDesired * Type.sizeof)
 
 					check(newLocation, "Failed to resize block")
 
-					heap Data[index].Location : free();
+					heap Data[index].Location : free()
 
-					Data[index].Location = newLocation;
+					Data[index].Location = newLocation
 
 					ret cast(ptr Type, Data[index].Location)
 				}
@@ -92,31 +92,31 @@ Memory
 
 			wipe exe
 			{
-				stack   index : uw = 0; 
+				stack   index : uw = 0
 				loop if index == Length
 				{
 					heap 
 					{
-						Data[index].Location : free();
-						Data[index]          : free();
+						Data[index].Location : free()
+						Data[index]          : free()
 					}
 				}
 
-				heap Data : free();
+				heap Data : free()
 			}
 		}
 	} // BlockArray (self)
 
 	(allocator)
 	{
-		(tt Type : type)
+		(Type : tt type)
 		{
 			allocate (numDesired : uw) -> ptr Type exe
 			{
-				stack        allocedMemory : ptr Type = null;
-				GlobalAllocs allocedMemory : allocate(Type, numDesired);
+				stack                  allocedMemory : ptr Type = null
+				allocator GlobalAllocs allocedMemory : allocate(Type, numDesired)
 
-				check(allocedMemory, "Failed to globally allocate memory");
+				check(allocedMemory, "Failed to globally allocate memory")
 
 				ret allocedMemory
 			}
@@ -129,18 +129,18 @@ Memory
 						ret null
 
 					if GlobalAllocs.Data[index].Location == address
-						break;
+						break
 				}
 
-				stack        resizedMemory : ptr Type = null;
-				GlobalAllocs resizedMemory : resize(Type, numDesired);
+				stack                  resizedMemory : ptr type = null
+				allocator GlobalAllocs resizedMemory : resize(Type, numDesired)
 
-				check(resizedMemory, "Failed to globally reallocate memory");
+				check(resizedMemory, "Failed to globally reallocate memory")
 
-				ret resizedMemory;
+				ret resizedMemory
 			}
 		}
 
-		wipe exe GlobalAllocs : wipe;
+		wipe exe allocator GlobalAllocs wipe
 	}
 }

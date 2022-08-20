@@ -12,8 +12,9 @@ const NType = \
 	
 	enum_Element = "Enumeration Element",
 
-	expr     = "Expression",
-	expr_cap = "Capture",
+	expr       = "Expression",
+	expr_Cap   = "Capture",
+	expr_SBCap = "Bracketed Capture",
 	
 	op_Call   = "Op: Call",
 	op_CD     = "Op: Comma Delimiter",
@@ -38,11 +39,14 @@ const NType = \
 	op_BSR  = "Op: Bitshift Right",
 	
 	op_Assign   = "Op: Assign",
+	op_A_Add    = "Op: Assign Add",
+	
 	op_Add      = "Op: Add",
 	op_Subtract = "Op: Subtract",
 	op_Multiply = "Op: Multiply",
 	op_Divide   = "Op: Divide",
 	op_Modulo   = "Op: Modulo",
+	op_UnaryNeg = "Op: Unary Negation",
 	
 	op_Equal        = "Op: Equal",
 	op_NotEqual     = "Op: NotEqual",
@@ -61,6 +65,7 @@ const NType = \
 	literal_Char    = "Literal: Char",
 	literal_String  = "Literal: String",
 	
+	sec_Allocator  = "Sector: Allocator",
 	sec_Cap        = "Sector: Capture",
 	sec_CapArgs    = "Capture Sector - Arguments",
 	sec_CapRet     = "Capture Sector - Return Map",
@@ -79,6 +84,7 @@ const NType = \
 	sec_SwitchCase = "Switch Sector - Case",
 	sec_TT         = "Sector: Translation Time",
 	sec_Type       = "Sector: Type",
+	sec_Union      = "Sector: Union",
 	sec_Identifier = "Sector: Identifier",
 	
 	builtin_bool   = "GD: bool",
@@ -88,9 +94,13 @@ const NType = \
 	builtin_Dict   = "GD: Dictionary",
 	builtin_string = "GD: String",
 	
+	sym_Array      = "Symbol: Array",
+	sym_LP         = "Symbol: Language Platform",
 	sym_Proc       = "Symbol: Procedure",
 	sym_Ptr        = "Symbol: Pointer",
 	sym_Self       = "Symbol: Self",
+	sym_TType      = "Symbol: Top Type",
+	sym_TT_Type    = "Symbol: Translation Time Type",
 
 	sym_Identifier = "Symbol: Identifier",
 }
@@ -170,7 +180,7 @@ func eat( tokenType ):
 	if G.check(currToken != null, "Tok was null"):
 		return null
 	
-	var assertStrTmplt = "Unexpected token: {value}, expected: {type}"
+	var assertStrTmplt = "Unexpected token: {value} , expected: {type}"
 	var assertStr      = assertStrTmplt.format({"value" : currToken.Value, "type" : tokenType})
 		
 	if G.check(currToken.Type == tokenType, assertStr):
@@ -204,8 +214,16 @@ func parse_unit() -> ASTNode:
 				node.add_Entry( parse_sec_Exe() )
 				matched = true
 				
+			TType.sym_RO:
+				node.add_Entry( parse_sec_Readonly() )
+				matched = true
+				
 			TType.sec_Static:
 				node.add_Entry( parse_sec_Static() )
+				matched = true
+				
+			TType.sec_Switch:
+				node.add_Entry( parse_sec_Switch() )
 				matched = true
 								
 			TType.sym_TT:
@@ -215,11 +233,6 @@ func parse_unit() -> ASTNode:
 			
 			TType.sym_Identifier:
 				node.add_Entry( parse_sec_Identifier() )
-				matched = true
-
-			# Empty statement
-			TType.def_End:
-				eat(TType.def_End)
 				matched = true
 
 		if !matched:
@@ -236,6 +249,7 @@ func parse_unit() -> ASTNode:
 			
 	return node
 
+#region Sectors
 func parse_sec_Capture() -> ASTNode:
 	var \
 	node = ASTNode.new()
@@ -249,7 +263,7 @@ func parse_sec_Capture() -> ASTNode:
 		node.add_Entry( parse_sec_CaptureReturnMap() )
 	
 	var result = chk_Tok(TType.def_Start)
-	if result == null:
+	if  result == null:
 		return node
 		
 	if result:
@@ -259,29 +273,29 @@ func parse_sec_Capture() -> ASTNode:
 			match Tok.Type:
 				TType.cap_PStart:
 					node.add_Entry( parse_sec_Capture() )
-#					eat(TType.def_End)
 			
 			#region LP_Sectors
 				TType.sym_Exe:
 					node.add_Entry( parse_sec_Exe() )
-#					eat(TType.def_End)
 				
 				TType.sec_If:
 					node.add_Entry( parse_sec_Conditional() )
-#					eat(TType.def_End)
+					
+				TType.sym_RO:
+					node.add_Entry( parse_sec_Readonly() )
 					
 				TType.sec_Static:
 					node.add_Entry( parse_sec_Static() )
-#					eat(TType.def_End)
+					
+				TType.sec_Switch:
+					node.add_Entry( parse_sec_Switch() )
 				
 				TType.sym_TT:
 					node.add_Entry( parse_sec_TranslationTime() )
-#					eat(TType.def_End)
 			#endregion LP_Sectors
 					
 				TType.sym_Identifier:
 					node.add_Entry( parse_sec_Identifier() )
-#					eat(TType.def_End)
 
 				_:
 					var error = G.Error.new(false, "Failed to match token.")
@@ -301,16 +315,19 @@ func parse_sec_Capture() -> ASTNode:
 				
 			TType.sec_If:
 				node.add_Entry( parse_sec_Conditional() )
+				
+			TType.sym_RO:
+				node.add_Entry( parse_sec_Readonly() )
 			
 			TType.sec_Static:
 				node.add_Entry( parse_sec_Static() )
 				
+			TType.sec_Switch:
+				node.add_Entry( parse_sec_Switch() )
+				
 			TType.sym_TT:
 				node.add_Entry( parse_sec_TranslationTime() )
 		#endregion LP_Sectors
-			
-			TType.sym_Exe:
-				node.add_Entry( parse_sec_Exe() )
 				
 			TType.sym_Identifier:
 				node.add_Entry( parse_sec_Identifier() )
@@ -325,21 +342,25 @@ func parse_sec_CaptureArgs() -> ASTNode:
 	eat(TType.cap_PStart)
 	
 	while ! chk_Tok(TType.cap_PEnd):
-		var symbol
-		match Tok.Type:
+		match Tok.Type:	
 			TType.sym_Self:
-				symbol = parse_Simple(NType.sym_Self, TType.sym_Self)
+				var symbol = parse_Simple(NType.sym_Self, TType.sym_Self)
+				node.add_Entry( symbol )
 				
 			TType.sym_Identifier:
-				symbol = parse_sym_Identifier()
+				var symbols = []
+				while Tok.Type == TType.sym_Identifier:
+					symbols.append( parse_sym_Identifier() )
 				
 				if Tok.Type != TType.op_CD:
 					var type = parse_sec_Type(TType.op_Define)
 					
-					symbol.add_Entry( type )
+					for symbol in symbols:
+						symbol.add_Entry( type )
+						
+				for symbol in symbols:
+					node.add_Entry( symbol )
 
-		node.add_Entry(symbol)
-		
 		match chk_Tok(TType.op_CD):
 			true: eat(TType.op_CD)
 			null: return node
@@ -354,11 +375,132 @@ func parse_sec_CaptureReturnMap() -> ASTNode:
 	node.set_Type(NType.sec_CapRet)
 	eat(TType.op_Map)
 	
-	node.add_Entry( parse_expr_Call() )
-				
+	match Tok.Type:
+		TType.sym_gd_Bool   : node.add_Entry(NType.builtin_bool);   eat(TType.sym_gd_Bool)
+		TType.sym_gd_Int    : node.add_Entry(NType.builtin_int);    eat(TType.sym_gd_Int)
+		TType.sym_gd_Float  : node.add_Entry(NType.builtin_float);  eat(TType.sym_gd_Float)
+		TType.sym_gd_String : node.add_Entry(NType.builtin_string); eat(TType.sym_gd_String)
+		
+		TType.sym_Identifier : node.add_Entry( parse_sym_Identifier() )
+		TType.sym_Exe        : node.add_Entry( parse_sym_Proc() )
+		TType.sym_Ptr        : node.add_Entry( parse_sym_Ptr() )
+		TType.cap_SBStart    : node.add_Entry( parse_sym_CapSB() )
+		TType.cap_PStart     : node.add_Entry( parse_Expression() )
+		
+	var result = chk_Tok( TType.def_Start )
+	if result == null:
+		return node
+		
+	if result:
+		eat(TType.def_Start)
+		
+		while Tok.Type != TType.def_End:
+			match Tok.Type:
+				TType.cap_PStart:
+					node.add_Entry( parse_sec_Capture() )
+
+			#region LP_Sectors
+				TType.sym_Exe:
+					node.add_Entry( parse_sec_Exe() )
+	
+				TType.sec_Static:
+					node.add_Entry( parse_sec_Static() )
+
+				TType.sec_Switch:
+					node.add_Entry( parse_sec_Switch() )
+					
+				TType.sym_TT:
+					node.add_Entry( parse_sec_TranslationTime() )
+			#endregion LP_Sectors
+
+				TType.sym_Identifier:
+					node.add_Entry( parse_sec_Identifier() )
+	else:
+		match Tok.Type:
+			TType.cap_PStart:
+				node.add_Entry( parse_sec_Capture() )
+
+		#region LP_Sectors
+			TType.sym_Exe:
+				node.add_Entry( parse_sec_Exe() )
+	
+			TType.sec_Static:
+				node.add_Entry( parse_sec_Static() )
+
+			TType.sec_Switch:
+				node.add_Entry( parse_sec_Switch() )
+					
+			TType.sym_TT:
+				node.add_Entry( parse_sec_TranslationTime() )
+		#endregion LP_Sectors
+
+			TType.sym_Identifier:
+				node.add_Entry( parse_sec_Identifier() )
+					
 	return node
 	
 #region LP_Sectors
+func parse_sec_Allocator() -> ASTNode:
+	var \
+	node = ASTNode.new()
+	node.set_Type( NType.sec_Allocator )
+	eat(TType.sym_Allocator)
+	
+	node.add_Entry( parse_expr_Call() )
+	
+	var result = chk_Tok( TType.def_Start )
+	if result == null:
+		return node
+	
+	if result:
+		eat(TType.def_Start)
+		
+		while Tok.Type != TType.def_End:
+			var identifier = parse_expr_Call()
+			var op         = parse_sec_AllocatorOp()
+			
+			node.add_Entry(identifier)
+			node.add_Entry(op)
+		
+		eat(TType.def_End)
+		
+	else:
+		var identifier = parse_expr_Call()
+		var op         = parse_sec_AllocatorOp()
+			
+		node.add_Entry(identifier)
+		node.add_Entry(op)
+	
+	return node
+	
+func parse_sec_AllocatorOp() -> ASTNode:
+	eat(TType.op_Define)
+	
+	var \
+	node = ASTNode.new()
+	node.set_Type(Tok.Type)
+	
+	match Tok.Type:
+		TType.op_Alloc:
+			eat(TType.op_Alloc)
+			
+			if Tok.Type == TType.cap_PStart:
+				node.add_Entry( parse_expr_Capture() )
+			
+		TType.op_Resize:
+			eat(TType.op_Resize)
+			
+			if Tok.Type == TType.cap_PStart:
+				node.add_Entry( parse_expr_Capture() )
+				
+		TType.op_Free:
+			eat(TType.op_Free)
+			
+		TType.op_Wipe:
+			eat(TType.op_Wipe)
+	
+	return node
+
 func parse_sec_Conditional() -> ASTNode:
 	var \
 	node = ASTNode.new()
@@ -386,29 +528,29 @@ func parse_sec_ConditionalBody(node):
 			match Tok.Type:
 				TType.cap_PStart:
 					node.add_Entry( parse_sec_Capture() )
-#					eat(TType.def_End)
 			
 			#region LP_Sectors
 				TType.sym_Exe:
 					node.add_Entry( parse_sec_Exe() )
-#					eat(TType.def_End)
 				
 				TType.sec_If:
 					node.add_Entry( parse_sec_Conditional() )
-#					eat(TType.def_End)
+					
+				TType.sym_RO:
+					node.add_Entry( parse_sec_Readonly() )
+					
+				TType.sec_Switch:
+					node.add_Entry( parse_sec_Switch() )
 					
 				TType.sec_Static:
 					node.add_Entry( parse_sec_Static() )
-#					eat(TType.def_End)
 				
 				TType.sym_TT:
 					node.add_Entry( parse_sec_TranslationTime() )
-#					eat(TType.def_End)
 			#endregion LP_Sectors
 					
 				TType.sym_Identifier:
 					node.add_Entry( parse_sec_Identifier() )
-#					eat(TType.def_End)
 
 				_:
 					var error = G.Error.new(false, "Failed to match token.")
@@ -428,7 +570,10 @@ func parse_sec_ConditionalBody(node):
 				
 			TType.sec_If:
 				node.add_Entry( parse_sec_Conditional() )
-					
+				
+			TType.sym_RO:
+				node.add_Entry( parse_sec_Readonly() )
+				
 			TType.sec_Static:
 				node.add_Entry( parse_sec_Static() )
 				
@@ -463,16 +608,16 @@ func parse_sec_Enum() -> ASTNode:
 		while Tok.Type != TType.def_End:
 			if Tok.Type == TType.sym_Identifier:
 				node.add_Entry( parse_sec_EnumElement() )
-#				eat(TType.def_End)
 			else:
 				var error = G.Error.new(false, "Failed to match token.")
 				G.throw(error)
 				return null
+				
+		eat(TType.def_End)
 		
 	else:
 		if Tok.Type == TType.sym_Identifier:
 			node.add_Entry( parse_sec_EnumElement() )
-#			eat(TType.def_End)
 		
 	return node
 	
@@ -494,13 +639,17 @@ func parse_sec_Exe() -> ASTNode:
 	node.set_Type(NType.sec_Exe)
 	eat(TType.sym_Exe)
 	
+	if Tok.Type == TType.def_End:
+		eat(TType.def_End)
+		return node
+	
 	parse_sec_ExeBody(node)
 	
 	return node
 		
 func parse_sec_ExeBody(node):
 	var result = chk_Tok(TType.def_Start)
-	if result == null:
+	if  result == null:
 		return
 		
 	if result:
@@ -509,26 +658,36 @@ func parse_sec_ExeBody(node):
 		while Tok.Type != TType.def_End:
 			var matched = false
 			match Tok.Type:
+				TType.sym_Allocator:
+					node.add_Entry( parse_sec_Allocator() )
+					matched = true
+				
 				TType.op_Break:
 					node.add_Entry( parse_op_Break() )
-#					eat(TType.def_End)
 					matched = true
 				
 				TType.sec_If:
 					node.add_Entry( parse_sec_ExeConditional() )
-#					eat(TType.def_End)
+					matched = true
+					
+				TType.sec_Heap:
+					node.add_Entry( parse_sec_Heap() )
 					matched = true
 					
 				TType.sec_Loop:
 					node.add_Entry( parse_sec_Loop() )
 					matched = true
-					
-				TType.sec_Switch:
-					node.add_Entry( parse_sec_Switch() )
-					matched = true
-					
+
 				TType.op_Return:
 					node.add_Entry( parse_op_Return() )
+					matched = true
+					
+				TType.sec_Stack:
+					node.add_Entry( parse_sec_Stack() )
+					matched = true
+					
+				TType.sec_Switch:
+					node.add_Entry( parse_sec_ExeSwitch() )
 					matched = true
 			
 			if ! matched:
@@ -537,12 +696,6 @@ func parse_sec_ExeBody(node):
 				if expression != null:
 					node.add_Entry( expression )
 					
-				result = chk_Tok(TType.def_End)
-				if result == null || result == true:
-					return node
-					
-#				eat(TType.def_End)
-
 		eat(TType.def_End)
 		
 	else:
@@ -555,9 +708,13 @@ func parse_sec_ExeBody(node):
 			TType.sec_Loop:
 				node.add_Entry( parse_sec_Loop() )
 				matched = true
+				
+			TType.op_Return:
+				node.add_Entry( parse_op_Return() )
+				matched = true
 					
 			TType.sec_Switch:
-				node.add_Entry( parse_sec_Switch() )
+				node.add_Entry( parse_sec_ExeSwitch() )
 				matched = true
 
 		if ! matched:
@@ -565,6 +722,8 @@ func parse_sec_ExeBody(node):
 		
 			if expression != null:
 				node.add_Entry( expression )
+				
+	return
 
 func parse_sec_ExeConditional() -> ASTNode:
 	var \
@@ -574,30 +733,65 @@ func parse_sec_ExeConditional() -> ASTNode:
 	
 	node.add_Entry( parse_Expression() )
 	
-	var result = chk_Tok(TType.def_Start)
-	if result == null:
-		return null
-		
 	var \
 	ifBlock = ASTNode.new()
 	ifBlock.set_Type(NType.sec_Exe)
 	
 	parse_sec_ExeBody(ifBlock)
-	
 	node.add_Entry(ifBlock)
-
-	result = chk_Tok(TType.def_Start)
-	if result == null || result == false:
+	
+	if Tok.Type != TType.sec_Else:
 		return node
-			
+		
+	eat(TType.sec_Else)
+		
 	var \
 	elseBlock = ASTNode.new()
 	elseBlock.set_Type(NType.sec_Exe)
-	
+		
 	parse_sec_ExeBody(elseBlock)
-	eat(TType.def_End)
-	
 	node.add_Entry(elseBlock)
+	
+	return node
+
+func parse_sec_ExeSwitch() -> ASTNode:
+	var \
+	node = ASTNode.new()
+	node.set_Type(NType.sec_Switch)
+	eat(TType.sec_Switch)
+	
+	node.add_Entry( parse_Expression() )
+	
+	var result = chk_Tok( TType.def_Start )
+	if result == null:
+		return node
+		
+	if result:
+		eat(TType.def_Start)
+		
+		while Tok.Type != TType.def_End:
+			var \
+			scNode = ASTNode.new()
+			scNode.set_Type(NType.sec_SwitchCase)
+	
+			scNode.add_Entry( parse_Expression() )
+	
+			parse_sec_ExeBody(scNode)
+			
+			node.add_Entry( scNode )
+			
+		eat(TType.def_End)
+	
+	else:
+		var \
+		scNode = ASTNode.new()
+		scNode.set_Type(NType.sec_SwitchCase)
+	
+		scNode.add_Entry( parse_Expression() )
+	
+		parse_sec_ExeBody(scNode)
+			
+		node.add_Entry( scNode )
 	
 	return node
 
@@ -616,30 +810,21 @@ func parse_sec_Heap() -> ASTNode:
 		
 		while Tok.Type != TType.def_End:
 			var identifier = parse_sym_Identifier()
-			var op         = parse_sec_HeapOp()
+			var op         = parse_sec_AllocatorOp()
 			
 			node.add_Entry(identifier)
 			node.add_Entry(op)
 			
-			eat( TType.def_End )
+		eat( TType.def_End )
 		
 	else:
 		var identifier = parse_sym_Identifier()
-		var op         = parse_sec_HeapOp()
+		var op         = parse_sec_AllocatorOp()
 			
 		node.add_Entry(identifier)
 		node.add_Entry(op)
 	
 	return node
-	
-func parse_sec_HeapOp() -> ASTNode:
-	eat(TType.op_Define)
-	
-	var \
-	node = ASTNode.new()
-
-	
-	return null
 
 func parse_sec_Loop() -> ASTNode:
 	var \
@@ -666,6 +851,55 @@ func parse_sec_Readonly() -> ASTNode:
 	node.set_Type(NType.sec_RO)
 	eat(TType.sym_RO)
 	
+	var result = chk_Tok(TType.def_Start)
+	if  result == null:
+		return node
+		
+	if result:
+		eat(TType.def_Start)
+		
+		while Tok.Type != TType.def_End:
+			match Tok.Type:
+				TType.cap_PStart:
+					node.add_Entry( parse_sec_Capture() )
+					
+			#region LP_Sectors
+				TType.sec_If:
+					node.add_Entry( parse_sec_Conditional() )
+					
+				TType.sec_Static:
+					node.add_Entry( parse_sec_Static() )
+			#endregion LP_Sectors
+					
+				TType.sym_Identifier:
+					node.add_Entry( parse_sec_Identifier() )
+
+				_:
+					var error = G.Error.new(false, "Failed to match token.")
+					G.throw(error)
+					return null
+					
+		eat(TType.def_End)
+		
+	else:
+		match Tok.Type:
+			TType.cap_PStart:
+				node.add_Entry( parse_sec_Capture() )
+			
+		#region LP_Sectors
+			TType.sym_Exe:
+				node.add_Entry( parse_sec_Exe() )
+				
+			TType.sec_If:
+				node.add_Entry( parse_sec_Conditional() )
+			
+			TType.sec_Static:
+				node.add_Entry( parse_sec_Static() )
+		#endregion LP_Sectors
+
+			TType.sym_Identifier:
+				node.add_Entry( parse_sec_Identifier() )
+
 	return node
 
 func parse_sec_Stack() -> ASTNode:
@@ -675,28 +909,41 @@ func parse_sec_Stack() -> ASTNode:
 	eat(TType.sec_Stack)
 	
 	var result = chk_Tok( TType.def_Start )
-	if result == null:
+	if  result == null:
 		return node
 		
 	if result:
 		eat(TType.def_Start)
 		
 		while Tok.Type != TType.def_End:
-			var identifier = parse_sym_Identifier()
-			var type       = parse_sec_Type(TType.op_Define)
+			var \
+			identifiers = []
+			identifiers.append( parse_sym_Identifier() )
 			
-			identifier.add_Entry( type )
+			while Tok && Tok.Type == TType.op_CD:
+				eat(TType.op_CD)
+				identifiers.append( parse_sym_Identifier() )
+				
+			var type = parse_sec_Type(TType.op_Define)
 			
-			node.add_Entry(identifier)
+			for identifier in identifiers:
+				identifier.add_Entry( type )
+				node.add_Entry(identifier)
+			
 		eat( TType.def_End )
 		
 	else:
-		var identifier = parse_sym_Identifier()
-		var type       = parse_sec_Type(TType.op_Define)
-		
-		identifier.add_Entry( type )
-		
-		node.add_Entry(identifier)
+		var identifiers = []
+		identifiers.append( parse_sym_Identifier() )
+		while Tok && Tok.Type == TType.op_CD:
+			eat(TType.op_CD)
+			identifiers.append( parse_sym_Identifier() )
+				
+		var type = parse_sec_Type(TType.op_Define)
+			
+		for identifier in identifiers:
+			identifier.add_Entry( type )
+			node.add_Entry(identifier)
 	
 	return node
 
@@ -707,28 +954,43 @@ func parse_sec_Static() -> ASTNode:
 	eat(TType.sec_Static)
 	
 	var result = chk_Tok( TType.def_Start )
-	if result == null:
+	if  result == null:
 		return node
 		
 	if result:
 		eat(TType.def_Start)
 		
 		while Tok.Type != TType.def_End:
-			var identifier = parse_sym_Identifier()
-			var type       = parse_sec_Type(TType.op_Define)
+			var \
+			identifiers = []
+			identifiers.append( parse_sym_Identifier() )
 			
-			identifier.add_Entry( type )
+			while Tok && Tok.Type == TType.op_CD:
+				eat(TType.op_CD)
+				identifiers.append( parse_sym_Identifier() )
+				
+			var type = parse_sec_Type(TType.op_Define)
 			
-			node.add_Entry(identifier)
+			for identifier in identifiers:
+				identifier.add_Entry( type )
+				node.add_Entry(identifier)
+			
 		eat( TType.def_End )
 		
 	else:
-		var identifier = parse_sym_Identifier()
-		var type       = parse_sec_Type(TType.op_Define)
+		var \
+		identifiers = []
+		identifiers.append( parse_sym_Identifier() )
 		
-		identifier.add_Entry( type )
-		
-		node.add_Entry(identifier)
+		while Tok && Tok.Type == TType.op_CD:
+			eat(TType.op_CD)
+			identifiers.append( parse_sym_Identifier() )
+				
+		var type = parse_sec_Type(TType.op_Define)
+			
+		for identifier in identifiers:
+			identifier.add_Entry( type )
+			node.add_Entry(identifier)
 	
 	return node
 	
@@ -750,6 +1012,7 @@ func parse_sec_Struct() -> ASTNode:
 		
 		identifier.add_Entry(type)
 		node.add_Entry(identifier)
+		
 	eat(TType.def_End)
 	
 	return node
@@ -771,6 +1034,7 @@ func parse_sec_Switch() -> ASTNode:
 		
 		while Tok.Type != TType.def_End:
 			node.add_Entry( parse_sec_SwitchCase() )
+			
 		eat(TType.def_End)
 	
 	else:
@@ -785,7 +1049,70 @@ func parse_sec_SwitchCase() -> ASTNode:
 	
 	node.add_Entry( parse_Expression() )
 	
-	parse_sec_ExeBody(node)
+	var result = chk_Tok( TType.def_Start )
+	if result == null:
+		return node
+		
+	if result:
+		eat(TType.def_Start)
+		
+		while Tok.Type != TType.def_End:
+			match Tok.Type:
+				TType.cap_PStart:
+					node.add_Entry( parse_sec_Capture() )
+						
+			#region LP_Sectors
+				TType.sec_If:
+					node.add_Entry( parse_sec_Conditional() )
+							
+				TType.sym_Exe:
+					node.add_Entry( parse_sec_Exe() )
+							
+				TType.sym_RO:
+					node.add_Entry( parse_sec_Readonly() )
+							
+				TType.sec_Static:
+					node.add_Entry( parse_sec_Static() )
+							
+				TType.sec_Switch:
+					node.add_Entry( parse_sec_Switch() )
+											
+				TType.sym_TT:
+					node.add_Entry( parse_sec_TranslationTime() )
+				#endregion LP_Sectors
+			
+				TType.sym_Identifier:
+					node.add_Entry( parse_sec_Identifier() )
+						
+		eat(TType.def_End)
+		
+	else:
+		match Tok.Type:
+			TType.cap_PStart:
+				node.add_Entry( parse_sec_Capture() )
+						
+		#region LP_Sectors
+			TType.sec_If:
+				node.add_Entry( parse_sec_Conditional() )
+							
+			TType.sym_Exe:
+				node.add_Entry( parse_sec_Exe() )
+							
+			TType.sym_RO:
+				node.add_Entry( parse_sec_Readonly() )
+							
+			TType.sec_Static:
+				node.add_Entry( parse_sec_Static() )
+							
+			TType.sec_Switch:
+				node.add_Entry( parse_sec_Switch() )
+											
+			TType.sym_TT:
+				node.add_Entry( parse_sec_TranslationTime() )
+			#endregion LP_Sectors
+			
+			TType.sym_Identifier:
+				node.add_Entry( parse_sec_Identifier() )
 	
 	return node
 
@@ -809,55 +1136,25 @@ func parse_sec_TranslationTime() -> ASTNode:
 		
 		while Tok.Type != TType.def_End:
 			match Tok.Type:
-				TType.cap_PStart:
-					node.add_Entry( parse_sec_Capture() )
-#					eat(TType.def_End)
-				
-			#region LP_Sectors
-				TType.sym_Enum:
-					node.add_Entry( parse_sec_Enum() )
-#					eat(TType.def_End)
-					
-				TType.sym_Exe:
-					node.add_Entry( parse_sec_Exe() )
-#					eat(TType.def_End)
-					
+			#region LP_Sectors	
 				TType.sec_Static:
 					node.add_Entry( parse_sec_Static() )
-#					eat(TType.def_End)
 			#endregion LP_Sectors
-
-				TType.sym_Identifier:
-					node.add_Entry( parse_sec_Identifier() )
-#					eat(TType.def_End)
-
 				_:
 					var error = G.Error.new(false, "Failed to match token.")
 					G.throw(error)
 					return null
+					
 		eat(TType.def_End)
 
 	else:
 		match Tok.Type:
-			TType.cap_PStart:
-				node.add_Entry( parse_sec_Capture() )
-				
 		#region LP_Sectors
-			TType.sym_Enum:
-				node.add_Entry( parse_sec_Enum() )
-				
-			TType.sym_Exe:
-				node.add_Entry( parse_sec_Exe() )
-			
 			TType.sec_Static:
 				node.add_Entry( parse_sec_Static() )
 		#endregion LP_Sectors
-		
-			TType.sym_Identifier:
-				node.add_Entry( parse_sec_Identifier() )
 
 	return node
-#endregion LP_Sectors
 
 func parse_sec_Type(typeTok : String) -> ASTNode:
 	var \
@@ -895,19 +1192,49 @@ func parse_sec_Type(typeTok : String) -> ASTNode:
 			TType.sym_gd_Float  : node.add_Entry(NType.builtin_float);  eat(TType.sym_gd_Float)
 			TType.sym_gd_String : node.add_Entry(NType.builtin_string); eat(TType.sym_gd_String)
 		
-			TType.sym_Identifier : node.add_Entry( parse_sym_Identifier() )
-			TType.cap_PStart     : node.add_Entry( parse_sym_Proc() )
+			TType.sym_Identifier : node.add_Entry( parse_expr_Call() )
 			TType.sym_Exe        : node.add_Entry( parse_sym_Proc() )
 			TType.sym_Ptr        : node.add_Entry( parse_sym_Ptr() )
 			TType.cap_SBStart    : node.add_Entry( parse_sym_CapSB() )
-	
-		if Tok.Type == TType.op_Assign:
+			TType.sym_TT         : node.add_Entry( parse_sym_TT_Type() )
+
+		if Tok && Tok.Type == TType.op_Assign:
 			eat(TType.op_Assign)
 			
-			node.add_Entry( parse_expr_Element() )
+			node.add_Entry( parse_Expression() )
 
 	return node
+
+func parse_sec_Union() -> ASTNode:
+	var \
+	node = ASTNode.new()
+	node.set_Type(NType.sec_Union)
+	eat(TType.sec_Union)
 	
+	if Tok.Type == TType.cap_PStart:
+		eat(TType.cap_PStart)
+		
+		node.add_Entry( parse_sym_Identifier() )
+		
+		eat(TType.cap_PEnd)
+	
+	var result = chk_Tok( TType.def_Start )
+	if result == null || result == false:
+		return node
+		
+	eat(TType.def_Start)
+	
+	while !chk_Tok(TType.def_End):
+		var identifier = parse_sym_Identifier()
+		var type       = parse_sec_Type(TType.op_Define)
+		
+		identifier.add_Entry(type)
+		node.add_Entry(identifier)
+		
+	eat(TType.def_End)
+	
+	return node
+
 func parse_sec_Identifier() -> ASTNode:
 	var \
 	node = ASTNode.new()
@@ -919,7 +1246,8 @@ func parse_sec_Identifier() -> ASTNode:
 	node.add_TokVal(Tok)
 	eat(TType.sym_Identifier)
 	
-	if Tok == null:
+	if Tok == null || Tok.Type == TType.def_End:
+		eat(TType.def_End)
 		return node
 		
 	# Check for body
@@ -930,37 +1258,41 @@ func parse_sec_Identifier() -> ASTNode:
 			match Tok.Type:
 				TType.cap_PStart:
 					node.add_Entry( parse_sec_Capture() )
-#					eat(TType.def_End)
+					
+				TType.op_Map:
+					node.add_Entry( parse_sec_CaptureReturnMap() )
 				
 			#region LP_Sectors
 				TType.sym_Enum:
 					node.add_Entry( parse_sec_Enum() )
-#					eat(TType.def_End)
 					
 				TType.sym_Exe:
 					node.add_Entry( parse_sec_Exe() )
-#					eat(TType.def_End)
+					
+				TType.sym_RO:
+					node.add_Entry( parse_sec_Readonly() )
 					
 				TType.sec_Static:
 					node.add_Entry( parse_sec_Static() )
-#					eat(TType.def_End)
 					
 				TType.sec_Struct:
 					node.add_Entry( parse_sec_Struct() )
-#					eat(TType.def_End)
+				
+				TType.sec_Switch:
+					node.add_Entry( parse_sec_Switch() )
 					
 				TType.sym_TT:
 					node.add_Entry( parse_sec_TranslationTime() )
-#					eat(TType.def_End)
 			#endregion LP_Sectors
 
 				TType.sym_Identifier:
 					node.add_Entry( parse_sec_Identifier() )
-#					eat(TType.def_End)
 					
 				TType.sym_Type:
 					node.add_Entry( parse_sec_Type(TType.sym_Type) )
-#					eat(TType.def_End)
+				
+				TType.sec_Union:
+					node.add_Entry( parse_sec_Union() )
 					
 				_:
 					var error = G.Error.new(false, "Failed to match token.")
@@ -974,6 +1306,9 @@ func parse_sec_Identifier() -> ASTNode:
 			TType.cap_PStart:
 				node.add_Entry( parse_sec_Capture() )
 				
+			TType.op_Map:
+				node.add_Entry( parse_sec_CaptureReturnMap() )
+				
 		#region LP_Sectors
 			TType.sym_Enum:
 				node.add_Entry( parse_sec_Enum() )
@@ -981,11 +1316,17 @@ func parse_sec_Identifier() -> ASTNode:
 			TType.sym_Exe:
 				node.add_Entry( parse_sec_Exe() )
 				
+			TType.sym_RO:
+				node.add_Entry( parse_sec_Readonly() )
+				
 			TType.sec_Struct:
 				node.add_Entry( parse_sec_Struct() )
 			
 			TType.sec_Static:
 				node.add_Entry( parse_sec_Static() )
+			
+			TType.sec_Switch:
+				node.add_Entry( parse_sec_Switch() )
 				
 			TType.sym_TT:
 				node.add_Entry( parse_sec_TranslationTime() )
@@ -996,8 +1337,12 @@ func parse_sec_Identifier() -> ASTNode:
 							
 			TType.sym_Type:
 				node.add_Entry( parse_sec_Type(TType.sym_Type) )
+			
+			TType.sec_Union:
+				node.add_Entry( parse_sec_Union() )
 
 	return node
+#endregion Sectors
 
 #region Expressions
 func parse_Expression() -> ASTNode:
@@ -1007,7 +1352,7 @@ func parse_expr_Binary_tok(elementFn : Callable, tType : String, nType) -> ASTNo
 	var left = elementFn.call()
 	
 	# If there is no assign its just an element.
-	if Tok.Type != tType:
+	if Tok == null || Tok.Type != tType:
 		return left
 		
 	var \
@@ -1015,7 +1360,7 @@ func parse_expr_Binary_tok(elementFn : Callable, tType : String, nType) -> ASTNo
 	node.set_Type(nType)
 	eat(tType)
 	
-	var right = elementFn.call()
+	var right = parse_Expression()
 
 	node.add_Entry(left)
 	node.add_Entry(right)
@@ -1024,7 +1369,7 @@ func parse_expr_Binary_tok(elementFn : Callable, tType : String, nType) -> ASTNo
 	
 func parse_expr_Binary(elementFn : Callable, op_CheckFn : Callable) -> ASTNode:
 	var left = elementFn.call()
-	
+		
 	var result = op_CheckFn.call()
 	while result:
 		var \
@@ -1032,7 +1377,7 @@ func parse_expr_Binary(elementFn : Callable, op_CheckFn : Callable) -> ASTNode:
 		node.set_Type(result)
 		eat(Tok.Type)
 	
-		var right = elementFn.call()
+		var right = parse_Expression()
 	
 		node.add_Entry(left)
 		node.add_Entry(right)
@@ -1047,6 +1392,9 @@ func parse_expr_Binary(elementFn : Callable, op_CheckFn : Callable) -> ASTNode:
 func parse_expr_Element() -> ASTNode:
 	var matched = false
 	match Tok.Type:
+		TType.sym_Ptr : return parse_Simple(NType.op_Ptr, TType.sym_Ptr)
+		TType.sym_LP  : return parse_Simple(NType.sym_LP, TType.sym_LP)
+			
 		TType.sym_Identifier:
 			return parse_sym_Identifier()
 			
@@ -1065,8 +1413,55 @@ func parse_expr_Element() -> ASTNode:
 		TType.literal_Hex     : return parse_Literal(NType.literal_Hex,     TType.literal_Hex)
 		TType.literal_Octal   : return parse_Literal(NType.literal_Octal,   TType.literal_Octal)
 		TType.literal_Binary  : return parse_Literal(NType.literal_Binary,  TType.literal_Binary)
+	
+	var assertStrTmplt = "Could not match token in parse_expr_Element! : {value} - {type} }"
+	var assertStr      = assertStrTmplt.format({"value" : Tok.Value, "type" : Tok.Type})
 		
+	G.check(false, assertStr)
 	return null
+	
+func parse_expr_SMA() -> ASTNode:
+	if Tok.Type == TType.op_SMA:
+		var node = ASTNode.new()
+		node.set_Type(NType.op_SMA)
+		eat(TType.op_SMA)
+		
+		node.add_Entry( parse_expr_Call() )
+	
+		return node
+
+	var element = parse_expr_Element()
+		
+	if Tok && Tok.Type == TType.op_SMA:
+		var node = ASTNode.new()
+		node.set_Type(NType.op_SMA)
+		eat(TType.op_SMA)
+		
+		node.add_Entry(element)
+		node.add_Entry( parse_expr_Call() )
+	
+		return node
+	
+	return element;
+
+func parse_expr_SBCap() -> ASTNode:
+	var left = parse_expr_Cast()
+	
+	if Tok == null || Tok.Type != TType.cap_SBStart:
+		return left
+	
+	var node = ASTNode.new()
+	node.set_Type(NType.expr_SBCap)
+	node.add_Entry(left)
+	
+	eat(TType.cap_SBStart)
+	node.add_Entry(parse_Expression())
+	eat(TType.cap_SBEnd)
+	
+	if Tok.Type == TType.op_SMA:
+		node.add_Entry( parse_expr_SMA() )
+	
+	return node
 
 func parse_expr_Cast() -> ASTNode:
 	if Tok.Type == TType.op_Cast:
@@ -1078,17 +1473,18 @@ func parse_expr_Cast() -> ASTNode:
 		
 		return node
 	
-	return parse_expr_Element()
+	return parse_expr_SMA()
 
 func op_Callable(node):
 	match node.type():
+		NType.expr_SBCap     : return true
 		NType.op_Cast        : return true
-		TType.sym_Identifier : return true
+		NType.sym_Identifier : return true
 		_:
 			return false
 
 func parse_expr_Call() -> ASTNode:
-	var element = parse_expr_Cast()
+	var element = parse_expr_SBCap()
 
 	if op_Callable(element) && Tok.Type == TType.cap_PStart:
 		var \
@@ -1113,15 +1509,20 @@ func parse_expr_Capture() -> ASTNode:
 	
 	var \
 	node = ASTNode.new()
-	node.set_Type(NType.expr_cap)
+	node.set_Type(NType.expr_Cap)
 	node.add_Entry(expression)
 		
 	return node
 	
 func op_Unary():
+	if Tok == null:
+		return null
+	
 	match Tok.Type:
-		TType.op_LNot : return NType.op_LNot
-		TType.op_BNot : return NType.op_BNot
+		TType.sym_Ptr     : return NType.sym_Ptr
+		TType.op_Subtract : return NType.op_UnaryNeg
+		TType.op_LNot     : return NType.op_LNot
+		TType.op_BNot     : return NType.op_BNot
 		_:
 			return null
 
@@ -1137,23 +1538,29 @@ func parse_expr_Unary() -> ASTNode:
 	var \
 	node = ASTNode.new()
 	node.set_Type(operator)
+	eat(Tok.Type)
 	node.add_Entry( parse_expr_Unary() )
-	eat(operator)
 	
 	return node
 
 func op_Multiplicative():
+	if Tok == null:
+		return null
+		
 	match Tok.Type:
 		TType.op_Multiply : return NType.op_Multiply
 		TType.op_Divide   : return NType.op_Divide
 		TType.op_Modulo   : return NType.op_Modulo
 		_:
-			return null;
+			return null
 			
 func parse_expr_Multiplicative() -> ASTNode:
 	return parse_expr_Binary(parse_expr_Unary, op_Multiplicative)
 	
 func op_Additive():
+	if Tok == null:
+		return null
+	
 	match Tok.Type:
 		TType.op_Add      : return NType.op_Add
 		TType.op_Subtract : return NType.op_Subtract
@@ -1164,6 +1571,9 @@ func parse_expr_Additive() -> ASTNode:
 	return parse_expr_Binary(parse_expr_Multiplicative, op_Additive)
 	
 func op_Bitshift():
+	if Tok == null:
+		return null
+		
 	match Tok.Type:
 		TType.op_BSL : return NType.op_BSL
 		TType.op_BSR : return NType.op_BSR
@@ -1183,6 +1593,9 @@ func parse_expr_BitwiseOr() -> ASTNode:
 	return parse_expr_Binary_tok(parse_expr_BitwiseXOr, TType.op_BOr, NType.op_BOr)
 	
 func op_Relational():
+	if Tok == null:
+		return null
+		
 	match Tok.Type:
 		TType.op_Greater      : return NType.op_Greater
 		TType.op_Lesser       : return NType.op_Lesser
@@ -1195,6 +1608,9 @@ func parse_expr_Relational() -> ASTNode:
 	return parse_expr_Binary(parse_expr_BitwiseOr, op_Relational)
 	
 func op_Equality():
+	if Tok == null:
+		return null
+		
 	match Tok.Type:
 		TType.op_Equal    : return NType.op_Equal
 		TType.op_NotEqual : return NType.op_NotEqual
@@ -1210,29 +1626,45 @@ func parse_expr_LogicalAnd() -> ASTNode:
 func parse_expr_LogicalOr() -> ASTNode:
 	return parse_expr_Binary_tok(parse_expr_LogicalAnd, TType.op_LOr, NType.op_LOr)
 	
+func op_Assignment():
+	if Tok == null:
+		return null
+	
+	match Tok.Type:
+		TType.op_Assign : return NType.op_Assign
+		TType.op_A_Add  : return NType.op_A_Add
+		_:
+			return null
+	
 func parse_expr_Assignment() -> ASTNode:
-	return parse_expr_Binary_tok(parse_expr_LogicalOr, TType.op_Assign, NType.op_Assign)
+	return parse_expr_Binary(parse_expr_LogicalOr, op_Assignment)
 	
 func parse_expr_Delimited() -> ASTNode:
 	return parse_expr_Binary_tok(parse_expr_Assignment, TType.op_CD, NType.op_CD)
 #endregion Expressions
 
 func parse_sym_CapSB() -> ASTNode:
-	return null
-
-func parse_sym_Proc() -> ASTNode:
 	var \
 	node = ASTNode.new()
-	node.set_Type(NType.sym_Proc)
+	node.set_Type(NType.sym_Array)
 	
-	if Tok.Type == TType.cap_PStart:
-		node.add_Entry( parse_sec_CaptureArgs() )
+	eat(TType.cap_SBStart)
+	node.add_Entry( parse_Expression() )
+	eat(TType.cap_SBEnd)
 	
-	if Tok.Type == TType.op_Map:
-		node.add_Entry( parse_sec_CaptureReturnMap() )
+	match Tok.Type:
+		TType.sym_Type : node.add_Entry(NType.sym_TType); eat(TType.sym_Type)
 		
-	eat(TType.sym_Exe)
+		TType.sym_gd_Bool   : node.add_Entry(NType.builtin_bool);   eat(TType.sym_gd_Bool)
+		TType.sym_gd_Int    : node.add_Entry(NType.builtin_int);    eat(TType.sym_gd_Int)
+		TType.sym_gd_Float  : node.add_Entry(NType.builtin_float);  eat(TType.sym_gd_Float)
+		TType.sym_gd_String : node.add_Entry(NType.builtin_string); eat(TType.sym_gd_String)
 		
+		TType.sym_Identifier : node.add_Entry( parse_expr_Call() )
+		TType.sym_Exe        : node.add_Entry( parse_sym_Proc() )
+		TType.sym_Ptr        : node.add_Entry( parse_sym_Ptr() )
+		TType.cap_SBStart    : node.add_Entry( parse_sym_CapSB() )
+	
 	return node
 
 func parse_sym_Identifier() -> ASTNode:
@@ -1242,13 +1674,21 @@ func parse_sym_Identifier() -> ASTNode:
 	node.add_TokVal(Tok)
 	
 	eat(TType.sym_Identifier)
+
+	return node
+
+func parse_sym_Proc() -> ASTNode:
+	var \
+	node = ASTNode.new()
+	node.set_Type(NType.sym_Proc)
+	eat(TType.sym_Exe)
 	
-	while Tok.Type == TType.op_SMA:
-		parse_op_SMA(node)
-		
 	if Tok.Type == TType.cap_PStart:
-		node.add_Entry( parse_expr_Capture() )
+		node.add_Entry( parse_sec_CaptureArgs() )
 	
+	if Tok.Type == TType.op_Map:
+		node.add_Entry( parse_sec_CaptureReturnMap() )
+			
 	return node
 	
 func parse_sym_Ptr() -> ASTNode:
@@ -1263,9 +1703,33 @@ func parse_sym_Ptr() -> ASTNode:
 		TType.sym_gd_Float  : node.add_Entry(NType.builtin_float);  eat(TType.sym_gd_Float)
 		TType.sym_gd_String : node.add_Entry(NType.builtin_string); eat(TType.sym_gd_String)
 		
-		TType.sym_Identifier : node.add_Entry(NType.sym_Identifier); eat(TType.sym_Identifier)
-		TType.sym_Exe        : node.add_Entry(NType.sym_Proc);       eat(TType.sym_Exe)
+		TType.sym_Identifier : node.add_Entry( parse_expr_Call() )
+		TType.sym_Exe        : node.add_Entry( parse_sym_Proc() )
+		TType.sym_Ptr        : node.add_Entry( parse_sym_Ptr() )
+		TType.cap_SBStart    : node.add_Entry( parse_sym_CapSB() )
+#		TType.sym_Type       : node.add_Entry( parse_Simple(NType.sym_TType, TType.sym_Type) )
 	
+	return node
+
+func parse_sym_TT_Type() -> ASTNode:
+	var \
+	node = ASTNode.new()
+	node.set_Type(NType.sym_TT_Type)
+	eat(TType.sym_TT)
+	
+	match Tok.Type:
+		TType.sym_Type : node.add_Entry(NType.sym_TType); eat(TType.sym_Type)
+		
+		TType.sym_gd_Bool   : node.add_Entry(NType.builtin_bool);   eat(TType.sym_gd_Bool)
+		TType.sym_gd_Int    : node.add_Entry(NType.builtin_int);    eat(TType.sym_gd_Int)
+		TType.sym_gd_Float  : node.add_Entry(NType.builtin_float);  eat(TType.sym_gd_Float)
+		TType.sym_gd_String : node.add_Entry(NType.builtin_string); eat(TType.sym_gd_String)
+		
+		TType.sym_Identifier : node.add_Entry( parse_expr_Call() )
+		TType.sym_Exe        : node.add_Entry( parse_sym_Proc() )
+		TType.sym_Ptr        : node.add_Entry( parse_sym_Ptr() )
+		TType.cap_SBStart    : node.add_Entry( parse_sym_CapSB() )
+
 	return node
 	
 func parse_op_Break() -> ASTNode:
@@ -1275,34 +1739,15 @@ func parse_op_Break() -> ASTNode:
 	eat(TType.op_Break)
 	
 	return node
-	
-func parse_op_SMA(node : ASTNode):
-	eat(TType.op_SMA)
-	
-	var \
-	nodeSMA = ASTNode.new()
-	nodeSMA.set_Type(NType.op_SMA)
-	
-	match Tok.Type:
-		TType.sym_Ptr:
-			nodeSMA.add_Entry( parse_Simple(NType.op_Ptr, TType.sym_Ptr) )
-			node.add_Entry( nodeSMA )
-			return
-	
-	nodeSMA.add_TokVal(Tok)
-		
-	eat(TType.sym_Identifier)
-		
-	if Tok.Type == TType.cap_PStart:
-		nodeSMA.add_Entry( parse_expr_Capture() )
-
-	node.add_Entry( nodeSMA)
 
 func parse_op_Return() -> ASTNode:
 	var \
 	node = ASTNode.new()
 	node.set_Type(NType.op_Return)
 	eat(TType.op_Return)
+	
+	if Tok.Type == TType.def_End:
+		return node
 	
 	match Tok.Type:
 		_:
@@ -1336,7 +1781,7 @@ func parse_TokValue(nType, tType) -> ASTNode:
 	eat(tType)
 	return node
 	
-# Object
+#region Object
 func _init( lexer : Lexer ) -> void:
 	Lex = lexer
-# Object END
+#endregion Object

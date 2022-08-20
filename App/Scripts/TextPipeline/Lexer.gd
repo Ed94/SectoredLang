@@ -21,8 +21,6 @@ const TType : Dictionary = \
 # Captures
 	cap_PStart  = "Capture: Parenthesis Start",
 	cap_PEnd    = "Capture: Parenthesis End",
-	cap_ABStart = "Angle Bracket Start",			# Not used yet...
-	cap_ABEnd   = "Angle Bracket End",				# Not used yet...
 	cap_SBStart = "Capture: Bracket Start",
 	cap_SBEnd   = "Capture: Square Bracket End",
 
@@ -131,7 +129,7 @@ const TType : Dictionary = \
 #	op_AB_Not     = "Assign Bit Not",
 #	op_AB_SL      = "Assign Bit Shift Left",
 #	op_AB_SR      = "Assign Bit Shift Right",
-#	op_A_Add      = "Assign Add",
+	op_A_Add      = "Assign Add",
 #	op_A_Subtract = "Assign Subtract",
 #	op_A_Multiply = "Assign Multiply",
 #	op_A_Divide   = "Assign Divide",
@@ -230,17 +228,15 @@ const TType : Dictionary = \
 
 const Spec : Dictionary = \
 {
-	TType.fmt_S : "start (whitespace.repeat(1-).lazy | \\;.repeat(1-).lazy)",
+	TType.fmt_S : "start whitespace.repeat(1-).lazy",
 	
 	TType.cmt_SL : "start // inline.repeat(0-)",
 	TType.cmt_ML : "start /* set(whitespace !whitespace).repeat(0-).lazy */",
 	
 	TType.cap_PStart  : "start \\(",
 	TType.cap_PEnd    : "start \\)",
-	TType.cap_ABStart : "start \\<",
-	TType.cap_ABEnd   : "start \\>",
-	TType.cap_SBStart : "start \\[",
-	TType.cap_SBEnd   : "start \\]",
+	TType.cap_SBStart : "start [",
+	TType.cap_SBEnd   : "start ]",
 	
 	TType.op_Equal        : "start ==",
 	TType.op_NotEqual     : "start \\!=",
@@ -248,6 +244,8 @@ const Spec : Dictionary = \
 	TType.op_LesserEqual  : "start <=",
 	TType.op_Greater      : "start >",
 	TType.op_Lesser       : "start <",
+	
+	TType.op_A_Add : "start \\+\\=",
 	
 	TType.op_A_Infer : "start :=",
 	TType.op_Assign  : "start =",
@@ -265,12 +263,12 @@ const Spec : Dictionary = \
 	TType.op_BSR  : "start >>",
 	
 	TType.op_Add       : "start \\+",
-	TType.op_Subtract  : "start \\\\-",
+	TType.op_Subtract  : "start \\-",
 	TType.op_Multiply  : "start *",
-	TType.op_Divide    : "start \\/",
+	TType.op_Divide    : "start /",
 	TType.op_Modulo    : "start \\%",
 
-	TType.def_Start : "start set(  {)",
+	TType.def_Start : "start {",
 	TType.def_End   : "start set(; })",
 	
 	TType.op_CD  : "start \\,",
@@ -308,7 +306,6 @@ const Spec : Dictionary = \
 	TType.sec_Static : "start \"static\"",
 	TType.sec_Struct : "start \"struct\"",
 	TType.sec_Switch : "start \"switch\"",
-	
 	TType.sec_Union  : "start \"union\"",
 	TType.sec_Using  : "start \"using\"",
 		
@@ -337,10 +334,10 @@ const Spec : Dictionary = \
 	# Must be last, as if none of the above matches this is the last thing it could be.
 	TType.sym_Identifier : 
 	"""start 
-		(	set(A-z).repeat(1-) |
+		(	set(A-Z a-z).repeat(1-) |
 			set(\\_).repeat(1-)
 		).repeat(0-1)
-		(	set(A-z).repeat(1-) |
+		(	set(A-Z a-z).repeat(1-) |
 			set(\\_).repeat(1-) |
 			set(0-9).repeat(1-) 
 		).repeat(0-)

@@ -1,2 +1,1 @@
-
-bit (pos) -> (1 << pos);
+bit (pos) -> (1 << pos)

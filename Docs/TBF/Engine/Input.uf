@@ -1,51 +1,51 @@
 Input
 {
 	tt static {
-		NumTracked : u32 = 6;
-		BufferSize : u32 = 10;
+		NumTracked : u32 = 6
+		BufferSize : u32 = 10
 	}
 
 	State enum (u32) {
-		None,
-		Released,
-		Pressed,
+		None
+		Released
+		Pressed
 		PressHeld
 	}
 
 	KeySignals struct {
-		Up    : bool;
-		Down  : bool;
-		Left  : bool;
-		Right : bool;
-		Enter : bool;
-		Tab   : bool;
+		Up    : bool
+		Down  : bool
+		Left  : bool
+		Right : bool
+		Enter : bool
+		Tab   : bool
 	}
 
 	SignalState	union {
-		Keys  : KeySignals;
-		Array : [NumTracked] bool;
+		Keys  : KeySignals
+		Array : [NumTracked] bool
 	}
 
 	RingBuffer struct {
-		Buffer : [BufferSize] State;
-		Index  : u32;
+		Buffer : [BufferSize] State
+		Index  : u32
 	}
 
-	InputEventProc type (inputState : State) exe;
+	InputEventProc type exe(inputState : State) 
 
 	Subscriptions struct {
 		Array : ptr InputEventProc
-		Num   : u32;
+		Num   : u32
 	}
 
 
 	ro static {
-		CurrentSignalState  : SignalState;
-		PreviousSignalState : SignalState;
+		CurrentSignalState  : SignalState
+		PreviousSignalState : SignalState
 
-		KeyStates : [NumTracked] State;
+		KeyStates : [NumTracked] State
 
-		KeyEventSubs : [NumTracked] Subscriptions;
+		KeyEventSubs : [NumTracked] Subscriptions
 	}
 	
 
@@ -53,81 +53,80 @@ Input
 		CodeFromIndex (index : uw) -> KeyCode 
 		exe switch (index)
 		{
-			0	return KeyCode.ArrowUp;
-			1	return KeyCode.ArrowDown;
-			2	return KeyCode.ArrowLeft;
-			3	return KeyCode.ArrowRight;
-			4	return KeyCode.Enter;
-			5	return KeyCode.Tab;
+			0	ret KeyCode.ArrowUp
+			1	ret KeyCode.ArrowDown
+			2	ret KeyCode.ArrowLeft
+			3	ret KeyCode.ArrowRight
+			4	ret KeyCode.Enter
+			5	ret KeyCode.Tab
 			
-			default		return KeyCode.None;
+			default ret KeyCode.None
 		}
 
 		IndexFromCode (key : KeyCode) -> KeyCode 
 		exe switch (key)
 		{
-			KeyCode.ArrowUp		return 0;
-			KeyCode.ArrowDown	return 1;
-			KeyCode.ArrowLeft	return 2;
-			KeyCode.ArrowRight	return 3;
-			KeyCode.Enter		return 4;
-			KeyCode.Tab			return 5;
-
-			default				return u32.max;
+			KeyCode.ArrowUp		ret 0
+			KeyCode.ArrowDown	ret 1
+			KeyCode.ArrowLeft	ret 2
+			KeyCode.ArrowRight	ret 3
+			KeyCode.Enter		ret 4
+			KeyCode.Tab			ret 5
+			default				ret u32.max
 		}
 	}
 
 	Update exe
 	{
-		stack index : uw = 0;
+		stack index : uw = 0
 		loop if index < NumTracked
 		{
-			stack current, previous : ptr bool;
+			stack current, previous : ptr bool
 
-			current  = CurrentSignalSignalState.Array[index].ptr;
-			previous = PreviousSignalState.     Array[index].ptr;
+			current  = CurrentSignalSignalState.Array[index].ptr
+			previous = PreviousSignalState.     Array[index].ptr
 
-			previous.val = current.val;
-			current. val = GetKeySignal( Key.CodeFromIndex(index) );
+			previous.val = current.val
+			current. val = GetKeySignal( Key.CodeFromIndex(index) )
 
-			stack currentState : ptr State;
+			stack currentState : ptr State
 
-			currentState = KeyStates[index].ptr;
+			currentState = KeyStates[index].ptr
 			
-			stack latestState : State = State.None;
+			stack latestState : State = State.None
 
 			if current == previous
 			{
 				if current == true
-					latestState = State.PressHeld;
+					latestState = State.PressHeld
 
 				else if currentState.val != State.PressHeld	{
-					latestState = State.None;
+					latestState = State.None
 				}
 			}
 			else
 			{
 				if current == false
-					latestState = State.Released;
+					latestState = State.Released
 				else
-					latestState = State.Pressed;
+					latestState = State.Pressed
 			}
 
 			if latestState != currentState.val
 			{
-				currentState.val = latestState;
+				currentState.val = latestState
 
-				stack   subIndex uw = 0;
+				stack   subIndex uw = 0
 				loop if subIndex < KeyEventSubs[index].Num
 				{	
 					if  KeyEventSubs[index].Array[subIndex]
-						KeyEventSubs[index].Array[subIndex](currentState.val);
+						KeyEventSubs[index].Array[subIndex](currentState.val)
 
-					subIndex += 1;
+					subIndex += 1
 				}
 			}
 
-			index += 1;
+			index += 1
 		}
 	}
 
@@ -135,46 +134,46 @@ Input
 	{
 		SubscribeTo exe
 		{
-			stack subs : ptr Subscriptions = KeyEventSubs[ Key.IndexFromCode(key) ];
+			stack subs : ptr Subscriptions = KeyEventSubs[ Key.IndexFromCode(key) ]
 
 			if subs.Num == 0
 			{
-				Memory subs.Array : allocate(ptr InputEventProc, 1)
+				allocator Memory subs.Array : allocate(ptr InputEventProc, 1)
 
-				subs.Num += 1;
+				subs.Num += 1
 			}
 			else
 			{
-				stack   subIndex : uw = 0;
+				stack   subIndex : uw = 0
 				loop if subIndex < sub.Num
 					if subIndex.Array[subIndex].val == null 
 					{
-						subs.Array[ subs.Num - 1 ] = callback;
-						return;
+						subs.Array[ subs.Num - 1 ] = callback
+						ret
 					}
 
-				stack  resized : ptr uw = null;
-				Memory resized : allocate(ptr InputEventProc, subs.Array, (subs.Num + 1) );
+				stack            resized : ptr uw = null
+				allocator Memory resized : resize(ptr InputEventProc, subs.Array, (subs.Num + 1) )
 
-				check("Failed to globally reallocate subscription array");
+				check("Failed to globally reallocate subscription array")
 
-				subs.Array  = resized;
-				subs.Num   += 1;
+				subs.Array  = resized
+				subs.Num   += 1
 			}
 
-			subs.Array[ subs.Num -1 ] = callback;
+			subs.Array[ subs.Num -1 ] = callback
 		}
 
 		Unsubscribe exe
 		{
 			stack {
- 				subs     : ptr Subscriptions = KeyEventSubs[ Key.IndexFromCode(key) ];
-				subIndex : uw = 0;
+ 				subs     : ptr Subscriptions = KeyEventSubs[ Key.IndexFromCode(key) ]
+				subIndex : uw = 0
 			}
 
 			loop if subIndex < sub.Num
-				if subs.Array[subIndex] == callback
-					subs.Array[subIndex] = null;
+				if  subs.Array[subIndex] == callback
+					subs.Array[subIndex] = null
 		}
 	}
 }

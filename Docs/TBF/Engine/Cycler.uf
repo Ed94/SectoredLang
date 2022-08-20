@@ -1,6 +1,6 @@
 Cycler 
 {
-	ro Exist type bool
+	ro static Exist type bool
 
 
 	Initialize exe 

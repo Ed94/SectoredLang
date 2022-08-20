@@ -1,6 +1,6 @@
 ## Hello World
 ```
-exe "Hello World!";
+exe "Hello World!"
 ```
 
 Will output: `Hello World!` to the *default output device* specified by the **LP (Langauge Platform)**
@@ -12,15 +12,19 @@ All *literals* and *built-in* data types have support for LP output.
 `exe` is also considered a sector.
 
 ## Sectors
-| sector   | context           | end statement   |
-| :----:   | :----:            | :----:          |
-| `exe`    | `"Hello World!`   | `;`             |
+| sector | start body | context           | end body   |
+| :----: | :----:     | :----:            | :----:     |
+| `exe`  | {          | `"Hello World!`   | }          |
+
+*Note: Start and end body are not required for single statements*  
+*Another Note: Semi-colons are formatting!!!*
+
 
 ```
 exe
 { 
-	"Hello World!";
-	1 + 2;
+	"Hello World!"
+	1 + 2
 }
 ```
  Sectors are special keywords that are used to resolve a **context**.
@@ -32,10 +36,10 @@ What a context can do depends on how sectors are stacked. Not all sectors allow 
 ```
 Print_HelloWorld exe
 {
-	"Hello World!";
+	"Hello World!"
 }
 
-exe Print_HelloWorld;
+exe Print_HelloWorld
 ```
 
 `Print_HelloWorld` is an **identifier sector**. It provides a symbol that *associates* the name with its contents.  
@@ -64,7 +68,7 @@ Allow for the capturing of a context which can be used by other sectors within i
 
 Captures can contain the following:
 
-### Named Captures
+### Named Capturesss
 ```
 (variable : u32)
 ( a : tt bool, b : ptr ro u32)
@@ -81,7 +85,7 @@ Just like any sector they may be stacked!
 ```
 main (args : []ptr u8, count : uw) exe
 {
-	"Hello World!";
+	"Hello World!"
 }
 ```
 Starting to look familiar huh. Just missing a return...
@@ -103,7 +107,7 @@ Now we have everything needed for a traditional main entrypoint! :
 ```
 main (args : darray(string)) -> u32 exe
 {
-	"Hello World!";
+	"Hello World!"
 
 	ret 0;
 }
@@ -124,13 +128,13 @@ In the entrypoint example within Maps, its using its CLI context to provide acce
 
 ## Static Memory
 ```
-static variable : byte;
+static variable : byte
 ```
 
 The most basic memory allocation feature supported by LP. Will be reserved during program startup. Released on shutdown (So its static relative to the program).
 
 ```
-static varaible : byte = 0x01;
+static varaible : byte = 0x01
 ```
 
 *Simple* assigment is supported for static varaibles. Anything else requires assignment in an `exe` sector.
@@ -140,9 +144,9 @@ static varaible : byte = 0x01;
 ```
 exe 
 {
-	stack message : string = "Hello World!";
+	stack message : string = "Hello World!"
 
-	message;
+	message
 }
 ```
 
@@ -153,13 +157,13 @@ Freed when execution exits the context where the memory identifier was declared.
 ```
 exe
 {
-	stack message : ptr u8;
-	heap  message : allocate(u8, 12);
+	stack message : ptr u8
+	heap  message : allocate(u8, 12)
 
-	LP.Memory.Set(message, "Hello World!", 12);
-	LP.Log(message);
+	LP.Memory.Set(message, "Hello World!", 12)
+	LP.Log(message)
 
-	heap message : free;
+	heap message : free
 }
 ```
 Manual memory management using the OS provided heap (if using an LP with access to the OS).
@@ -187,8 +191,8 @@ Arena allocator
 	{
 		struct { ... }
 
-		Begin;
-		End;
+		Begin
+		End
 	}
 }
 ```
@@ -206,14 +210,14 @@ The default captures are shown in the Arena example.
 ***_allocationID*** is a special capture used by free to represent the object reference being freed.  
 Its automatically assigned with the syntax for the sector:
 ```
-<allocator> <_allocationID> : free;
+<allocator> <_allocationID> : free
 ```
 
 So it does not need to be passed.
 
 wipe does not need an identifier as such you can just call it via:
 ```
-<allocator> wipe;
+<allocator> wipe
 ```
 
 Captures for the allocation procedures may be extended to suit the requirements of the allocator.  
@@ -225,13 +229,13 @@ Vehicle
 {
 	struct
 	{
-		Velocity : f32;
+		Velocity : f32
 		...
 	}
 
 	Drive (self) exe
 	{
-		Velocity += ...;
+		Velocity += ...
 		...
 	}
 }
@@ -244,7 +248,7 @@ Its pure syntactic sugar and resolves to a function symbol with the object passe
 // Symbol implementation during runtime generation stage.
 Vehicle.Drive (self : ptr Vehicle) exe
 {
-	self.Velocity += ...;
+	self.Velocity += ...
 	...
 }
 ```
@@ -262,12 +266,12 @@ Vehicle
 
 Thus if desired, the infix syntax is completely optional and the functions may be called using traiditonal syntax:
 ```
-static Cobra427 : Vehicle;
+static Cobra427 : Vehicle
 
 exe
 {
-	Cobra427.Drive();
+	Cobra427.Drive
 	// or
-	Drive( Cobra427 );
+	Drive( Cobra427 )
 }
 ```

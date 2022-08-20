@@ -279,7 +279,7 @@ func eva(ast):
 		
 		# Evaluating Literal
 		NType.literal_String : evaResult = ast.string()
-		NType.literal_Digit  : evaResult = ast.entry(1).to_int()
+		NType.literal_Digit  : evaResult = [ NType.builtin_int, ast.entry(1).to_int() ]
 		NType.literal_Decimal: evaResult = float( ast.entry(1) )
 		NType.literal_Char   : evaResult = String( ast.entry(1) )
 		NType.literal_False  : evaResult = false

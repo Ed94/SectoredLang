@@ -2,18 +2,18 @@ if Win32 {
 
 KeyCode enum (u32)
 {
-	alias WinUser = LP.OS.Win32.WinUser;
+	alias WinUser = LP.OS.Win32.WinUser
 
-	None       = 0x00;
-	ArrowUp    = WinUser.VK_UP;
-	ArrowDown  = WinUser.VK_Down;
-	ArrowLeft  = WinUser.VK_Left;
-	ArrowRight = WinUser.VK_Right;
-	Enter      = WinUser.VK_RETURN;
-	Tab        = WinUser.VK_TAB;
+	None       = 0x00
+	ArrowUp    = WinUser.VK_UP
+	ArrowDown  = WinUser.VK_DOWN
+	ArrowLeft  = WinUser.VK_LEFT
+	ArrowRight = WinUser.VK_Right
+	Enter      = WinUser.VK_RETURN
+	Tab        = WinUser.VK_TAB
 }
 
-GetKeySignal (KeyCode key) -> bool exe ret GetAsyncKeyState(key) & 0x8000;
+GetKeySignal (KeyCode key) -> bool exe ret GetAsyncKeyState(key) & 0x8000
 
 Console
 {
@@ -21,49 +21,49 @@ Console
 	{
 		enum (u16)
 		{
-			Foreground_Blue      = bit(0);
-			Foreground_Green     = bit(1);
-			Foreground_Red       = bit(2);
-			Foreground_Intensity = bit(3);
+			Foreground_Blue      = bit(0)
+			Foreground_Green     = bit(1)
+			Foreground_Red       = bit(2)
+			Foreground_Intensity = bit(3)
 
-			Background_Blue      = bit(4);
-			Background_Green     = bit(5);
-			Background_Red       = bit(6);
-			Background_Intensity = bit(7);
+			Background_Blue      = bit(4)
+			Background_Green     = bit(5)
+			Background_Red       = bit(6)
+			Background_Intensity = bit(7)
 		}
 	}
 
-	Cell type Win32.CHAR_INFO;
+	Cell type Win32.CHAR_INFO
 
 	tt static WhiteCell : u16 = 
 		  AttributeFlag.Foreground_Red 
 		| AttirbuteFlag.Foreground_Green 
 		| AttributeFlag.Foreground_Blue 
-		| AttributeFlag.Foreground_Intensity;
+		| AttributeFlag.Foreground_Intensity
 
 	static 
 	{
-		Buffer : ptr Cell;
+		Buffer : ptr Cell
 
-		WindowHandle : Win32.HWND;
-		OutputHandle : Win32.HANDLE;
+		WindowHandle : Win32.HWND
+		OutputHandle : Win32.HANDLE
 
-		CoordSize  : Win32.COORD;
-		SBI        : Win32.CONSOLE_SCREEN_BUFFER_INFO;
-		BufferSize : Win32.DWORD;
-		Size       : Win32.SMALL_RECT;
+		CoordSize  : Win32.COORD
+		SBI        : Win32.CONSOLE_SCREEN_BUFFER_INFO
+		BufferSize : Win32.DWORD
+		Size       : Win32.SMALL_RECT
 
-		CursorSettings : Win32.CONSOLE_CURSOR_INFO;
+		CursorSettings : Win32.CONSOLE_CURSOR_INFO
 	}
 
-	tt static ScreenPos_00 : Win32.COORD = 0,0;
+	tt static ScreenPos_00 : Win32.COORD = 0,0
 
 
 	() -> bool
 	{
 		IOBuffer {
-			Bind exe;
-			Unbind exe;
+			Bind exe
+			Unbind exe
 		}
 
 		(char : u16, length : Win32.DWORD, writeCoord : Win32.COORD, numCharsWritter : Win32.LPDWORD)
@@ -73,7 +73,7 @@ Console
 			length,
 			writeCoord,
 			numCharsWritter
-		);
+		)
 
 		(attribute : Win32.WORD, length : Win32.DWORD, writeCoord : Win32.COORD, numAttrsWritten : Win32.LPDWORD)
 		FillConsoleOutputAttribute exe ret Win32.FillConsoleOutputAttribute(
@@ -82,33 +82,33 @@ Console
 			length,
 			writeCoord,
 			numAttrsWritten
-		);
+		)
 
 		Request exe
 		{
-			check(Win32.AllocConsole, "Failed to get console for rendering from operating system");
-			check(Bind_IOBuffer,      "Failed to bind standard IO to renderer's console");
+			check(Win32.AllocConsole, "Failed to get console for rendering from operating system")
+			check(Bind_IOBuffer,      "Failed to bind standard IO to renderer's console")
 		}
 
-		SetCursorInfo       (info : Win32.CONSOLE_CURSOR_INFO) exe;
+		SetCursorInfo       (info : Win32.CONSOLE_CURSOR_INFO) exe
 
-		SetCursorPosition   (position : Win32.COORD) exe;
+		SetCursorPosition   (position : Win32.COORD) exe
 		
-		SetScreenBufferSize (size : Win32.COORD) exe;
+		SetScreenBufferSize (size : Win32.COORD) exe
 
-		SetWindowInfo       (bAbsolute : bool, window : ptr Win32.SMALL_RECT) exe;
+		SetWindowInfo       (bAbsolute : bool, window : ptr Win32.SMALL_RECT) exe
 
-		SetCursorPosition (position : Win32.COORD) exe Win32.SetConsoleCursorPosition(OutputHandle, position);
+		SetCursorPosition   (position : Win32.COORD) exe Win32.SetConsoleCursorPosition(OutputHandle, position)
 
 		SetWindowPos(
 			 X,  Y : s32
 			CX, CY : s32, 
 			uFlags : u32
-		) exe;
+		) exe
 
-		SetTitle (title : string(u16)) exe ret SetConsoleTitleW(title);
+		SetTitle (title : string(u16)) exe ret SetConsoleTitleW(title)
 
-		UpdateInfo exe ret GetConsoleScreenBufferInfo( OutputHandle, SBI.ptr );
+		UpdateInfo exe ret GetConsoleScreenBufferInfo( OutputHandle, SBI.ptr )
 
 		WriteOutput exe ret Win32.WriteConsoleOutputW(
 			OutputHandle,
@@ -116,29 +116,29 @@ Console
 			CoordSize,
 			ScreenPos_00,
 			Size
-		);
+		)
 
 		WriteToBufferCells (cells : ptr ro Cell, initialCell, finalCell : Win32.COORD) exe
 		{
 			stack 
 			{
-				lineOffset  : uw = initialCell.Y * CoordSize.X;
-				colOffset   : uw = initialCell.X;
-				totalOffset : uw = lineOffset - colOffset;
+				lineOffset  : uw = initialCell.Y * CoordSize.X
+				colOffset   : uw = initialCell.X
+				totalOffset : uw = lineOffset - colOffset
 
-				bufferOffset : ptr Cell = Buffer[totalOffset].ptr;
-				dataSize     : uw       = totalOffset;
+				bufferOffset : ptr Cell = Buffer[totalOffset].ptr
+				dataSize     : uw       = totalOffset
 			}
 
-			lineOffset  = finalCell.Y * CoordSize.X;
-			colOffset   = finalCell.X;
-			totalOffset = lineOffset  + colOffset;
-			dataSize    = totalOffset - dataSize;
+			lineOffset  = finalCell.Y * CoordSize.X
+			colOffset   = finalCell.X
+			totalOffset = lineOffset  + colOffset
+			dataSize    = totalOffset - dataSize
 
 			if dataSize == 0
-				dataSize = 1;
+				dataSize = 1
 
-			Memory.Format.Set(Cell, bufferOffset, cells, dataSize);
+			Memory.Format.Set(Cell, bufferOffset, cells, dataSize)
 		}
 	}
 }
@@ -149,7 +149,7 @@ WinMain export
 (hInstance : Win32.HINSTANCE, hPrevInstance : Win32.HINSTANCE, lpCmdLine : Win32.PWSTR, nCmdShow : Win32.INT) -> Win32.INT
 exe
 {
-	EntryPoint();
+	EntryPoint()
 	ret 0
 }
 
