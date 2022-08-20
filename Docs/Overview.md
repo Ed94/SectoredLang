@@ -17,7 +17,6 @@ All *literals* and *built-in* data types have support for LP output.
 | `exe`  | {          | `"Hello World!`   | }          |
 
 *Note: Start and end body are not required for single statements*  
-*Another Note: Semi-colons are formatting!!!*
 
 
 ```

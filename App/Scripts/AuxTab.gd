@@ -1,4 +1,4 @@
-extends Button
+class_name AuxTab extends Button
 
 @export  var AuxNode : Node
 

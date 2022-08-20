@@ -43,8 +43,7 @@ Input
 		CurrentSignalState  : SignalState
 		PreviousSignalState : SignalState
 
-		KeyStates : [NumTracked] State
-
+		KeyStates    : [NumTracked] State
 		KeyEventSubs : [NumTracked] Subscriptions
 	}
 	

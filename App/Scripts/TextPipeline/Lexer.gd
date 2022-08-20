@@ -56,10 +56,7 @@ const TType : Dictionary = \
 	# Conditional
 	sec_If   = "Conditional If",
 	sec_Else = "Conditional Else",
-	
-	# General
-#	sec_Expose = "Expose symbol as",			# Using sector seems to do the job...
-	
+
 # Symbols
 	sym_Enum   = "Enumeration",					# Sector, Type Constraint
 	sym_LP     = "Language Platform",			# Sector

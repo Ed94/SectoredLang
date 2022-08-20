@@ -1,10 +1,10 @@
-class_name TextPipeline extends Control
+class_name TextPipeline extends Node
 
 
 var SRX_Cache : Dictionary # Not used yet.
 var Lex       : Lexer
 var SPars     : SyntaxParser
-var AST
+var AST       : SyntaxParser.ASTNode
 
 
 #region Editor
@@ -12,6 +12,12 @@ var AST
 @onready var ASTView := get_node("HBox/ASTView") as TextEdit
 #endregion Editor
 
+#region File
+@onready var CurrentFile := UnitFileTxt.new()
+
+func on_BufferUpdated():
+	Editor.text = CurrentFile.text
+#endregion File
 
 #region Node
 func _exit_tree() -> void:
@@ -19,7 +25,7 @@ func _exit_tree() -> void:
 	SPars.free()
 	
 func _input(event):
-	if event.is_action_pressed("MAS_ProcessText"):
+	if event.is_action_pressed("Editor_ProcessText"):
 		if G.check( Lex.tokenize(Editor.text) ):
 			return
 		
@@ -28,16 +34,24 @@ func _input(event):
 		if G.check(ast, "Failed to get ast from parser"):
 			return
 	
-		G.AST = ast
+		AST = ast
 	
 		ASTView.text = JSON.new().stringify(ast.to_SExpression(), "\t")
 		return
+		
+	if event.is_action_pressed("Editor_RefreshCurrent"):
+		CurrentFile.buffer()
+	
+	if event.is_action_pressed("Editor_SaveCurrent"):
+		CurrentFile.text = Editor.text
+		CurrentFile.save()
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	Lex   = Lexer.new()
 	SPars = SyntaxParser.new(Lex)
 
+	G.TxtPipeline = self
 	return
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.

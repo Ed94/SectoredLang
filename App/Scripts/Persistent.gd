@@ -6,8 +6,8 @@ const LogType := Log.EType
 var MAS : Interpreter
 
 
-@onready var EnvView := get_node("TextPipeline/HBox/EnvView")
-@onready var Out := get_node("AuxPanels/OutPanel") as Output
+@onready var EnvView := get_node("VBoxContainer/EditorViews/HBox/EnvView")
+@onready var Out     := get_node("AuxPanels/OutPanel") as Output
 
 
 func on_EnvUpdated():
@@ -16,8 +16,8 @@ func on_EnvUpdated():
 
 #region Node
 func _input(event):
-	if event.is_action_pressed("MAS_Interpret"):
-		var result = MAS.eva(G.AST)
+	if event.is_action_pressed("Editor_Interpret"):
+		var result = MAS.eva(G.TxtPipeline.AST)
 	
 		if result != null:
 			Out.write( result )

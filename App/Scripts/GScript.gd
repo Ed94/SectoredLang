@@ -1,8 +1,7 @@
 class_name GScript extends Node
 
-# Glboal Ref to interpreter
-var MAS : Interpreter
-var AST
+var MAS         : Interpreter
+var TxtPipeline : TextPipeline
 
 signal MAS_EnvUpdated
 

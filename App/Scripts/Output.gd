@@ -1,4 +1,4 @@
-class_name Output extends Panel
+class_name Output extends Window
 
 
 @onready var OutView := get_node("OutView") as TextEdit

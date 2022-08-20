@@ -4,7 +4,8 @@
 [ext_resource type="StyleBox" uid="uid://bfo64xvbdie6c" path="res://Styles/TextPipeline.SBF.tres" id="1_s1gma"]
 
 [resource]
-CodeEdit/colors/background_color = Color(0.09, 0.07482, 0.0702, 1)
+CodeEdit/colors/background_color = Color(0.0784314, 0.0823529, 0.101961, 1)
+CodeEdit/colors/font_selected_color = Color(0.764706, 0.678431, 1, 1)
 CodeEdit/font_sizes/font_size = 14
 CodeEdit/fonts/font = ExtResource("1_6xe43")
 Panel/styles/panel = ExtResource("1_s1gma")
