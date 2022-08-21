@@ -17,6 +17,8 @@ func on_EnvUpdated():
 #region Node
 func _input(event):
 	if event.is_action_pressed("Editor_Interpret"):
+		var what = SyntaxParser.ASTNode
+		var pls = G.TxtPipeline.AST as SyntaxParser.ASTNode.ASTNode
 		var result = MAS.eva(G.TxtPipeline.AST)
 	
 		if result != null:

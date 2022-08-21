@@ -31,7 +31,7 @@ func eva(ast):
 	
 	if ast == null:
 		return evaResult
-	
+
 	match ast.type():
 		NType.unit:
 			if ast.num_Entries() == 0:
@@ -44,10 +44,15 @@ func eva(ast):
 		
 			var result = eva( ast.entry(index) )
 			if result:
-				if typeof(result) == TYPE_OBJECT && result.get_class() == "ASTNode":
+				if typeof(result) == TYPE_OBJECT \
+				&& result.has_method("typename") \
+				&& result.typename() == "ASTNode":
 					JSON.new().stringify(result.to_SExpression())
 					
 				evaResult = str(result)
+				
+		NType.sec_Allocator:
+			pass
 		
 		NType.sec_Cap:
 			var index  = 1
@@ -62,8 +67,7 @@ func eva(ast):
 			
 			if Parent == null:
 				pass
-
-	#region LP_Sectors
+	
 		NType.sec_Exe:
 			if Parent == null:
 				var interp = Interpreter.new(self)
@@ -84,7 +88,6 @@ func eva(ast):
 
 		NType.sec_Static:
 			eva_Static(ast)
-	#endregion LP_Sectors
 				
 		NType.sec_Identifier:
 			var symbol = ast.entry(1)

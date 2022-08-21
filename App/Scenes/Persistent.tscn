@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://dpfteiorn2b78"]
+[gd_scene load_steps=13 format=3 uid="uid://dpfteiorn2b78"]
 
 [ext_resource type="StyleBox" uid="uid://nqey8i51uq6n" path="res://Styles/AppBG.SBF.tres" id="1_cc3py"]
 [ext_resource type="Script" path="res://Scripts/Persistent.gd" id="1_p5snc"]
@@ -8,6 +8,7 @@
 [ext_resource type="Script" path="res://Scripts/TextPipeline/TextPipeline.gd" id="4_d3lki"]
 [ext_resource type="Theme" path="res://Styles/AuxPanel.tres" id="4_hwwia"]
 [ext_resource type="Script" path="res://Scripts/TextPipeline/SLangEditor.gd" id="5_beomd"]
+[ext_resource type="Script" path="res://Scripts/AST_Tree.gd" id="5_ddx1b"]
 [ext_resource type="Script" path="res://Scripts/Output.gd" id="7_xfrtc"]
 [ext_resource type="Script" path="res://Scripts/SLFileDialog.gd" id="9_pga44"]
 
@@ -44,7 +45,16 @@ grow_horizontal = 2
 grow_vertical = 2
 metadata/_edit_layout_mode = 1
 
+[node name="ASTView_Tree" type="Tree" parent="VBoxContainer/EditorViews/HBox"]
+offset_right = 335.0
+offset_bottom = 865.0
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.4
+columns = 2
+script = ExtResource("5_ddx1b")
+
 [node name="ASTView" type="TextEdit" parent="VBoxContainer/EditorViews/HBox"]
+visible = false
 offset_right = 398.0
 offset_bottom = 865.0
 grow_horizontal = 0
@@ -58,8 +68,8 @@ editable = false
 metadata/_edit_use_custom_anchors = true
 
 [node name="CodeEdit" type="CodeEdit" parent="VBoxContainer/EditorViews/HBox"]
-offset_left = 402.0
-offset_right = 1198.0
+offset_left = 339.0
+offset_right = 1177.0
 offset_bottom = 865.0
 grow_horizontal = 2
 grow_vertical = 2
@@ -78,7 +88,7 @@ metadata/_edit_layout_mode = 1
 metadata/_edit_use_custom_anchors = true
 
 [node name="EnvView" type="TextEdit" parent="VBoxContainer/EditorViews/HBox"]
-offset_left = 1202.0
+offset_left = 1181.0
 offset_right = 1600.0
 offset_bottom = 865.0
 grow_horizontal = 0

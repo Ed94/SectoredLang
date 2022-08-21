@@ -25,8 +25,10 @@ const NType = \
 	op_Cast   = "Op: Cast",
 	op_Return = "Op: Return",
 	
-	op_Alloc   = "Op: Allocate",
-	op_Dealloc = "Op: Deallocate",
+	op_Alloc  = "Op: Allocate",
+	op_Resize = "Op: Resize",
+	op_Free   = "Op: Free",
+	op_Wipe   = "Op: Wipe",
 	
 	op_LNot = "Op: Logical Not",
 	op_LOr  = "Op: Logical Or",
@@ -106,18 +108,18 @@ const NType = \
 	sym_Identifier = "Symbol: Identifier",
 }
 
-class ASTNode:
-	var Data : Array
+class ASTNode extends RefCounted :
+	var Data   : Array
 
-# Methods
-	func add_Entry( entry ) -> void:
-		Data.append( entry )
+#region Methods
+	func add_Entry( _entry ) -> void:
+		Data.append( _entry )
 
 	func add_TokVal( token ) -> void:
 		Data.append( token.Value )
 
-	func entry( id ):
-		return Data[id]
+	func entry( id : int):
+		return  Data[id]
 		
 	func num_Entries() -> int:
 		return Data.size() - 1
@@ -126,31 +128,34 @@ class ASTNode:
 		return entry(1).substr(1, entry(1).length() - 2)
 				
 	func set_Type( nType ) -> void:
-		Data.append( nType )
+		if Data.size() == 0: 
+			Data.append(nType)
+		else:
+			Data[0] = nType
 				
 	func type():
 		if G.check(Data.size() > 0, "ASTNode " + str(get_instance_id()) + " : Node does not have a type!"):
 			return null
 		
 		return Data[0]
-# End Methods
-	
+#endregion Methods
+
 #region Serialization
 	func array_Serialize(array) -> Array:
 		var result = []
 
-		for entry in array :
-			if typeof(entry) == TYPE_ARRAY :
-				result.append( array_Serialize( entry ) )
+		for _entry in array :
+			if typeof(_entry) == TYPE_ARRAY :
+				result.append( array_Serialize( _entry ) )
 
-			elif typeof(entry) == TYPE_OBJECT :
-				if entry.get_class() ==  "Eve":
-					result.append(entry)
+			elif typeof(_entry) == TYPE_OBJECT :
+				if _entry.get_class() ==  "Eve":
+					result.append(_entry)
 				else:
-					result.append( entry.to_SExpression() )
+					result.append( _entry.to_SExpression() )
 
 			else :
-				result.append( entry )
+				result.append( _entry )
 				
 		return result
 
@@ -159,15 +164,29 @@ class ASTNode:
 #endregion Serialization
 	
 #region Object
-	func get_class():
+	func typename():
 		return "ASTNode"
 
-	func _init(type =  ""):
-		if type != "":
-			set_Type(type)
+	func _init(ntype =  ""):
+		if ntype != "":
+			set_Type(ntype)
 #endregion Object
 
+class ASTNode_sec_Allocator extends ASTNode:
+	func name(): 
+		return Data[1]
+		
+	const Identifier := 0
+	const Op         := 1
 
+	func entry( id : int ):
+		return [ Data[id * 2], Data[id * 2 + 1] ]
+
+	func num_Entires():
+		return Data.size() - 2
+
+	func _init(_type = ""):
+		set_Type( NType.sec_Allocator )
 
 const TType = Lexer.TType
 var   Lex   : Lexer
@@ -256,7 +275,7 @@ func parse_unit() -> ASTNode:
 #region Sectors
 	
 func parse_sec_Allocator() -> ASTNode:
-	var node = ASTNode.new( NType.sec_Allocator )
+	var node = ASTNode_sec_Allocator.new()
 	eat(TType.sym_Allocator)
 	
 	node.add_Entry( parse_expr_Call() )
@@ -273,6 +292,8 @@ func parse_sec_Allocator() -> ASTNode:
 
 			if Tok.Type == TType.sym_Identifier:
 				identifier = parse_expr_Call()
+				
+			eat(TType.op_Define)
 
 			var op = parse_sec_AllocatorOp()
 			
@@ -286,6 +307,8 @@ func parse_sec_Allocator() -> ASTNode:
 
 		if Tok.Type == TType.sym_Identifier:
 			identifier = parse_expr_Call()
+			
+		eat(TType.op_Define)
 
 		var op = parse_sec_AllocatorOp()
 			
@@ -295,25 +318,30 @@ func parse_sec_Allocator() -> ASTNode:
 	return node
 	
 func parse_sec_AllocatorOp() -> ASTNode:
-	eat(TType.op_Define)
-	
-	var node = ASTNode.new(Tok.Type)
+	var node
 	
 	match Tok.Type:
 		TType.op_Alloc:
+			node = ASTNode.new(NType.op_Alloc)
 			eat(TType.op_Alloc)
 			
 			if Tok.Type == TType.cap_PStart:
 				node.add_Entry( parse_expr_Capture() )
 			
 		TType.op_Resize:
+			node = ASTNode.new(NType.op_Resize)
 			eat(TType.op_Resize)
 			
 			if Tok.Type == TType.cap_PStart:
 				node.add_Entry( parse_expr_Capture() )
 				
-		TType.op_Free: eat(TType.op_Free)
-		TType.op_Wipe: eat(TType.op_Wipe)
+		TType.op_Free: 
+			node = ASTNode.new(NType.op_Free)
+			eat(TType.op_Free)
+			
+		TType.op_Wipe: 
+			node = ASTNode.new(NType.op_Wipe)
+			eat(TType.op_Wipe)
 	
 	return node
 
@@ -696,6 +724,14 @@ func parse_sec_ExeBody(node):
 	else:
 		var matched = false
 		match Tok.Type:
+			TType.sym_Allocator:
+				node.add_Entry( parse_sec_Allocator() )
+				matched = true
+								
+			TType.sec_Heap:
+				node.add_Entry( parse_sec_Heap() )
+				matched = true	
+		
 			TType.sec_If:
 				node.add_Entry( parse_sec_ExeConditional() )
 				matched = true
@@ -1085,12 +1121,12 @@ func parse_sec_SwitchCase() -> ASTNode:
 
 func parse_sec_TranslationTime() -> ASTNode:
 	var node = ASTNode.new(NType.sec_TT)
-
-	if G.check(Tok.Type == TType.sym_TT, "Next token should have been a translation time symbol"):
-		return node
-		
-	node.add_TokVal(Tok)
 	eat(TType.sym_TT)
+
+#	if G.check(Tok.Type == TType.sym_TT, "Next token should have been a translation time symbol"):
+#		return node
+#
+#	node.add_TokVal(Tok)
 	
 	if Tok == null:
 		return node
@@ -1353,6 +1389,11 @@ func parse_expr_Binary(elementFn : Callable, op_CheckFn : Callable) -> ASTNode:
 func parse_expr_Element() -> ASTNode:
 	var matched = false
 	match Tok.Type:
+		TType.op_Alloc  : return parse_Simple(NType.op_Alloc,  TType.op_Alloc)
+		TType.op_Resize : return parse_Simple(NType.op_Resize, TType.op_Resize)
+		TType.op_Free   : return parse_Simple(NType.op_Free,   TType.op_Free)
+		TType.op_Wipe   : return parse_Simple(NType.op_Wipe,   TType.op_Wipe)
+		
 		TType.sym_Ptr : return parse_Simple(NType.op_Ptr, TType.sym_Ptr)
 		TType.sym_LP  : return parse_Simple(NType.sym_LP, TType.sym_LP)
 			

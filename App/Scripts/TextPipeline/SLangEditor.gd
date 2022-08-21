@@ -70,16 +70,16 @@ var ControlFlow := KeywordsPreset.new(
 var Op := KeywordsPreset.new(
 	[
 		"cast",
-		".",
-		":",
-		"=",
-		"+",
-		"-",
-		"*",
-		"/",
-		"+=",
 	],
 	Color.AQUA
+)
+
+var Literal := KeywordsPreset.new(
+	[
+		"true",
+		"false",
+	],
+	Color.SANDY_BROWN
 )
 
 
@@ -87,7 +87,8 @@ var Presets := [
 	Builtin,
 	Memory,
 	ControlFlow,
-#	Op,
+	Literal,
+	Op,
 	SectorGeneral
 ]
 

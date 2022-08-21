@@ -9,6 +9,16 @@
 config_version=5
 
 _global_script_classes=[{
+"base": "Tree",
+"class": &"AST_Tree",
+"language": &"GDScript",
+"path": "res://Scripts/AST_Tree.gd"
+}, {
+"base": "TreeItem",
+"class": &"AST_TreeItem",
+"language": &"GDScript",
+"path": "res://Scripts/AST_TreeItem.gd"
+}, {
 "base": "Button",
 "class": &"AuxTab",
 "language": &"GDScript",
@@ -80,6 +90,8 @@ _global_script_classes=[{
 "path": "res://Scripts/TextPipeline/UnitFileTxt.gd"
 }]
 _global_script_class_icons={
+"AST_Tree": "",
+"AST_TreeItem": "",
 "AuxTab": "",
 "GScript": "",
 "Interpreter": "",

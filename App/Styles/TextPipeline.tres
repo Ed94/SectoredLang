@@ -13,3 +13,4 @@ TextEdit/colors/background_color = Color(0.0980392, 0.113725, 0.160784, 1)
 TextEdit/colors/font_readonly_color = Color(0.87451, 0.87451, 0.87451, 1)
 TextEdit/font_sizes/font_size = 12
 TextEdit/fonts/font = ExtResource("1_6xe43")
+Tree/font_sizes/font_size = 12

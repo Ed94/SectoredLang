@@ -10,6 +10,7 @@ var AST       : SyntaxParser.ASTNode
 #region Editor
 @onready var Editor  := get_node("HBox/CodeEdit") as TextEdit
 @onready var ASTView := get_node("HBox/ASTView") as TextEdit
+@onready var ASTView_Tree := get_node("HBox/ASTView_Tree") as AST_Tree
 #endregion Editor
 
 #region File
@@ -29,7 +30,7 @@ func _input(event):
 		if G.check( Lex.tokenize(Editor.text) ):
 			return
 		
-		var ast = SPars.parse_unit()
+		var ast := SPars.parse_unit()
 
 		if G.check(ast, "Failed to get ast from parser"):
 			return
@@ -37,6 +38,9 @@ func _input(event):
 		AST = ast
 	
 		ASTView.text = JSON.new().stringify(ast.to_SExpression(), "\t")
+		
+		ASTView_Tree.clear()
+		ASTView_Tree.generate(ast)
 		return
 		
 	if event.is_action_pressed("Editor_RefreshCurrent"):
