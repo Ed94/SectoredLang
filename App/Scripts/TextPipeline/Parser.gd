@@ -12,7 +12,6 @@ const NType = \
 	
 	enum_Element = "Enumeration Element",
 
-	expr       = "Expression",
 	expr_Cap   = "Capture",
 	expr_SBCap = "Bracketed Capture",
 	
@@ -71,7 +70,7 @@ const NType = \
 	sec_Cap        = "Sector: Capture",
 	sec_CapArgs    = "Capture Sector - Arguments",
 	sec_CapRet     = "Capture Sector - Return Map",
-	sec_Cond       = "Secotr: Conditional",
+	sec_Cond       = "Sector: Conditional",
 	sec_Enum       = "Sector: Enum",
 	sec_Exe        = "Sector: Execution",
 	sec_Heap       = "Sector: Heap",
@@ -97,6 +96,7 @@ const NType = \
 	builtin_Dict   = "GD: Dictionary",
 	builtin_string = "GD: String",
 	
+	sym_Allocator  = "Symbol: Allocator",
 	sym_Array      = "Symbol: Array",
 	sym_LP         = "Symbol: Language Platform",
 	sym_Proc       = "Symbol: Procedure",
@@ -108,10 +108,32 @@ const NType = \
 	sym_Identifier = "Symbol: Identifier",
 }
 
+const NTxt = {
+	TType.op_Define: ":",
+
+	NType.builtin_bool: "bool",
+	NType.builtin_int: "int",
+	
+	NType.literal_True: "true",
+	NType.literal_False: "false",
+	
+	NType.op_Assign: "=",
+	
+	NType.op_Add : "+",
+	
+	NType.sec_Exe : "exe",
+	NType.sec_Static : "static",
+	NType.sec_TT : "tt",
+	NType.sec_Type : "type",
+}
+
 class ASTNode extends RefCounted :
 	var Data   : Array
 
 #region Methods
+	func name() -> String:
+		return NTxt[type()]
+
 	func add_Entry( _entry ) -> void:
 		Data.append( _entry )
 
@@ -172,21 +194,93 @@ class ASTNode extends RefCounted :
 			set_Type(ntype)
 #endregion Object
 
-class ASTNode_sec_Allocator extends ASTNode:
+class Sec_Allocator extends ASTNode:
 	func name(): 
 		return Data[1]
-		
-	const Identifier := 0
-	const Op         := 1
 
 	func entry( id : int ):
-		return [ Data[id * 2], Data[id * 2 + 1] ]
+		return Data[ id + 1 ]
 
-	func num_Entires():
+	func num_Entires() -> int:
 		return Data.size() - 2
 
-	func _init(_type = ""):
+	func _init():
 		set_Type( NType.sec_Allocator )
+		
+class Sec_Capture extends ASTNode:
+	func args():
+		return Data[1]
+		
+	func has_RetMap() -> bool:
+		return Data.size() > 2 && Data[2].type() == NType.sec_CapRet
+	
+	func ret_Map():
+		return Data[2]
+		
+	func entry( id : int ):
+		return Data[ id + 2 ]
+		
+	func num_Entries() -> int:
+		return Data.size() - 3
+		
+	func _init():
+		set_Type( NType.sec_Cap )
+
+class Sec_CaptureArgs extends ASTNode:
+	func contains_self() -> bool:
+		for _entry in Data:
+			if _entry.type() == NType.sym_Self:
+				return true
+				
+		return false
+		
+	func map():
+		return Data[1]
+		
+	func entry( id : int ):
+		return Data[ id + 1 ]
+		
+	func num_Entries() -> int:
+		return Data.size() - 2
+		
+	func _init():
+		set_Type( NType.sec_CapArgs )
+
+class Sec_Type extends ASTNode:
+	func assignment():
+		return Data[2]
+	
+	func has_Assignment() -> bool:
+		return Data.size() > 2
+	
+	func _init():
+		set_Type( NType.sec_Type )
+
+class Sec_Identifier extends ASTNode:
+	func name() -> String:
+		return Data[1]
+	
+	func entry( id : int ):
+		return Data [ id + 1 ]
+		
+	func num_Entries() -> int:
+		return Data.size() - 2
+
+	func _init():
+		set_Type( NType.sec_Identifier )
+		
+class Sym_Identifier extends ASTNode:
+	func name() -> String:
+		return Data[1]
+		
+	func has_Typedef() -> bool:
+		return Data.size() > 2 && Data[2].type() == NType.sec_Type
+	
+	func typedef() -> ASTNode:
+		return Data[2]
+
+	func _init():
+		set_Type( NType.sym_Identifier )
 
 const TType = Lexer.TType
 var   Lex   : Lexer
@@ -275,7 +369,7 @@ func parse_unit() -> ASTNode:
 #region Sectors
 	
 func parse_sec_Allocator() -> ASTNode:
-	var node = ASTNode_sec_Allocator.new()
+	var node = Sec_Allocator.new()
 	eat(TType.sym_Allocator)
 	
 	node.add_Entry( parse_expr_Call() )
@@ -295,9 +389,7 @@ func parse_sec_Allocator() -> ASTNode:
 				
 			eat(TType.op_Define)
 
-			var op = parse_sec_AllocatorOp()
-			
-			node.add_Entry(identifier)
+			var op = parse_sec_AllocatorOp(node, identifier)
 			node.add_Entry(op)
 		
 		eat(TType.def_End)
@@ -309,45 +401,46 @@ func parse_sec_Allocator() -> ASTNode:
 			identifier = parse_expr_Call()
 			
 		eat(TType.op_Define)
-
-		var op = parse_sec_AllocatorOp()
-			
-		node.add_Entry(identifier)
+		
+		var op = parse_sec_AllocatorOp(node, identifier)
 		node.add_Entry(op)
 	
 	return node
 	
-func parse_sec_AllocatorOp() -> ASTNode:
-	var node
+func parse_sec_AllocatorOp(node, identifier) -> ASTNode:
+	var opNode
 	
 	match Tok.Type:
 		TType.op_Alloc:
-			node = ASTNode.new(NType.op_Alloc)
+			opNode = ASTNode.new(NType.op_Alloc)
+			opNode.add_Entry( identifier )
 			eat(TType.op_Alloc)
 			
 			if Tok.Type == TType.cap_PStart:
-				node.add_Entry( parse_expr_Capture() )
+				opNode.add_Entry( parse_expr_Capture() )
 			
 		TType.op_Resize:
-			node = ASTNode.new(NType.op_Resize)
+			opNode = ASTNode.new(NType.op_Resize)
+			opNode.add_Entry( identifier )
 			eat(TType.op_Resize)
 			
 			if Tok.Type == TType.cap_PStart:
-				node.add_Entry( parse_expr_Capture() )
+				opNode.add_Entry( parse_expr_Capture() )
 				
 		TType.op_Free: 
-			node = ASTNode.new(NType.op_Free)
+			opNode = ASTNode.new(NType.op_Free)
+			opNode.add_Entry( identifier )
 			eat(TType.op_Free)
 			
 		TType.op_Wipe: 
-			node = ASTNode.new(NType.op_Wipe)
+			opNode = ASTNode.new(NType.op_Wipe)
 			eat(TType.op_Wipe)
 	
-	return node
+	return opNode
 
 func parse_sec_Capture() -> ASTNode:
 	var \
-	node = ASTNode.new(NType.sec_Cap)
+	node = Sec_Capture.new()
 	node.add_Entry( parse_sec_CaptureArgs() )
 	
 	if Tok == null:
@@ -435,6 +528,10 @@ func parse_sec_CaptureArgs() -> ASTNode:
 	
 	while ! chk_Tok(TType.cap_PEnd):
 		match Tok.Type:	
+			TType.sym_Allocator:
+				var symbol = parse_Simple(NType.sym_Allocator, TType.sym_Allocator)
+				node.add_Entry( symbol )
+				
 			TType.sym_Self:
 				var symbol = parse_Simple(NType.sym_Self, TType.sym_Self)
 				node.add_Entry( symbol )
@@ -443,8 +540,10 @@ func parse_sec_CaptureArgs() -> ASTNode:
 				var symbols = []
 				while Tok.Type == TType.sym_Identifier:
 					symbols.append( parse_sym_Identifier() )
+					
+					if Tok.Type == TType.op_CD:
+						eat(TType.op_CD)
 				
-				if Tok.Type != TType.op_CD:
 					var type = parse_sec_Type(TType.op_Define)
 					
 					for symbol in symbols:
@@ -462,8 +561,7 @@ func parse_sec_CaptureArgs() -> ASTNode:
 	return node
 	
 func parse_sec_CaptureReturnMap() -> ASTNode:
-	var \
-	node = ASTNode.new(NType.sec_CapRet)
+	var node = ASTNode.new(NType.sec_CapRet)
 	eat(TType.op_Map)
 	
 	match Tok.Type:
@@ -658,8 +756,7 @@ func parse_sec_EnumElement() -> ASTNode:
 	return node
 
 func parse_sec_Exe() -> ASTNode:
-	var \
-	node = ASTNode.new(NType.sec_Exe)
+	var node = ASTNode.new(NType.sec_Exe)
 	eat(TType.sym_Exe)
 	
 	if Tok.Type == TType.def_End:
@@ -823,18 +920,16 @@ func parse_sec_Heap() -> ASTNode:
 		
 		while Tok.Type != TType.def_End:
 			var identifier = parse_sym_Identifier()
-			var op         = parse_sec_AllocatorOp()
+			var op         = parse_sec_AllocatorOp(node, identifier)
 			
-			node.add_Entry(identifier)
 			node.add_Entry(op)
 			
 		eat( TType.def_End )
 		
 	else:
 		var identifier = parse_sym_Identifier()
-		var op         = parse_sec_AllocatorOp()
+		var op         = parse_sec_AllocatorOp(node, identifier)
 			
-		node.add_Entry(identifier)
 		node.add_Entry(op)
 	
 	return node
@@ -1158,7 +1253,7 @@ func parse_sec_TranslationTime() -> ASTNode:
 	return node
 
 func parse_sec_Type(typeTok : String) -> ASTNode:
-	var node = ASTNode.new(NType.sec_Type)
+	var node = Sec_Type.new()
 
 	if typeTok == TType.op_Define && Tok.Type == TType.op_A_Infer:
 		pass
@@ -1237,7 +1332,7 @@ func parse_sec_Using() -> ASTNode:
 	return node
 
 func parse_sec_Identifier() -> ASTNode:
-	var node = ASTNode.new( NType.sec_Identifier )
+	var node = Sec_Identifier.new()
 
 	if G.check(Tok.Type == TType.sym_Identifier, "Next token should have been an identifier symbol"):
 		return node
@@ -1490,11 +1585,8 @@ func parse_expr_Call() -> ASTNode:
 	if op_Callable(element) && Tok.Type == TType.cap_PStart:
 		var \
 		node = ASTNode.new(NType.op_Call)
-		node.add_Entry(
-		[
-			element,
-			parse_expr_Capture()
-		])
+		node.add_Entry( element )
+		node.add_Entry( parse_expr_Capture() )
 	
 		return node
 		
@@ -1533,8 +1625,7 @@ func parse_expr_Unary() -> ASTNode:
 		else:
 			return parse_expr_Call()
 		
-	var \
-	node = ASTNode.new(operator)
+	var node = ASTNode.new(operator)
 	eat(Tok.Type)
 	node.add_Entry( parse_expr_Unary() )
 	
@@ -1641,8 +1732,7 @@ func parse_expr_Delimited() -> ASTNode:
 #endregion Expressions
 
 func parse_sym_CapSB() -> ASTNode:
-	var \
-	node = ASTNode.new(NType.sym_Array)
+	var node = ASTNode.new(NType.sym_Array)
 	
 	eat(TType.cap_SBStart)
 	node.add_Entry( parse_Expression() )
@@ -1665,7 +1755,7 @@ func parse_sym_CapSB() -> ASTNode:
 
 func parse_sym_Identifier() -> ASTNode:
 	var \
-	node = ASTNode.new(NType.sym_Identifier)
+	node = Sym_Identifier.new()
 	node.add_TokVal(Tok)
 	
 	eat(TType.sym_Identifier)
@@ -1701,6 +1791,23 @@ func parse_sym_Ptr() -> ASTNode:
 #		TType.sym_Type       : node.add_Entry( parse_Simple(NType.sym_TType, TType.sym_Type) )
 	
 	return node
+
+#func parse_sym_Type() -> ASTNode:
+#	var node = ASTNode.new(NType.sym_Type)
+#	eat(TType.sym_)
+#
+#	match Tok.Type:
+#		TType.sym_Type : node.add_Entry(NType.sym_TType); eat(TType.sym_Type)
+#
+#		TType.sym_gd_Bool   : node.add_Entry(NType.builtin_bool);   eat(TType.sym_gd_Bool)
+#		TType.sym_gd_Int    : node.add_Entry(NType.builtin_int);    eat(TType.sym_gd_Int)
+#		TType.sym_gd_Float  : node.add_Entry(NType.builtin_float);  eat(TType.sym_gd_Float)
+#		TType.sym_gd_String : node.add_Entry(NType.builtin_string); eat(TType.sym_gd_String)
+#
+#		TType.sym_Identifier : node.add_Entry( parse_expr_Call() )
+#		TType.sym_Exe        : node.add_Entry( parse_sym_Proc() )
+#		TType.sym_Ptr        : node.add_Entry( parse_sym_Ptr() )
+#		TType.cap_SBStart    : node.add_Entry( parse_sym_CapSB() )
 
 func parse_sym_TT_Type() -> ASTNode:
 	var node = ASTNode.new(NType.sym_TT_Type)

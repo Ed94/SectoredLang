@@ -1,16 +1,20 @@
-[gd_resource type="Theme" load_steps=3 format=3 uid="uid://ctgoembqc7ot7"]
+[gd_resource type="Theme" load_steps=4 format=3 uid="uid://dmtbie7ic5iam"]
 
-[ext_resource type="FontFile" uid="uid://vgrj87jo1sg4" path="res://Assets/DF_RecMonoSemiCasul.tres" id="1_6xe43"]
-[ext_resource type="StyleBox" uid="uid://bfo64xvbdie6c" path="res://Styles/TextPipeline.SBF.tres" id="1_s1gma"]
+[ext_resource type="FontFile" path="res://Assets/DF_RecMonoSemiCasul.tres" id="1_6xe43"]
+[ext_resource type="StyleBox" path="res://Styles/TextPipeline.SBF.tres" id="1_s1gma"]
+[ext_resource type="StyleBox" path="res://Styles/Transparent_SBF.tres" id="2_1yfrv"]
 
 [resource]
 CodeEdit/colors/background_color = Color(0.0784314, 0.0823529, 0.101961, 1)
+CodeEdit/colors/font_readonly_color = Color(1, 1, 1, 1)
 CodeEdit/colors/font_selected_color = Color(0.764706, 0.678431, 1, 1)
 CodeEdit/font_sizes/font_size = 14
 CodeEdit/fonts/font = ExtResource("1_6xe43")
+CodeEdit/styles/read_only = ExtResource("2_1yfrv")
 Panel/styles/panel = ExtResource("1_s1gma")
 TextEdit/colors/background_color = Color(0.0980392, 0.113725, 0.160784, 1)
 TextEdit/colors/font_readonly_color = Color(0.87451, 0.87451, 0.87451, 1)
 TextEdit/font_sizes/font_size = 12
 TextEdit/fonts/font = ExtResource("1_6xe43")
+TextEdit/styles/read_only = ExtResource("2_1yfrv")
 Tree/font_sizes/font_size = 12

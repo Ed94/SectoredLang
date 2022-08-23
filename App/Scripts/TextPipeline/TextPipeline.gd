@@ -11,6 +11,7 @@ var AST       : SyntaxParser.ASTNode
 @onready var Editor  := get_node("HBox/CodeEdit") as TextEdit
 @onready var ASTView := get_node("HBox/ASTView") as TextEdit
 @onready var ASTView_Tree := get_node("HBox/ASTView_Tree") as AST_Tree
+@onready var SEView := get_node("HBox/SE_Viewport/SubViewport") as SubViewport
 #endregion Editor
 
 #region File
@@ -24,8 +25,15 @@ func on_BufferUpdated():
 func _exit_tree() -> void:
 	Lex.free()
 	SPars.free()
-	
+
+var test = true
 func _input(event):
+	if event.is_action_pressed("Editor_ToggleASTViewTree"):
+		ASTView_Tree.set_visible(! ASTView_Tree.is_visible())
+	
+	if event.is_action_pressed("Editor_ToggleTextEditor"):
+		Editor.set_visible(! Editor.is_visible())
+	
 	if event.is_action_pressed("Editor_ProcessText"):
 		if G.check( Lex.tokenize(Editor.text) ):
 			return
@@ -49,6 +57,10 @@ func _input(event):
 	if event.is_action_pressed("Editor_SaveCurrent"):
 		CurrentFile.text = Editor.text
 		CurrentFile.save()
+		
+	if event.is_action_pressed("Editor_SwitchToggleFocus"):
+		SEView.gui_disable_input = ! SEView.gui_disable_input
+		
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:

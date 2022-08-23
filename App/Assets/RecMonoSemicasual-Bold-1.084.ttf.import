@@ -2,7 +2,7 @@
 
 importer="font_data_dynamic"
 type="FontFile"
-uid="uid://c85x0keodfyrf"
+uid="uid://ydjsltn51w0e"
 path="res://.godot/imported/RecMonoSemicasual-Bold-1.084.ttf-3b451a6f30ed0f90ed2961e660d9d33d.fontdata"
 
 [deps]
@@ -14,19 +14,21 @@ dest_files=["res://.godot/imported/RecMonoSemicasual-Bold-1.084.ttf-3b451a6f30ed
 
 Rendering=null
 antialiased=true
-generate_mipmaps=false
-multichannel_signed_distance_field=false
+generate_mipmaps=true
+multichannel_signed_distance_field=true
 msdf_pixel_range=8
-msdf_size=48
+msdf_size=40
 force_autohinter=false
 hinting=1
 subpixel_positioning=1
-oversampling=0.0
+oversampling=3.4
 Fallbacks=null
 fallbacks=[]
 Compress=null
 compress=true
 preload=[]
-language_support={}
+language_support={
+"en_US": true
+}
 script_support={}
 opentype_features={}

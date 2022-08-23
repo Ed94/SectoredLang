@@ -6,25 +6,25 @@ const LogType := Log.EType
 var MAS : Interpreter
 
 
-@onready var EnvView := get_node("VBoxContainer/EditorViews/HBox/EnvView")
+@onready var EnvView := get_node("VBoxContainer/Views/HBox/EnvView")
 @onready var Out     := get_node("AuxPanels/OutPanel") as Output
+
 
 
 func on_EnvUpdated():
 	EnvView.text = JSON.new().stringify(MAS.Env.to_SExpression(), "\t")
 
 
+
 #region Node
 func _input(event):
 	if event.is_action_pressed("Editor_Interpret"):
-		var what = SyntaxParser.ASTNode
-		var pls = G.TxtPipeline.AST as SyntaxParser.ASTNode.ASTNode
 		var result = MAS.eva(G.TxtPipeline.AST)
 	
 		if result != null:
 			Out.write( result )
 		
-		return
+	return
 
 func _ready() -> void:
 	MAS = Interpreter.new(null)

@@ -12,17 +12,12 @@ _global_script_classes=[{
 "base": "Tree",
 "class": &"AST_Tree",
 "language": &"GDScript",
-"path": "res://Scripts/AST_Tree.gd"
-}, {
-"base": "TreeItem",
-"class": &"AST_TreeItem",
-"language": &"GDScript",
-"path": "res://Scripts/AST_TreeItem.gd"
+"path": "res://Scripts/UI/AST_Tree.gd"
 }, {
 "base": "Button",
 "class": &"AuxTab",
 "language": &"GDScript",
-"path": "res://Scripts/AuxTab.gd"
+"path": "res://Scripts/UI/AuxTab.gd"
 }, {
 "base": "Node",
 "class": &"GScript",
@@ -52,27 +47,32 @@ _global_script_classes=[{
 "base": "Window",
 "class": &"Output",
 "language": &"GDScript",
-"path": "res://Scripts/Output.gd"
+"path": "res://Scripts/UI/Output.gd"
+}, {
+"base": "Camera2D",
+"class": &"SEditorCamera",
+"language": &"GDScript",
+"path": "res://Scripts/Nodes/SEditorCamera.gd"
+}, {
+"base": "SubViewport",
+"class": &"SEditorViewport",
+"language": &"GDScript",
+"path": "res://Scripts/Nodes/SEditorViewport.gd"
 }, {
 "base": "FileDialog",
 "class": &"SLFileDialog",
 "language": &"GDScript",
-"path": "res://Scripts/SLFileDialog.gd"
-}, {
-"base": "CodeEdit",
-"class": &"SLangEditor",
-"language": &"GDScript",
-"path": "res://Scripts/TextPipeline/SLangEditor.gd"
-}, {
-"base": "SyntaxHighlighter",
-"class": &"SLangHighlighter",
-"language": &"GDScript",
-"path": "res://Scripts/TextPipeline/SLangHighlighter.gd"
+"path": "res://Scripts/UI/SFileDialog.gd"
 }, {
 "base": "Object",
 "class": &"SRegex",
 "language": &"GDScript",
 "path": "res://Scripts/TextPipeline/SRegex.gd"
+}, {
+"base": "CodeEdit",
+"class": &"STextEditor",
+"language": &"GDScript",
+"path": "res://Scripts/UI/STextEditor.gd"
 }, {
 "base": "Object",
 "class": &"SyntaxParser",
@@ -88,10 +88,14 @@ _global_script_classes=[{
 "class": &"UnitFileTxt",
 "language": &"GDScript",
 "path": "res://Scripts/TextPipeline/UnitFileTxt.gd"
+}, {
+"base": "VBoxContainer",
+"class": &"VSNode",
+"language": &"GDScript",
+"path": "res://Scripts/UI/VSNode.gd"
 }]
 _global_script_class_icons={
 "AST_Tree": "",
-"AST_TreeItem": "",
 "AuxTab": "",
 "GScript": "",
 "Interpreter": "",
@@ -99,13 +103,15 @@ _global_script_class_icons={
 "Log": "",
 "MasEnv": "",
 "Output": "",
+"SEditorCamera": "",
+"SEditorViewport": "",
 "SLFileDialog": "",
-"SLangEditor": "",
-"SLangHighlighter": "",
 "SRegex": "",
+"STextEditor": "",
 "SyntaxParser": "",
 "TextPipeline": "",
-"UnitFileTxt": ""
+"UnitFileTxt": "",
+"VSNode": ""
 }
 
 [application]
@@ -131,6 +137,11 @@ window/stretch/aspect="ignore"
 
 Editor_Interpret={
 "deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"store_command":true,"alt_pressed":false,"shift_pressed":false,"meta_pressed":false,"command_pressed":false,"pressed":false,"keycode":0,"physical_keycode":16777250,"unicode":0,"echo":false,"script":null)
+]
+}
+Editor_Render_SEditor={
+"deadzone": 0.5,
 "events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"store_command":true,"alt_pressed":false,"shift_pressed":false,"meta_pressed":false,"command_pressed":false,"pressed":false,"keycode":0,"physical_keycode":16777249,"unicode":0,"echo":false,"script":null)
 ]
 }
@@ -154,3 +165,47 @@ Editor_ToggleAuxPanel={
 "events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"store_command":true,"alt_pressed":false,"shift_pressed":true,"meta_pressed":false,"command_pressed":true,"pressed":false,"keycode":65,"physical_keycode":0,"unicode":0,"echo":false,"script":null)
 ]
 }
+Editor_ToggleTextEditor={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"store_command":true,"alt_pressed":true,"shift_pressed":false,"meta_pressed":false,"command_pressed":true,"pressed":false,"keycode":84,"physical_keycode":0,"unicode":0,"echo":false,"script":null)
+]
+}
+Editor_ToggleASTViewTree={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"store_command":true,"alt_pressed":true,"shift_pressed":false,"meta_pressed":false,"command_pressed":true,"pressed":false,"keycode":78,"physical_keycode":0,"unicode":0,"echo":false,"script":null)
+]
+}
+Editor_Viewport_Pan={
+"deadzone": 0.5,
+"events": [Object(InputEventMouseButton,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"store_command":true,"alt_pressed":false,"shift_pressed":false,"meta_pressed":false,"command_pressed":false,"button_mask":0,"position":Vector2(0, 0),"global_position":Vector2(0, 0),"factor":1.0,"button_index":3,"pressed":false,"double_click":false,"script":null)
+]
+}
+Editor_Viewport_ZoomIn={
+"deadzone": 0.5,
+"events": [Object(InputEventMouseButton,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"store_command":true,"alt_pressed":false,"shift_pressed":false,"meta_pressed":false,"command_pressed":false,"button_mask":0,"position":Vector2(0, 0),"global_position":Vector2(0, 0),"factor":1.0,"button_index":4,"pressed":false,"double_click":false,"script":null)
+]
+}
+Editor_Viewport_ZoomOut={
+"deadzone": 0.5,
+"events": [Object(InputEventMouseButton,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"store_command":true,"alt_pressed":false,"shift_pressed":false,"meta_pressed":false,"command_pressed":false,"button_mask":0,"position":Vector2(0, 0),"global_position":Vector2(0, 0),"factor":1.0,"button_index":5,"pressed":false,"double_click":false,"script":null)
+]
+}
+SEditor_Mode_Nav={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"store_command":true,"alt_pressed":true,"shift_pressed":false,"meta_pressed":false,"command_pressed":false,"pressed":false,"keycode":78,"physical_keycode":0,"unicode":0,"echo":false,"script":null)
+]
+}
+SEditor_Mode_Edit={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"store_command":true,"alt_pressed":true,"shift_pressed":false,"meta_pressed":false,"command_pressed":false,"pressed":false,"keycode":69,"physical_keycode":0,"unicode":0,"echo":false,"script":null)
+]
+}
+Editor_SwitchToggleFocus={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"store_command":true,"alt_pressed":true,"shift_pressed":false,"meta_pressed":false,"command_pressed":true,"pressed":false,"keycode":70,"physical_keycode":0,"unicode":0,"echo":false,"script":null)
+]
+}
+
+[internationalization]
+
+locale/locale_filter_mode=0

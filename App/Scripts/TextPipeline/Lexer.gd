@@ -235,6 +235,9 @@ const Spec : Dictionary = \
 	TType.cap_SBStart : "start [",
 	TType.cap_SBEnd   : "start ]",
 	
+	TType.op_BSL  : "start <<",
+	TType.op_BSR  : "start >>",
+	
 	TType.op_Equal        : "start ==",
 	TType.op_NotEqual     : "start \\!=",
 	TType.op_GreaterEqual : "start >=",
@@ -256,8 +259,6 @@ const Spec : Dictionary = \
 	TType.op_BAnd : "start \\&",
 	TType.op_BOr  : "start \\|",
 	TType.op_BXOr : "start \\^",
-	TType.op_BSL  : "start <<",
-	TType.op_BSR  : "start >>",
 	
 	TType.op_Add       : "start \\+",
 	TType.op_Subtract  : "start \\-",
