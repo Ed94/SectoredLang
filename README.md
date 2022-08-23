@@ -19,4 +19,4 @@ The point of Sector was to see if it was possible to make a langauge that achiev
   
 My goal is to make a prototype that at least a prototype that covers goals 1, 2, and 3.
 
-[!img](https://i.imgur.com/I04Lkbp.gif)
+![img](https://i.imgur.com/I04Lkbp.gif)
