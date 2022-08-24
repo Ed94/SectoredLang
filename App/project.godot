@@ -9,11 +9,6 @@
 config_version=5
 
 _global_script_classes=[{
-"base": "Tree",
-"class": &"AST_Tree",
-"language": &"GDScript",
-"path": "res://Scripts/UI/AST_Tree.gd"
-}, {
 "base": "Button",
 "class": &"AuxTab",
 "language": &"GDScript",
@@ -43,6 +38,11 @@ _global_script_classes=[{
 "class": &"MasEnv",
 "language": &"GDScript",
 "path": "res://Scripts/Env.gd"
+}, {
+"base": "Object",
+"class": &"NParser",
+"language": &"GDScript",
+"path": "res://Scripts/NParser.gd"
 }, {
 "base": "Window",
 "class": &"Output",
@@ -74,10 +74,15 @@ _global_script_classes=[{
 "language": &"GDScript",
 "path": "res://Scripts/UI/STextEditor.gd"
 }, {
-"base": "Object",
-"class": &"SyntaxParser",
+"base": "Tree",
+"class": &"STree",
 "language": &"GDScript",
-"path": "res://Scripts/TextPipeline/Parser.gd"
+"path": "res://Scripts/UI/STree.gd"
+}, {
+"base": "Object",
+"class": &"TParser",
+"language": &"GDScript",
+"path": "res://Scripts/TextPipeline/TParser.gd"
 }, {
 "base": "Node",
 "class": &"TextPipeline",
@@ -95,20 +100,21 @@ _global_script_classes=[{
 "path": "res://Scripts/UI/VSNode.gd"
 }]
 _global_script_class_icons={
-"AST_Tree": "",
 "AuxTab": "",
 "GScript": "",
 "Interpreter": "",
 "Lexer": "",
 "Log": "",
 "MasEnv": "",
+"NParser": "",
 "Output": "",
 "SEditorCamera": "",
 "SEditorViewport": "",
 "SLFileDialog": "",
 "SRegex": "",
 "STextEditor": "",
-"SyntaxParser": "",
+"STree": "",
+"TParser": "",
 "TextPipeline": "",
 "UnitFileTxt": "",
 "VSNode": ""

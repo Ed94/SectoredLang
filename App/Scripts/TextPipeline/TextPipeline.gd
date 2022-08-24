@@ -3,14 +3,14 @@ class_name TextPipeline extends Node
 
 var SRX_Cache : Dictionary # Not used yet.
 var Lex       : Lexer
-var SPars     : SyntaxParser
-var AST       : SyntaxParser.ASTNode
+var SPars     : TParser
+var AST       : TParser.SNode
 
 
 #region Editor
 @onready var Editor  := get_node("HBox/CodeEdit") as TextEdit
 @onready var ASTView := get_node("HBox/ASTView") as TextEdit
-@onready var ASTView_Tree := get_node("HBox/ASTView_Tree") as AST_Tree
+@onready var SView_Tree := get_node("HBox/SView_Tree") as STree
 @onready var SEView := get_node("HBox/SE_Viewport/SubViewport") as SubViewport
 #endregion Editor
 
@@ -29,7 +29,7 @@ func _exit_tree() -> void:
 var test = true
 func _input(event):
 	if event.is_action_pressed("Editor_ToggleASTViewTree"):
-		ASTView_Tree.set_visible(! ASTView_Tree.is_visible())
+		SView_Tree.set_visible(! SView_Tree.is_visible())
 	
 	if event.is_action_pressed("Editor_ToggleTextEditor"):
 		Editor.set_visible(! Editor.is_visible())
@@ -47,8 +47,8 @@ func _input(event):
 	
 		ASTView.text = JSON.new().stringify(ast.to_SExpression(), "\t")
 		
-		ASTView_Tree.clear()
-		ASTView_Tree.generate(ast)
+		SView_Tree.clear()
+		SView_Tree.generate(ast)
 		return
 		
 	if event.is_action_pressed("Editor_RefreshCurrent"):
@@ -65,7 +65,7 @@ func _input(event):
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	Lex   = Lexer.new()
-	SPars = SyntaxParser.new(Lex)
+	SPars = TParser.new(Lex)
 
 	G.TxtPipeline = self
 	return

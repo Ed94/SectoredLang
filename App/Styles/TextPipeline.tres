@@ -1,8 +1,8 @@
 [gd_resource type="Theme" load_steps=4 format=3 uid="uid://dmtbie7ic5iam"]
 
-[ext_resource type="FontFile" path="res://Assets/DF_RecMonoSemiCasul.tres" id="1_6xe43"]
-[ext_resource type="StyleBox" path="res://Styles/TextPipeline.SBF.tres" id="1_s1gma"]
-[ext_resource type="StyleBox" path="res://Styles/Transparent_SBF.tres" id="2_1yfrv"]
+[ext_resource type="FontFile" uid="uid://vgrj87jo1sg4" path="res://Assets/DF_RecMonoSemiCasul.tres" id="1_6xe43"]
+[ext_resource type="StyleBox" uid="uid://bfo64xvbdie6c" path="res://Styles/TextPipeline.SBF.tres" id="1_s1gma"]
+[ext_resource type="StyleBox" uid="uid://c07qj0km37qfw" path="res://Styles/Transparent_SBF.tres" id="2_1yfrv"]
 
 [resource]
 CodeEdit/colors/background_color = Color(0.0784314, 0.0823529, 0.101961, 1)

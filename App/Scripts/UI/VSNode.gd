@@ -1,8 +1,8 @@
 class_name VSNode extends VBoxContainer
 
 const TType     := Lexer.TType
-const NTxt      := SyntaxParser.NTxt
-const NType     := SyntaxParser.NType
+const STxt      := TParser.STxt
+const SType     := TParser.SType
 const TypeColor := GScript.TypeColor
 
 const Spacer_MinSize := Vector2i(0, 6)
@@ -36,7 +36,7 @@ func create_ASTLabel(ast, container = null):
 	
 	var \
 	label = Label.new()
-	label.text = ast.name() if typeof(ast) == TYPE_OBJECT else NTxt[ast]
+	label.text = ast.name() if typeof(ast) == TYPE_OBJECT else STxt[ast]
 	label.name = label.text
 	label.grow_horizontal = 1
 	label.add_theme_color_override( "font_color", TypeColor[ast.type()]  if typeof(ast) == TYPE_OBJECT else TypeColor[ast] )
@@ -72,16 +72,16 @@ func generate():
 	self.add_child(Content)
 	
 	match AST.type():
-		NType.sec_Exe:
+		SType.sec_Exe:
 			process_sec_Exe(AST, Content)
 
-		NType.sec_Identifier:
+		SType.sec_Identifier:
 			process_sec_Identifier(AST, Content)
 			
-		NType.sec_TT:
+		SType.sec_TT:
 			process_sec_TranslationTime(AST, Content)
 			
-		NType.sym_Identifier:
+		SType.sym_Identifier:
 			process_sym_Identifier(AST, Content)
 
 	process_expr(AST, Content)
@@ -139,7 +139,7 @@ func process_sec_TranslationTime(ast, container):
 	if ast.num_Entries() == 1:
 		var entry = ast.entry(1)
 		match entry.type():
-			NType.sec_Static:
+			SType.sec_Static:
 				process_sec_Static(entry, container)
 		return
 	
@@ -156,7 +156,7 @@ func process_sec_Type(ast, container):
 	create_ASTLabel(ast.entry(1), container )
 	
 	if ast.has_Assignment():
-		create_Label( NTxt[NType.op_Assign], NType.op_Assign, container )
+		create_Label( STxt[SType.op_Assign], SType.op_Assign, container )
 		process_expr(ast.assignment(), container)
 
 func process_sec_Identifier(ast, container):
@@ -165,7 +165,7 @@ func process_sec_Identifier(ast, container):
 	if ast.num_Entries() == 1:
 		var entry = ast.entry(1)
 		match entry.type():
-			NType.sec_TT:
+			SType.sec_TT:
 				process_sec_TranslationTime(entry, container)
 		return
 	
@@ -180,26 +180,26 @@ func process_sec_Identifier(ast, container):
 	
 func process_sym_Identifier(ast, container):
 	create_ASTLabel(ast, container)
-	create_Label( NTxt[TType.op_Define], TType.op_Define, container )
+	create_Label( STxt[TType.op_Define], TType.op_Define, container )
 	
 	if ast.has_Typedef():
 		process_sec_Type(ast.typedef(), container)
 	
 func process_expr(ast, container):
 	match ast.type():
-		NType.literal_Binary  : process_literal(ast, container)
-		NType.literal_Char    : process_literal(ast, container)
-		NType.literal_Decimal : process_literal(ast, container)
-		NType.literal_Digit   : process_literal(ast, container)
-		NType.literal_String  : process_literal(ast, container)
-		NType.literal_True    : process_literal(ast, container)
-		NType.literal_False   : process_literal(ast, container)
+		SType.literal_Binary  : process_literal(ast, container)
+		SType.literal_Char    : process_literal(ast, container)
+		SType.literal_Decimal : process_literal(ast, container)
+		SType.literal_Digit   : process_literal(ast, container)
+		SType.literal_String  : process_literal(ast, container)
+		SType.literal_True    : process_literal(ast, container)
+		SType.literal_False   : process_literal(ast, container)
 					
-		NType.op_Add:
+		SType.op_Add:
 			process_op_Binary(ast, container)
-		NType.op_Subtract:
+		SType.op_Subtract:
 			process_op_Binary(ast, container)
-		NType.op_Multiply:
+		SType.op_Multiply:
 			process_op_Binary(ast, container)
 
 	return
@@ -213,12 +213,12 @@ func process_op_Binary(ast, container):
 	process_expr(right, container)
 	
 func process_literal(ast, container):
-	if ast.type() == NType.literal_True: 
-		create_Label( NTxt[NType.literal_True],  ast.type(), container )
+	if ast.type() == SType.literal_True: 
+		create_Label( STxt[SType.literal_True],  ast.type(), container )
 		return
 		
-	elif ast.type() == NType.literal_False:
-		create_Label( NTxt[NType.literal_False], ast.type(), container )
+	elif ast.type() == SType.literal_False:
+		create_Label( STxt[SType.literal_False], ast.type(), container )
 		return
 			
 	create_Label( ast.entry(1), ast.type(), container )

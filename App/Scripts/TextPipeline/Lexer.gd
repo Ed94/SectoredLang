@@ -17,6 +17,7 @@ const TType : Dictionary = \
 
 # Formatting
 	fmt_S  = "Formatting",							# Regex yeets it all with one expr.
+	fmt_NL = "Formatting: NewLine",
 	
 # Captures
 	cap_PStart  = "Capture: Parenthesis Start",
@@ -225,7 +226,8 @@ const TType : Dictionary = \
 
 const Spec : Dictionary = \
 {
-	TType.fmt_S : "start whitespace.repeat(1-).lazy",
+	TType.fmt_NL : "start \\R",
+	TType.fmt_S  : "start whitespace.repeat(1-).lazy",
 	
 	TType.cmt_SL : "start // inline.repeat(0-)",
 	TType.cmt_ML : "start /* set(whitespace !whitespace).repeat(0-).lazy */",
@@ -342,20 +344,149 @@ const Spec : Dictionary = \
 	"""
 }
 
+const TCatVal = \
+{
+	formatting        = "Formatting",
+	comment           = "Comment",
+	capture           = "capture",
+	builtin           = "builitin",
+	literal           = "literal",
+	op_Control        = "OP; Control Flow",
+	op_Memory         = "Op: Memory",
+	op_Define         = "Op: Define",
+	op_Unary          = "Op: Unary",
+	op_Assignment     = "Op: Assignment",
+	op_Bitshift       = "Op: Bitshift",
+	op_Logical        = "Op: Logical",
+	op_Additive       = "Op: Additive",
+	op_Multiplicative = "Op: Multiplicative",
+	op_Member         = "Op: Member",
+	scope             = "scope",
+	sector            = "Sector",
+	symbol            = "Symbol",
+}
+
+const TCategory = \
+{
+	TType.fmt_NL : TCatVal.formatting,
+	TType.fmt_S  : TCatVal.formatting,
+	
+	TType.cmt_SL : TCatVal.comment,
+	TType.cmt_ML : TCatVal.comment,
+	
+	TType.cap_PStart  : TCatVal.capture,
+	TType.cap_PEnd    : TCatVal.capture,
+	TType.cap_SBStart : TCatVal.capture,
+	TType.cap_SBEnd   : TCatVal.capture,
+	
+	TType.op_BSL  : TCatVal.op_Bitshift,
+	TType.op_BSR  : TCatVal.op_Bitshift,
+	
+	TType.op_Equal        : TCatVal.op_Logical,
+	TType.op_NotEqual     : TCatVal.op_Logical,
+	TType.op_GreaterEqual : TCatVal.op_Logical,
+	TType.op_LesserEqual  : TCatVal.op_Logical,
+	TType.op_Greater      : TCatVal.op_Logical,
+	TType.op_Lesser       : TCatVal.op_Logical,
+	
+	TType.op_A_Add : TCatVal.op_Assignment,
+	
+	TType.op_A_Infer : TCatVal.op_Assignment,
+	TType.op_Assign  : TCatVal.op_Assignment,
+	TType.op_Define  : TCatVal.op_Define,
+	TType.op_Map     : TCatVal.op_Define,
+	
+	TType.op_LNot : TCatVal.op_Unary,
+	TType.op_LAnd : TCatVal.op_Logical,
+	TType.op_LOr  : TCatVal.op_Logical,
+	TType.op_BNot : TCatVal.op_Unary,
+	TType.op_BAnd : TCatVal.op_Logical,
+	TType.op_BOr  : TCatVal.op_Logical,
+	TType.op_BXOr : TCatVal.op_Logical,
+	
+	TType.op_Add       : TCatVal.op_Additive,
+	TType.op_Subtract  : TCatVal.op_Additive,
+	TType.op_Multiply  : TCatVal.op_Multiplicative,
+	TType.op_Divide    : TCatVal.op_Multiplicative,
+	TType.op_Modulo    : TCatVal.op_Multiplicative,
+
+	TType.def_Start : TCatVal.scope,
+	TType.def_End   : TCatVal.scope,
+	
+	TType.op_CD  : "op_CD",
+	TType.op_SMA : "op_SMA",
+	
+	TType.op_Break  : TCatVal.op_Control,
+	TType.op_Cast   : TCatVal.op_Control,
+	TType.op_Return : TCatVal.op_Control,
+	
+	TType.op_SizeOf : TCatVal.op_Member,
+	
+	TType.op_Alloc      : TCatVal.op_Memory,
+	TType.op_Free       : TCatVal.op_Memory,
+	TType.op_Resize     : TCatVal.op_Memory,
+	TType.op_Wipe       : TCatVal.op_Memory,
+	
+	TType.sym_gd_Bool    : TCatVal.builtin,
+	TType.sym_gd_Int     : TCatVal.builtin,
+	TType.sym_gd_Float   : TCatVal.builtin,
+	TType.sym_gd_Array   : TCatVal.builtin,
+	TType.sym_gd_Dict    : TCatVal.builtin,
+	TType.sym_gd_String  : TCatVal.builtin,
+	
+	TType.literal_True    : TCatVal.literal,
+	TType.literal_False   : TCatVal.literal,
+	TType.literal_Binary  : TCatVal.literal,
+	TType.literal_Octal   : TCatVal.literal,
+	TType.literal_Hex     : TCatVal.literal,
+	TType.literal_Decimal : TCatVal.literal,
+	TType.literal_Digit   : TCatVal.literal,
+	TType.literal_Char    : TCatVal.literal,
+	TType.literal_String  : TCatVal.literal,
+	
+	TType.sec_Alias  : TCatVal.sector,
+	TType.sec_Else   : TCatVal.sector,
+	TType.sec_If     : TCatVal.sector,
+	TType.sec_Stack  : TCatVal.sector,
+	TType.sec_Static : TCatVal.sector,
+	TType.sec_Struct : TCatVal.sector,
+	TType.sec_Switch : TCatVal.sector,
+	TType.sec_Union  : TCatVal.sector,
+	TType.sec_Using  : TCatVal.sector,
+		
+	TType.sym_Allocator  : TCatVal.symbol,
+	TType.sym_Byte       : TCatVal.symbol,
+	TType.sym_Enum       : TCatVal.symbol,
+	TType.sym_Exe        : TCatVal.symbol,
+	TType.sym_LP         : TCatVal.symbol,
+	TType.sec_Loop       : TCatVal.symbol,
+	TType.sec_Heap       : TCatVal.symbol,
+	TType.sym_Ptr        : TCatVal.symbol,
+	TType.sym_RO         : TCatVal.symbol,
+	TType.sym_Self       : TCatVal.symbol,
+	TType.sym_TT         : TCatVal.symbol,
+	TType.sym_Type       : TCatVal.symbol,
+	TType.sym_Identifier : TCatVal.symbol
+}
 
 class Token extends RefCounted:
 	var Type  : String
 	var Value : String
-
+	
+	# Line , Col
+	var Start : Vector2i
+	var End   : Vector2i
 
 var SourceText : String
 var Cursor     : int
+var Line       : int
+var Column     : int
 var SpecRegex  : Dictionary
 var Tokens     : Array
 var TokenIndex : int = 0
 
 
-func compile_regex():
+func compile_Regex():
 	for type in TType.values() :
 		var regex  = RegEx.new()
 		var result = SRX.compile( Spec[type] )
@@ -371,6 +502,9 @@ func next_Token():
 		TokenIndex += 1
 	
 	return nextToken
+
+func last_Token():
+	return Tokens[TokenIndex - 1]
 
 func reached_EndOfText():
 	return Cursor >= SourceText.length()
@@ -392,6 +526,15 @@ func tokenize(programSrcText):
 			if  result == null || result.strings[0].length() == 0 || result.get_start() != 0 :
 				continue
 				
+			if type == TType.fmt_NL:
+				var addVal   = result.get_string().length()
+				
+				Cursor += addVal
+				Line   += 1
+				Column  = 0
+				error   = false
+				break
+				
 			# Skip Whitespace
 			if type == TType.fmt_S :
 				var addVal   = result.get_string().length()
@@ -408,7 +551,10 @@ func tokenize(programSrcText):
 
 			token.Type   = type
 			token.Value  = result.get_string()
-			Cursor      += ( result.get_string().length() )
+			token.Start  = Vector2i(Line, Column)
+			Column      += ( result.get_string().length() )
+			Cursor      += Column
+			token.End    = Vector2i(Line, Column)
 			
 			Tokens.append( token )
 			
@@ -426,4 +572,4 @@ func tokenize(programSrcText):
 
 func _init():
 	if SpecRegex.size() == 0 :
-		compile_regex()
+		compile_Regex()

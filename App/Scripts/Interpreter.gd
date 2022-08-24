@@ -1,7 +1,7 @@
 class_name Interpreter extends RefCounted
 
 const LogType := Log.EType
-const NType   := SyntaxParser.NType
+const SType   := TParser.SType
 #const ASTNode := SyntaxParser.ASTNode
 
 
@@ -16,7 +16,7 @@ func resolve_Symbol(ast):
 		var resolved = [ ast.entry(1) ]
 		
 		while index <= ast.num_Entries():
-			if ast.entry(index).type() == NType.op_SMA:
+			if ast.entry(index).type() == SType.op_SMA:
 				resolved.append( ast.entry(index) )
 			index += 1
 			
@@ -33,7 +33,7 @@ func eva(ast):
 		return evaResult
 
 	match ast.type():
-		NType.unit:
+		SType.unit:
 			if ast.num_Entries() == 0:
 				continue
 			
@@ -51,16 +51,16 @@ func eva(ast):
 					
 				evaResult = str(result)
 				
-		NType.sec_Allocator:
+		SType.sec_Allocator:
 			pass
 		
-		NType.sec_Cap:
+		SType.sec_Cap:
 			var index  = 1
 			var args   = ast.entry(index); index += 1
 			var retMap = null
 			var body   = null
 			
-			if ast.entry(index).type() == NType.sec_CapRet:
+			if ast.entry(index).type() == SType.sec_RetMap:
 				retMap = ast.entry(index); index += 1
 				
 			body = ast.entry(index)
@@ -68,7 +68,7 @@ func eva(ast):
 			if Parent == null:
 				pass
 	
-		NType.sec_Exe:
+		SType.sec_Exe:
 			if Parent == null:
 				var interp = Interpreter.new(self)
 				
@@ -83,13 +83,13 @@ func eva(ast):
 				# This will be an named executable bound by a context
 				Env.assign_Exe(ast)
 				
-		NType.sec_Stack:
+		SType.sec_Stack:
 			eva_Stack(ast)
 
-		NType.sec_Static:
+		SType.sec_Static:
 			eva_Static(ast)
 				
-		NType.sec_Identifier:
+		SType.sec_Identifier:
 			var symbol = ast.entry(1)
 			var interp
 			
@@ -103,10 +103,10 @@ func eva(ast):
 			interp.eva_Identifier(ast)
 			
 		#region Operations
-		NType.op_Assign :
+		SType.op_Assign :
 			eva_op_Assign(ast)
 			
-		NType.op_LNot:
+		SType.op_LNot:
 			var result = [
 				ast.entry(1).type(),
 				! eva(ast.entry(1))
@@ -114,7 +114,7 @@ func eva(ast):
 			
 			evaResult = result[1]
 			
-		NType.op_BNot:
+		SType.op_BNot:
 			var result = [
 				ast.entry(1).type(),
 				~ eva(ast.entry(1))
@@ -122,7 +122,7 @@ func eva(ast):
 			
 			evaResult = result[1]
 			
-		NType.op_Multiply:
+		SType.op_Multiply:
 			var astType = ast.entry(1).type()
 			var result = [ astType ]
 			
@@ -130,7 +130,7 @@ func eva(ast):
 			
 			evaResult = result[1]
 			
-		NType.op_Divide:
+		SType.op_Divide:
 			var astType = ast.entry(1).type()
 			var result = [ astType ]
 			
@@ -138,20 +138,20 @@ func eva(ast):
 			
 			evaResult = result[1]
 			
-		NType.op_Modulo:			
+		SType.op_Modulo:			
 			var astType = ast.entry(1).type()
 			var result = [ astType ]
 			
-			if astType == NType.builtin_int || NType.literal_Digit:
+			if astType == SType.builtin_int || SType.literal_Digit:
 				result.append( eva( ast.entry(1)) % eva( ast.entry(2)) )
-			elif astType == NType.builtin_float || NType.literal_Decimal:
+			elif astType == SType.builtin_float || SType.literal_Decimal:
 				result.append( fmod( 
 					eva( ast.entry(1)), eva( ast.entry(2))
 				)) 
 			
 			evaResult = result[1]
 		
-		NType.op_Add : 	
+		SType.op_Add : 	
 			var astType = ast.entry(1).type()
 			var result = [ astType ]
 			
@@ -159,7 +159,7 @@ func eva(ast):
 			
 			evaResult = result[1]
 			
-		NType.op_Subtract:
+		SType.op_Subtract:
 			var astType = ast.entry(1).type()
 			var result = [ astType ]
 			
@@ -167,7 +167,7 @@ func eva(ast):
 			
 			evaResult = result[1]
 			
-		NType.op_BSL:
+		SType.op_BSL:
 			var result = [
 				ast.entry(1).type(),
 				eva(ast.entry(1)) << eva(ast.entry(2))
@@ -175,7 +175,7 @@ func eva(ast):
 			
 			evaResult = result[1]
 			
-		NType.op_BSR:
+		SType.op_BSR:
 			var result = [
 				ast.entry(1).type(),
 				eva(ast.entry(1)) >> eva(ast.entry(2))
@@ -183,7 +183,7 @@ func eva(ast):
 			
 			evaResult = result[1]
 			
-		NType.op_BAnd:
+		SType.op_BAnd:
 			var result = [
 				ast.entry(1).type(),
 				eva(ast.entry(1)) & eva(ast.entry(2))
@@ -191,7 +191,7 @@ func eva(ast):
 			
 			evaResult = result[1]
 			
-		NType.op_BXOr:
+		SType.op_BXOr:
 			var result = [
 				ast.entry(1).type(),
 				eva(ast.entry(1)) ^ eva(ast.entry(2))
@@ -199,7 +199,7 @@ func eva(ast):
 			
 			evaResult = result[1]
 			
-		NType.op_BOr:
+		SType.op_BOr:
 			var result = [
 				ast.entry(1).type(),
 				eva(ast.entry(1)) | eva(ast.entry(2))
@@ -207,89 +207,89 @@ func eva(ast):
 			
 			evaResult = result[1]
 			
-		NType.op_Greater:
+		SType.op_Greater:
 			var result = [
-				NType.builtin_bool,
+				SType.builtin_bool,
 				eva(ast.entry(1)) > eva(ast.entry(2))
 			]
 			
 			evaResult = result[1]
 						
-		NType.op_GreaterEqual:
+		SType.op_GreaterEqual:
 			var result = [
-				NType.builtin_bool,
+				SType.builtin_bool,
 				eva(ast.entry(1)) >= eva(ast.entry(2))
 			]
 			
 			evaResult = result[1]
 			
-		NType.op_Lesser:
+		SType.op_Lesser:
 			var result = [
-				NType.builtin_bool,
+				SType.builtin_bool,
 				eva(ast.entry(1)) < eva(ast.entry(2))
 			]
 			
 			evaResult = result[1]
 		
-		NType.op_LesserEqual:
+		SType.op_LesserEqual:
 			var result = [
-				NType.builtin_bool,
+				SType.builtin_bool,
 				eva(ast.entry(1)) <= eva(ast.entry(2))
 			]
 			
 			evaResult = result[1]
 			
-		NType.op_Equal:
+		SType.op_Equal:
 			var result = [
-				NType.builtin_bool,
+				SType.builtin_bool,
 				eva(ast.entry(1)) == eva(ast.entry(2))
 			]
 			
 			evaResult = result[1]
 			
-		NType.op_NotEqual:
+		SType.op_NotEqual:
 			var result = [
-				NType.builtin_bool,
+				SType.builtin_bool,
 				eva(ast.entry(1)) != eva(ast.entry(2))
 			]
 			
 			evaResult = result[1]
 			
-		NType.op_LAnd:
+		SType.op_LAnd:
 			var result = [
-				NType.builtin_bool,
+				SType.builtin_bool,
 				eva(ast.entry(1) && eva(ast.entry(2)))
 			]
 			
 			evaResult = result[1]
 			
-		NType.op_LOr:
+		SType.op_LOr:
 			var result = [ 
-				NType.builtin_bool, 
+				SType.builtin_bool, 
 				eva(ast.entry(1)) || eva(ast.entry(2)) 
 			]
 			
 			evaResult = result[1]
 		
-		NType.op_CD:
+		SType.op_CD:
 			eva( ast.entry(1) )
 			
 			evaResult = eva( ast.entry(2) )
 		#endregion Operations
 	
-		NType.sym_Identifier: 
+		SType.sym_Identifier: 
 			evaResult = Env.lookup( resolve_Symbol(ast) )
 		
 		# Evaluating Literal
-		NType.literal_String : evaResult = ast.string()
-		NType.literal_Digit  : evaResult = [ NType.builtin_int, ast.entry(1).to_int() ]
-		NType.literal_Decimal: evaResult = float( ast.entry(1) )
-		NType.literal_Char   : evaResult = String( ast.entry(1) )
-		NType.literal_False  : evaResult = false
-		NType.literal_True   : evaResult = true
-		NType.literal_Binary : evaResult = int( ast.entry(1) )
-		NType.literal_Hex    : evaResult = int( ast.entry(1) )
-		NType.literal_Octal  : evaResult = int( ast.entry(1) )
+		SType.literal_String : evaResult = ast.string()
+		SType.literal_Digit  : evaResult = [ SType.builtin_int, ast.entry(1).to_int() ]
+		SType.literal_Decimal: evaResult = float( ast.entry(1) )
+		SType.literal_Char   : evaResult = String( ast.entry(1) )
+		SType.literal_False  : evaResult = false
+		SType.literal_True   : evaResult = true
+		SType.literal_Binary : evaResult = int( ast.entry(1) )
+		SType.literal_Hex    : evaResult = int( ast.entry(1) )
+		SType.literal_Octal  : evaResult = int( ast.entry(1) )
 		
 	if Parent == null:
 		G.MAS_EnvUpdated.emit()
@@ -305,7 +305,7 @@ func eva_Identifier(ast):
 		index += 1;
 		var current = ast.entry(index)
 		match current.type():
-			NType.sec_Type:
+			SType.sec_Type:
 				var astType = current.entry(1)
 				var typedef = [ astType ]
 					
@@ -317,7 +317,7 @@ func eva_Identifier(ast):
 				Env.assign_Type(typedef)
 					
 			# TODO:
-			NType.sec_Static:		
+			SType.sec_Static:		
 				eva_Static(current)
 
 func eva_Stack(ast):
@@ -355,15 +355,15 @@ func eva_op_Assign(ast):
 			
 	var rvalue = []
 	match ast.entry(2).type():
-		NType.literal_Digit   : rvalue.append(NType.builtin_int)
-		NType.literal_Decimal : rvalue.append(NType.builtin_float)
-		NType.literal_String  : rvalue.append(NType.builtin_string)
-		NType.literal_Char    : rvalue.append(NType.builtin_string) 
-		NType.literal_True    : rvalue.append(NType.builtin_bool)
-		NType.literal_False   : rvalue.append(NType.builtin_bool)
-		NType.literal_Binary  : rvalue.append(NType.builtin_int) 
-		NType.literal_Octal   : rvalue.append(NType.builtin_int) 
-		NType.literal_Hex     : rvalue.append(NType.builtin_int) 
+		SType.literal_Digit   : rvalue.append(SType.builtin_int)
+		SType.literal_Decimal : rvalue.append(SType.builtin_float)
+		SType.literal_String  : rvalue.append(SType.builtin_string)
+		SType.literal_Char    : rvalue.append(SType.builtin_string) 
+		SType.literal_True    : rvalue.append(SType.builtin_bool)
+		SType.literal_False   : rvalue.append(SType.builtin_bool)
+		SType.literal_Binary  : rvalue.append(SType.builtin_int) 
+		SType.literal_Octal   : rvalue.append(SType.builtin_int) 
+		SType.literal_Hex     : rvalue.append(SType.builtin_int) 
 			
 	if rvalue.size():
 		rvalue.append( eva( ast.entry(2)) )

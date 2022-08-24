@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3 uid="uid://d1td6fgmrj6h6"]
+[gd_scene load_steps=20 format=3 uid="uid://c3bapvtsputmr"]
 
 [ext_resource type="StyleBox" uid="uid://nqey8i51uq6n" path="res://Styles/AppBG.SBF.tres" id="1_cc3py"]
 [ext_resource type="Script" path="res://Scripts/Persistent.gd" id="1_p5snc"]
@@ -8,7 +8,7 @@
 [ext_resource type="Script" path="res://Scripts/TextPipeline/TextPipeline.gd" id="4_d3lki"]
 [ext_resource type="Theme" path="res://Styles/AuxPanel.tres" id="4_hwwia"]
 [ext_resource type="Script" path="res://Scripts/UI/STextEditor.gd" id="5_beomd"]
-[ext_resource type="Script" path="res://Scripts/UI/AST_Tree.gd" id="5_ddx1b"]
+[ext_resource type="Script" path="res://Scripts/UI/STree.gd" id="5_ddx1b"]
 [ext_resource type="Script" path="res://Scripts/Nodes/SEditorViewport.gd" id="5_h7oa2"]
 [ext_resource type="Script" path="res://Scripts/Nodes/SEditorCamera.gd" id="6_wurw0"]
 [ext_resource type="Theme" uid="uid://ir46m6m80a2q" path="res://Styles/SEditor_SectorID.tres" id="7_ohm8i"]
@@ -302,7 +302,7 @@ text = "ret err"
 theme = ExtResource("7_ohm8i")
 script = ExtResource("8_s3wc3")
 
-[node name="ASTView_Tree" type="Tree" parent="VBoxContainer/Views/HBox"]
+[node name="SView_Tree" type="Tree" parent="VBoxContainer/Views/HBox"]
 visible = false
 offset_right = 709.0
 offset_bottom = 865.0
@@ -311,7 +311,7 @@ size_flags_stretch_ratio = 0.4
 columns = 2
 script = ExtResource("5_ddx1b")
 
-[node name="ASTView" type="TextEdit" parent="VBoxContainer/Views/HBox"]
+[node name="SView" type="TextEdit" parent="VBoxContainer/Views/HBox"]
 visible = false
 offset_left = 377.0
 offset_right = 704.0

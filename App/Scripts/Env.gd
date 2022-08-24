@@ -1,6 +1,6 @@
 class_name MasEnv extends RefCounted
 
-const NType = SyntaxParser.NType
+const SType = TParser.SType
 
 const SecContext = "Sector Context"
 
@@ -31,42 +31,42 @@ func assign(symbol, value):
 	var symbolID = context[0]
 	var records  = context[1]
 	
-	if records.has(NType.sec_Stack) && records[NType.sec_Stack].has( symbolID ):
-		records[NType.sec_Stack][ symbolID ] = value
+	if records.has(SType.sec_Stack) && records[SType.sec_Stack].has( symbolID ):
+		records[SType.sec_Stack][ symbolID ] = value
 		
-		return records[NType.sec_Stack][ symbolID ]
+		return records[SType.sec_Stack][ symbolID ]
 
-	if records.has(NType.sec_Static) && records[NType.sec_Static].has( symbolID ):
-		records[NType.sec_Static][ symbolID ] = value
+	if records.has(SType.sec_Static) && records[SType.sec_Static].has( symbolID ):
+		records[SType.sec_Static][ symbolID ] = value
 		
-		return records[NType.sec_Static][ symbolID ] 
+		return records[SType.sec_Static][ symbolID ] 
 
 	return null
 
 func assign_Type(value):
-	Records[NType.sec_Type] = value
+	Records[SType.sec_Type] = value
 	
-	return Records[NType.sec_Type]
+	return Records[SType.sec_Type]
 
 func assign_Stack(varSymbol, value):
 	var record = Records
 	
-	if ! record.has(NType.sec_Stack):
-		record[NType.sec_Stack] = {}
+	if ! record.has(SType.sec_Stack):
+		record[SType.sec_Stack] = {}
 	
-	record[NType.sec_Stack][varSymbol] = value
+	record[SType.sec_Stack][varSymbol] = value
 	
-	return record[NType.sec_Stack][varSymbol]
+	return record[SType.sec_Stack][varSymbol]
 
 func assign_Static(varSymbol, value):
 	var record = Records
 	
-	if ! record.has(NType.sec_Static):
-		record[NType.sec_Static] = {}
+	if ! record.has(SType.sec_Static):
+		record[SType.sec_Static] = {}
 	
-	record[NType.sec_Static][varSymbol] = value
+	record[SType.sec_Static][varSymbol] = value
 	
-	return record[NType.sec_Static][varSymbol]
+	return record[SType.sec_Static][varSymbol]
 
 func define(symbol : String, env : MasEnv):
 	Records[symbol] = env
@@ -89,11 +89,11 @@ func lookup(symbol):
 	var symbolID = context[0]
 	var records  = context[1]
 	
-	if records.has(NType.sec_Stack) && records[NType.sec_Stack].has( symbolID ):
-		return records[NType.sec_Stack][ symbolID ]
+	if records.has(SType.sec_Stack) && records[SType.sec_Stack].has( symbolID ):
+		return records[SType.sec_Stack][ symbolID ]
 	
-	if records.has(NType.sec_Static) && records[NType.sec_Static].has( symbolID ):
-		return records[NType.sec_Static][ symbolID ]
+	if records.has(SType.sec_Static) && records[SType.sec_Static].has( symbolID ):
+		return records[SType.sec_Static][ symbolID ]
 
 	if records.has( symbolID ):
 		return records[ symbolID ]

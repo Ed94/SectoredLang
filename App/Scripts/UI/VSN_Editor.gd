@@ -1,7 +1,7 @@
 extends Control
 
-const NType := SyntaxParser.NType
-const NTxt := SyntaxParser.NTxt
+const SType := TParser.SType
+const STxt  := TParser.STxt
 const TType := Lexer.TType
 const TypeColor  = GScript.TypeColor
 
@@ -69,10 +69,10 @@ func process_Text():
 #
 #		var entry = ast.entry(index)
 #		match entry.type():
-#			NType.sec_Exe:
+#			SType.sec_Exe:
 #				process_sec_Exe(entry, sectorNode)
 #
-#			NType.sec_Identifier:
+#			SType.sec_Identifier:
 #				process_sec_Identifier(entry, sectorNode)
 #
 #		index += 1
@@ -84,7 +84,7 @@ func process_sec_Exe(ast, container, useHeader = true):
 		header.custom_minimum_size = Header_MinSize
 		container.add_child(header)
 	
-	create_Label( NTxt[NType.sec_Exe], NType.sec_Exe, header )
+	create_Label( STxt[SType.sec_Exe], SType.sec_Exe, header )
 	
 	var parent = header
 	if ast.num_Entries() > 1:
@@ -95,8 +95,8 @@ func process_sec_Exe(ast, container, useHeader = true):
 		
 		var entry = ast.entry(index)
 		match entry.type():
-			NType.literal_String:
-				create_Label( entry.entry(index), NType.literal_String, parent )
+			SType.literal_String:
+				create_Label( entry.entry(index), SType.literal_String, parent )
 				
 			
 		# Its an expression
@@ -115,7 +115,7 @@ func process_sec_Static(ast, container, useHeader = true):
 		header.custom_minimum_size = Header_MinSize
 		container.add_child(header)
 		
-	create_Label( NTxt[ast.type()], ast.type(), header )
+	create_Label( STxt[ast.type()], ast.type(), header )
 	
 	var parent = header
 	if ast.num_Entries() > 1:
@@ -133,7 +133,7 @@ func process_sec_TranslationTime(ast, container, useHeader = true):
 		header.custom_minimum_size = Header_MinSize
 		container.add_child(header)
 	
-	create_Label( NTxt[ast.type()], ast.type(), header )
+	create_Label( STxt[ast.type()], ast.type(), header )
 	
 	var parent = header
 	if ast.num_Entries() > 1:
@@ -144,7 +144,7 @@ func process_sec_TranslationTime(ast, container, useHeader = true):
 		
 		var entry = ast.entry(index)
 		match entry.type():
-			NType.sec_Static:
+			SType.sec_Static:
 				process_sec_Static(entry, container)
 				
 		index += 1
@@ -157,7 +157,7 @@ func process_sec_StaticEntry(ast, container):
 		container.add_child(header)
 		
 	create_Label(ast.name(), ast.type(), header)
-	create_Label(NTxt[TType.op_Define], TType.op_Define, header)
+	create_Label(STxt[TType.op_Define], TType.op_Define, header)
 		
 	process_sec_Type(ast.typedef(), header)
 	return
@@ -170,11 +170,11 @@ func process_sec_Type(ast, container):
 		container.add_child(header)
 	
 	match ast.entry(1):
-		NType.builtin_bool:
-			create_Label( NTxt[NType.builtin_bool], NType.builtin_bool, header )
+		SType.builtin_bool:
+			create_Label( STxt[SType.builtin_bool], SType.builtin_bool, header )
 	
 	if ast.has_Assignment():
-		create_Label( NTxt[NType.op_Assign], NType.op_Assign, header )
+		create_Label( STxt[SType.op_Assign], SType.op_Assign, header )
 		process_expr(ast.assignment(), header)
 
 func process_sec_Identifier(ast, container, useHeader = true):
@@ -195,7 +195,7 @@ func process_sec_Identifier(ast, container, useHeader = true):
 		
 		var entry = ast.entry(index)
 		match entry.type():
-			NType.sec_TT:
+			SType.sec_TT:
 				process_sec_TranslationTime(entry, parent)
 					
 		index += 1
@@ -204,19 +204,19 @@ func process_sec_Identifier(ast, container, useHeader = true):
 	
 func process_expr(ast, container):
 	match ast.type():
-		NType.literal_Binary  : process_literal(ast, container)
-		NType.literal_Char    : process_literal(ast, container)
-		NType.literal_Decimal : process_literal(ast, container)
-		NType.literal_Digit   : process_literal(ast, container)
-		NType.literal_String  : process_literal(ast, container)
-		NType.literal_True    : process_literal(ast, container)
-		NType.literal_False   : process_literal(ast, container)
+		SType.literal_Binary  : process_literal(ast, container)
+		SType.literal_Char    : process_literal(ast, container)
+		SType.literal_Decimal : process_literal(ast, container)
+		SType.literal_Digit   : process_literal(ast, container)
+		SType.literal_String  : process_literal(ast, container)
+		SType.literal_True    : process_literal(ast, container)
+		SType.literal_False   : process_literal(ast, container)
 					
-		NType.op_Add:
+		SType.op_Add:
 			process_op_Binary(ast, container)
-		NType.op_Subtract:
+		SType.op_Subtract:
 			process_op_Binary(ast, container)
-		NType.op_Multiply:
+		SType.op_Multiply:
 			process_op_Binary(ast, container)
 
 	return
@@ -226,16 +226,16 @@ func process_op_Binary(ast, container):
 	var right = ast.entry(2)
 	
 	process_expr(left, container)
-	create_Label( NTxt[ast.type()], ast.type(), container )
+	create_Label( STxt[ast.type()], ast.type(), container )
 	process_expr(right, container)
 	
 func process_literal(ast, container):
-	if ast.type() == NType.literal_True: 
-		create_Label( NTxt[NType.literal_True],  ast.type(), container )
+	if ast.type() == SType.literal_True: 
+		create_Label( STxt[SType.literal_True],  ast.type(), container )
 		return
 		
-	elif ast.type() == NType.literal_False:
-		create_Label( NTxt[NType.literal_False], ast.type(), container )
+	elif ast.type() == SType.literal_False:
+		create_Label( STxt[SType.literal_False], ast.type(), container )
 		return
 			
 	create_Label( ast.entry(1), ast.type(), container )
