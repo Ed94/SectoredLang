@@ -16,7 +16,7 @@ func resolve_Symbol(ast):
 		var resolved = [ ast.entry(1) ]
 		
 		while index <= ast.num_Entries():
-			if ast.entry(index).type() == SType.op_SMA:
+			if ast.entry(index).Type == SType.op_SMA:
 				resolved.append( ast.entry(index) )
 			index += 1
 			
@@ -32,7 +32,7 @@ func eva(ast):
 	if ast == null:
 		return evaResult
 
-	match ast.type():
+	match ast.Type:
 		SType.unit:
 			if ast.num_Entries() == 0:
 				continue
@@ -60,7 +60,7 @@ func eva(ast):
 			var retMap = null
 			var body   = null
 			
-			if ast.entry(index).type() == SType.sec_RetMap:
+			if ast.entry(index).Type == SType.sec_RetMap:
 				retMap = ast.entry(index); index += 1
 				
 			body = ast.entry(index)
@@ -108,7 +108,7 @@ func eva(ast):
 			
 		SType.op_LNot:
 			var result = [
-				ast.entry(1).type(),
+				ast.entry(1).Type,
 				! eva(ast.entry(1))
 			]
 			
@@ -116,14 +116,14 @@ func eva(ast):
 			
 		SType.op_BNot:
 			var result = [
-				ast.entry(1).type(),
+				ast.entry(1).Type,
 				~ eva(ast.entry(1))
 			]
 			
 			evaResult = result[1]
 			
 		SType.op_Multiply:
-			var astType = ast.entry(1).type()
+			var astType = ast.entry(1).Type
 			var result = [ astType ]
 			
 			result.append( eva( ast.entry(1)) * eva( ast.entry(2)) )
@@ -131,7 +131,7 @@ func eva(ast):
 			evaResult = result[1]
 			
 		SType.op_Divide:
-			var astType = ast.entry(1).type()
+			var astType = ast.entry(1).Type
 			var result = [ astType ]
 			
 			result.append( eva( ast.entry(1)) / eva( ast.entry(2)) )
@@ -139,12 +139,12 @@ func eva(ast):
 			evaResult = result[1]
 			
 		SType.op_Modulo:			
-			var astType = ast.entry(1).type()
+			var astType = ast.entry(1).Type
 			var result = [ astType ]
 			
-			if astType == SType.builtin_int || SType.literal_Digit:
+			if astType == SType.builtin_Int || SType.literal_Digit:
 				result.append( eva( ast.entry(1)) % eva( ast.entry(2)) )
-			elif astType == SType.builtin_float || SType.literal_Decimal:
+			elif astType == SType.builtin_Float || SType.literal_Decimal:
 				result.append( fmod( 
 					eva( ast.entry(1)), eva( ast.entry(2))
 				)) 
@@ -152,7 +152,7 @@ func eva(ast):
 			evaResult = result[1]
 		
 		SType.op_Add : 	
-			var astType = ast.entry(1).type()
+			var astType = ast.entry(1).Type
 			var result = [ astType ]
 			
 			result.append( eva( ast.entry(1)) + eva( ast.entry(2)) )
@@ -160,7 +160,7 @@ func eva(ast):
 			evaResult = result[1]
 			
 		SType.op_Subtract:
-			var astType = ast.entry(1).type()
+			var astType = ast.entry(1).Type
 			var result = [ astType ]
 			
 			result.append( eva( ast.entry(1)) - eva( ast.entry(2)) )
@@ -169,7 +169,7 @@ func eva(ast):
 			
 		SType.op_BSL:
 			var result = [
-				ast.entry(1).type(),
+				ast.entry(1).Type,
 				eva(ast.entry(1)) << eva(ast.entry(2))
 			]
 			
@@ -177,7 +177,7 @@ func eva(ast):
 			
 		SType.op_BSR:
 			var result = [
-				ast.entry(1).type(),
+				ast.entry(1).Type,
 				eva(ast.entry(1)) >> eva(ast.entry(2))
 			]
 			
@@ -185,7 +185,7 @@ func eva(ast):
 			
 		SType.op_BAnd:
 			var result = [
-				ast.entry(1).type(),
+				ast.entry(1).Type,
 				eva(ast.entry(1)) & eva(ast.entry(2))
 			]
 			
@@ -193,7 +193,7 @@ func eva(ast):
 			
 		SType.op_BXOr:
 			var result = [
-				ast.entry(1).type(),
+				ast.entry(1).Type,
 				eva(ast.entry(1)) ^ eva(ast.entry(2))
 			]
 			
@@ -201,7 +201,7 @@ func eva(ast):
 			
 		SType.op_BOr:
 			var result = [
-				ast.entry(1).type(),
+				ast.entry(1).Type,
 				eva(ast.entry(1)) | eva(ast.entry(2))
 			]
 			
@@ -209,7 +209,7 @@ func eva(ast):
 			
 		SType.op_Greater:
 			var result = [
-				SType.builtin_bool,
+				SType.builtin_Bool,
 				eva(ast.entry(1)) > eva(ast.entry(2))
 			]
 			
@@ -217,7 +217,7 @@ func eva(ast):
 						
 		SType.op_GreaterEqual:
 			var result = [
-				SType.builtin_bool,
+				SType.builtin_Bool,
 				eva(ast.entry(1)) >= eva(ast.entry(2))
 			]
 			
@@ -225,7 +225,7 @@ func eva(ast):
 			
 		SType.op_Lesser:
 			var result = [
-				SType.builtin_bool,
+				SType.builtin_Bool,
 				eva(ast.entry(1)) < eva(ast.entry(2))
 			]
 			
@@ -233,7 +233,7 @@ func eva(ast):
 		
 		SType.op_LesserEqual:
 			var result = [
-				SType.builtin_bool,
+				SType.builtin_Bool,
 				eva(ast.entry(1)) <= eva(ast.entry(2))
 			]
 			
@@ -241,7 +241,7 @@ func eva(ast):
 			
 		SType.op_Equal:
 			var result = [
-				SType.builtin_bool,
+				SType.builtin_Bool,
 				eva(ast.entry(1)) == eva(ast.entry(2))
 			]
 			
@@ -249,7 +249,7 @@ func eva(ast):
 			
 		SType.op_NotEqual:
 			var result = [
-				SType.builtin_bool,
+				SType.builtin_Bool,
 				eva(ast.entry(1)) != eva(ast.entry(2))
 			]
 			
@@ -257,7 +257,7 @@ func eva(ast):
 			
 		SType.op_LAnd:
 			var result = [
-				SType.builtin_bool,
+				SType.builtin_Bool,
 				eva(ast.entry(1) && eva(ast.entry(2)))
 			]
 			
@@ -265,7 +265,7 @@ func eva(ast):
 			
 		SType.op_LOr:
 			var result = [ 
-				SType.builtin_bool, 
+				SType.builtin_Bool, 
 				eva(ast.entry(1)) || eva(ast.entry(2)) 
 			]
 			
@@ -282,7 +282,7 @@ func eva(ast):
 		
 		# Evaluating Literal
 		SType.literal_String : evaResult = ast.string()
-		SType.literal_Digit  : evaResult = [ SType.builtin_int, ast.entry(1).to_int() ]
+		SType.literal_Digit  : evaResult = [ SType.builtin_Int, ast.entry(1).to_int() ]
 		SType.literal_Decimal: evaResult = float( ast.entry(1) )
 		SType.literal_Char   : evaResult = String( ast.entry(1) )
 		SType.literal_False  : evaResult = false
@@ -304,7 +304,7 @@ func eva_Identifier(ast):
 	while index < ast.num_Entries():
 		index += 1;
 		var current = ast.entry(index)
-		match current.type():
+		match current.Type:
 			SType.sec_Type:
 				var astType = current.entry(1)
 				var typedef = [ astType ]
@@ -354,16 +354,16 @@ func eva_op_Assign(ast):
 	var lvalue = resolve_Symbol( ast.entry(1) )
 			
 	var rvalue = []
-	match ast.entry(2).type():
-		SType.literal_Digit   : rvalue.append(SType.builtin_int)
-		SType.literal_Decimal : rvalue.append(SType.builtin_float)
-		SType.literal_String  : rvalue.append(SType.builtin_string)
-		SType.literal_Char    : rvalue.append(SType.builtin_string) 
-		SType.literal_True    : rvalue.append(SType.builtin_bool)
-		SType.literal_False   : rvalue.append(SType.builtin_bool)
-		SType.literal_Binary  : rvalue.append(SType.builtin_int) 
-		SType.literal_Octal   : rvalue.append(SType.builtin_int) 
-		SType.literal_Hex     : rvalue.append(SType.builtin_int) 
+	match ast.entry(2).Type:
+		SType.literal_Digit   : rvalue.append(SType.builtin_Int)
+		SType.literal_Decimal : rvalue.append(SType.builtin_Float)
+		SType.literal_String  : rvalue.append(SType.builtin_String)
+		SType.literal_Char    : rvalue.append(SType.builtin_String) 
+		SType.literal_True    : rvalue.append(SType.builtin_Bool)
+		SType.literal_False   : rvalue.append(SType.builtin_Bool)
+		SType.literal_Binary  : rvalue.append(SType.builtin_Int) 
+		SType.literal_Octal   : rvalue.append(SType.builtin_Int) 
+		SType.literal_Hex     : rvalue.append(SType.builtin_Int) 
 			
 	if rvalue.size():
 		rvalue.append( eva( ast.entry(2)) )

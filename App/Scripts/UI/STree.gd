@@ -3,6 +3,7 @@ class_name STree extends Tree
 
 var TypeColor = GScript.TypeColor
 const SType := TParser.SType
+const SAttribute := TParser.SAttribute
 const Type  := 0
 const Value := 1
 const Focus := 2
@@ -21,45 +22,44 @@ func populate(node):
 	var item = node.Item
 	var ast = node.AST_Node
 	
-	item.set_custom_color(Type, TypeColor[ ast.type() ])
-	item.set_custom_color(Value, TypeColor[ ast.type() ])
+	item.set_custom_color(Type, TypeColor[ ast.Type ])
+	item.set_custom_color(Value, TypeColor[ ast.Type ])
 	
-	item.set_text(Type, ast.type())
+	item.set_text(Type, ast.Type)
 	
-	match ast.type():
+	match ast.Type:
 		SType.sec_EnumElement:
-			item.set_text(Value, ast.Data[1].Data[1])
+			item.set_text(Value, ast.name().name())
 		
 		SType.literal_Binary:
-			item.set_text(Value, ast.Data[1])
+			item.set_text(Value, ast.value())
 			
 		SType.literal_Char:
-			item.set_text(Value, ast.Data[1])
+			item.set_text(Value, ast.value())
 						
 		SType.literal_Decimal:
-			item.set_text(Value, ast.Data[1])
+			item.set_text(Value, ast.value())
 			
 		SType.literal_Digit:
-			item.set_text(Value, ast.Data[1])
+			item.set_text(Value, ast.value())
 
 		SType.literal_False:
 			pass
 			
 		SType.literal_Hex:
-			item.set_text(Value, ast.Data[1])
+			item.set_text(Value, ast.value())
 			
 		SType.literal_String:
-			item.set_text(Value, ast.Data[1])
+			item.set_text(Value, ast.value())
 			
 		SType.literal_True:
 			pass
 			
 		SType.op_SMA:
-			if ast.Data[1].Data.size() > 1 && typeof(ast.Data[1].Data[1]) == TYPE_STRING :
-				item.set_text(Value, ast.Data[1].Data[1])
+			pass
 			
 		SType.sec_Allocator:
-			item.set_text(Value, ast.Data[1].Data[1])
+			item.set_text(Value, ast.name().name())
 			
 		SType.sec_Cap:
 			pass
@@ -73,8 +73,16 @@ func populate(node):
 		SType.sec_Exe:
 			pass
 			
+		SType.sec_Loop:
+			if ast.cond():
+				generate(ast.cond(), node)
+			
 		SType.sec_Heap:
 			pass
+			
+		SType.sec_RetMap:
+			if ast.expression():
+				generate(ast.expression(), node)
 			
 		SType.sec_Struct:
 			pass
@@ -86,24 +94,25 @@ func populate(node):
 			pass
 			
 		SType.sec_Type:
-			if typeof(ast.Data[1]) == TYPE_STRING: 
-				item.set_text(Value, ast.Data[1])
+			pass
+#			if ast.typedef().value().Attributes.contains(SAttribute.literal):
+#				item.set_text(Value, ast.typedef().value().value())
 			
 		SType.sec_TT:
 			pass
 		
 		SType.sec_Identifier:
-			item.set_text(Value, ast.Data[1])
+			item.set_text(Value, ast.name())
 			
 		SType.sym_Identifier:
-			item.set_text(Value, ast.Data[1])
+			item.set_text(Value, ast.name())
 		
 	var index := 1
 	while index <= ast.Data.size() - 1:
 		match typeof( ast.Data[index] ):
 			TYPE_STRING:
 				var skip = false
-				match ast.type():
+				match ast.Type:
 					SType.sec_EnumElement: if index == 1: skip = true
 					
 					SType.literal_Binary: skip = true
@@ -116,10 +125,7 @@ func populate(node):
 					SType.literal_String : skip = true
 					SType.literal_True: skip = true
 					
-					SType.op_SMA : if index == 1: skip = true
-					
 					SType.sec_Allocator: skip = true
-					SType.sec_Type: skip = true
 					SType.sec_Identifier: skip = true
 					
 					SType.sym_Identifier: skip = true
@@ -150,23 +156,22 @@ func generate(ast, parent = null):
 		return
 	
 	if parent \
-	&& (    parent.AST_Node.type() == SType.op_SMA \
-		||  parent.AST_Node.type() == SType.sec_EnumElement \
-		||  parent.AST_Node.type() == SType.sec_Allocator
+	&& (    parent.AST_Node.Type == SType.sec_EnumElement \
+		||  parent.AST_Node.Type == SType.sec_Allocator
 	) \
-	&& ast.type() == SType.sym_Identifier \
+	&& ast.Type == SType.sym_Identifier \
 	&& parent.AST_Node.Data[1] == ast:
 		return
 	
 	var node = create_NodeItem(ast, parent)
-		
+
 	if ! parent:
 		Root = node
 		set_hide_root(true)
 	
 	var   index := 1
-	while index <= ast.Data.size() - 1:
-		generate( ast.Data[index], node )
+	while index <= ast.num_Entries():
+		generate( ast.entry(index), node )
 		index += 1
 
 	return

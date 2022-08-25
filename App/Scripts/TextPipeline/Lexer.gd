@@ -144,6 +144,9 @@ const TType : Dictionary = \
 	sec_Loop    = "Loop execution",
 	sec_Switch  = "Switch on value",
 	
+	# Linkage
+	sec_External = "External Linkage",
+	
 	# Memory 
 #	sec_Align    = "Alignment",
 #	sec_Mempage  = "Memory Paging Segments",
@@ -163,6 +166,7 @@ const TType : Dictionary = \
 	sym_Exe      = "Execution Block",						# Sector, Type
 	sym_RO       = "Read-Only",								# Sector, Specifier
 	sym_Ptr      = "Address Pointer",						# Type
+	sym_Word     = "Machine Architecture Addressing Data-Model Unit",
 #	sym_Register = "Register Type",
 #------------------------------------------------------------------------------------- Layer 0   END
 
@@ -226,7 +230,7 @@ const TType : Dictionary = \
 
 const Spec : Dictionary = \
 {
-	TType.fmt_NL : "start \\R",
+	TType.fmt_NL : "start linebreak",
 	TType.fmt_S  : "start whitespace.repeat(1-).lazy",
 	
 	TType.cmt_SL : "start // inline.repeat(0-)",
@@ -299,15 +303,16 @@ const Spec : Dictionary = \
 	TType.literal_Char   : "start \\\' !set( \\\' ).repeat(1) \\\'",
 	TType.literal_String : "start \\\" !set( \\\" ).repeat(0-) \\\" ",
 	
-	TType.sec_Alias  : "start \"alias\"",
-	TType.sec_Else   : "start \"else\"",
-	TType.sec_If     : "start \"if\"",
-	TType.sec_Stack  : "start \"stack\"",
-	TType.sec_Static : "start \"static\"",
-	TType.sec_Struct : "start \"struct\"",
-	TType.sec_Switch : "start \"switch\"",
-	TType.sec_Union  : "start \"union\"",
-	TType.sec_Using  : "start \"using\"",
+	TType.sec_Alias    : "start \"alias\"",
+	TType.sec_Else     : "start \"else\"",
+	TType.sec_External : "start \"external\"",
+	TType.sec_If       : "start \"if\"",
+	TType.sec_Stack    : "start \"stack\"",
+	TType.sec_Static   : "start \"static\"",
+	TType.sec_Struct   : "start \"struct\"",
+	TType.sec_Switch   : "start \"switch\"",
+	TType.sec_Union    : "start \"union\"",
+	TType.sec_Using    : "start \"using\"",
 		
 	TType.sym_Allocator : "start \"allocator\"",
 	TType.sym_Byte      : "start \"byte\"",
@@ -321,14 +326,15 @@ const Spec : Dictionary = \
 	TType.sym_Self      : "start \"self\"",
 	TType.sym_TT        : "start \"tt\"",
 	TType.sym_Type      : "start \"type\"",
+	TType.sym_Word      : "start \"word\"",
 	
 #------------------------------------------- Godot specific symbols
 	TType.sym_gd_Bool   : "start \"bool\"",
 	TType.sym_gd_Int    : "start \"int\"",
 	TType.sym_gd_Float  : "start \"float\"",
-	TType.sym_gd_Array  : "start \"darray\"",
-	TType.sym_gd_Dict   : "start \"dmap\"",
-	TType.sym_gd_String : "start \"string\"",
+	TType.sym_gd_Array  : "start \"gd_array\"",
+	TType.sym_gd_Dict   : "start \"gd_dict\"",
+	TType.sym_gd_String : "start \"gd_string\"",
 #------------------------------------------- Godot specific symbols	END
 	
 	# Must be last, as if none of the above matches this is the last thing it could be.
@@ -444,15 +450,16 @@ const TCategory = \
 	TType.literal_Char    : TCatVal.literal,
 	TType.literal_String  : TCatVal.literal,
 	
-	TType.sec_Alias  : TCatVal.sector,
-	TType.sec_Else   : TCatVal.sector,
-	TType.sec_If     : TCatVal.sector,
-	TType.sec_Stack  : TCatVal.sector,
-	TType.sec_Static : TCatVal.sector,
-	TType.sec_Struct : TCatVal.sector,
-	TType.sec_Switch : TCatVal.sector,
-	TType.sec_Union  : TCatVal.sector,
-	TType.sec_Using  : TCatVal.sector,
+	TType.sec_Alias    : TCatVal.sector,
+	TType.sec_Else     : TCatVal.sector,
+	TType.sec_External : TCatVal.sector,
+	TType.sec_If       : TCatVal.sector,
+	TType.sec_Stack    : TCatVal.sector,
+	TType.sec_Static   : TCatVal.sector,
+	TType.sec_Struct   : TCatVal.sector,
+	TType.sec_Switch   : TCatVal.sector,
+	TType.sec_Union    : TCatVal.sector,
+	TType.sec_Using    : TCatVal.sector,
 		
 	TType.sym_Allocator  : TCatVal.symbol,
 	TType.sym_Byte       : TCatVal.symbol,
@@ -540,20 +547,22 @@ func tokenize(programSrcText):
 				var addVal   = result.get_string().length()
 				
 				Cursor += addVal
+				Column += addVal
 				error   = false
 				break
 
 			# Skip Comments
 			if type == TType.cmt_SL || type == TType.cmt_ML :
 				Cursor += result.get_string().length()
+				Column += result.get_string().length()
 				error   = false
 				break
 
 			token.Type   = type
 			token.Value  = result.get_string()
 			token.Start  = Vector2i(Line, Column)
-			Column      += ( result.get_string().length() )
-			Cursor      += Column
+			Column      += result.get_string().length()
+			Cursor      += result.get_string().length()
 			token.End    = Vector2i(Line, Column)
 			
 			Tokens.append( token )

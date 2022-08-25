@@ -17,14 +17,16 @@ const SAttribute = \
 	builtin = "Builtin",
 	literal = "Literal",
 	
+	exe = "executable element",
+	
 	expression = "expression",
-	operation = "Operation",
+
+	operation  = "Operation",
 	op_Logical = "Op: Logical",
-	op_Unary = "Op: Unary",
+	op_Unary   = "Op: Unary",
 	
 	sector = "Sector",
 	symbol = "Symbol",
-	exe    = "executable element",
 }
 
 const SType = \
@@ -89,18 +91,19 @@ const SType = \
 	sec_Allocator   = "Sector: Allocator",
 	sec_Cap         = "Sector: Capture",
 	sec_CapArgs     = "Sector: Capture Arguments",
-	sec_RetMap      = "Sector: Return Map",
 	sec_Cond        = "Sector: Conditional",
+	sec_CondBody    = "Sector: Conditional Body",
 	sec_Enum        = "Sector: Enum",
 	sec_EnumElement = "Sector: Enum Element",
 	sec_Exe         = "Sector: Execution",
 	sec_ExeCond     = "Sector: Execution Conditional",
 	sec_ExeSwitch   = "Sector: Execution Switch",
+	sec_External    = "Sector: External",
 	sec_Heap        = "Sector: Heap",
 	sec_LP          = "Sector: Langauge Platform",
 	sec_Loop        = "Sector: Loop",
-	sec_LoopCond    = "Sector: Loop Conditional",
 	sec_RO          = "Sector: Readonly",
+	sec_RetMap      = "Sector: Return Map",
 	sec_Stack       = "Sector: Stack",
 	sec_Static      = "Sector: Static",
 	sec_Struct      = "Sector: Struct",
@@ -113,15 +116,16 @@ const SType = \
 	sec_Using       = "Sector: Using",
 	sec_Identifier  = "Sector: Identifier",
 	
-	builtin_bool   = "GD: bool",
-	builtin_int    = "GD: int",
-	builtin_float  = "GD: float",
+	builtin_Bool   = "GD: bool",
+	builtin_Int    = "GD: int",
+	builtin_Float  = "GD: float",
 	builtin_Array  = "GD: Array",
 	builtin_Dict   = "GD: Dictionary",
-	builtin_string = "GD: String",
+	builtin_String = "GD: String",
 	
 	sym_Allocator  = "Symbol: Allocator",
 	sym_Array      = "Symbol: Array",
+	sym_Byte       = "Symbol: Byte",
 	sym_LP         = "Symbol: Language Platform",
 	sym_Proc       = "Symbol: Procedure",
 	sym_Ptr        = "Symbol: Pointer",
@@ -129,6 +133,7 @@ const SType = \
 	sym_Type       = "Symbol: Type",
 	sym_TType      = "Symbol: Top Type",
 	sym_TT_Type    = "Symbol: Translation Time Type",
+	sym_Word       = "Symbol: Word",
 
 	sym_Identifier = "Symbol: Identifier",
 }
@@ -136,20 +141,91 @@ const SType = \
 const STxt = {
 	TType.op_Define: ":",
 
-	SType.builtin_bool: "bool",
-	SType.builtin_int: "int",
+	SType.unit : "unit",
+
+	SType.builtin_Bool   : "bool",
+	SType.builtin_Int    : "int",
+	SType.builtin_Float  : "float",
+	SType.builtin_Array  : "gd_array",
+	SType.builtin_Dict   : "gd_dict",
+	SType.builtin_String : "gd_string",
+		
+	SType.literal_True  : "true",
+	SType.literal_False : "false",
 	
-	SType.literal_True: "true",
-	SType.literal_False: "false",
+	SType.op_CD     : ",",
+	SType.op_Ptr    : "ptr",
+	SType.op_SMA    : ".",
+	SType.op_Break  : "break",
+	SType.op_Cast   : "cast",
+	SType.op_Return : "ret",
 	
-	SType.op_Assign: "=",
+	SType.op_Alloc  : "allocate",
+	SType.op_Resize : "resize",
+	SType.op_Free   : "free",
+	SType.op_Wipe   : "wipe",
 	
-	SType.op_Add : "+",
+	SType.op_BNot : "~",
+	SType.op_BAnd : "&",
+	SType.op_BOr  : "|",
+	SType.op_BXOr : "^",
+	SType.op_BSL  : "<<",
+	SType.op_BSR  : ">>",
 	
-	SType.sec_Exe : "exe",
-	SType.sec_Static : "static",
-	SType.sec_TT : "tt",
-	SType.sec_Type : "type",
+	SType.op_LNot : "!",
+	SType.op_LOr  : "||",
+	SType.op_LAnd : "&&",
+
+	SType.op_Equal        : "=",
+	SType.op_NotEqual     : "!=",
+	SType.op_Lesser       : "<",
+	SType.op_LesserEqual  : "<=",
+	SType.op_Greater      : ">",
+	SType.op_GreaterEqual : ">=",
+
+	SType.op_Assign : "=",
+	SType.op_A_Add  : "+=",
+	
+	SType.op_Add      : "+",
+	SType.op_Subtract : "-",
+	SType.op_Multiply : "*",
+	SType.op_Divide   : "/",
+	SType.op_Modulo   : "%",
+	SType.op_UnaryNeg : "-",
+		
+	SType.sec_Allocator   : "allocator",
+	SType.sec_Cond        : "if",
+	SType.sec_Enum        : "enum",
+	SType.sec_Exe         : "exe",
+	SType.sec_ExeCond     : "if",
+	SType.sec_ExeSwitch   : "switch",
+	SType.sec_External    : "external",
+	SType.sec_Heap        : "heap",
+	SType.sec_LP          : "LP",
+	SType.sec_Loop        : "loop",
+	SType.sec_RO          : "ro",
+	SType.sec_RetMap      : "->",
+	SType.sec_Stack       : "stack",
+	SType.sec_Static      : "static",
+	SType.sec_Struct      : "struct",
+	SType.sec_StructUsing : "using",
+	SType.sec_Switch      : "switch",
+	SType.sec_TT          : "tt",
+	SType.sec_Union       : "union",
+	SType.sec_Using       : "using",
+	SType.sec_Type        : "type",
+	
+	SType.sym_Allocator : "allocator",
+	SType.sym_Array     : "array",
+	SType.sym_Byte      : "byte",
+	SType.sym_LP        : "LP",
+	SType.sym_Proc      : "exe",
+	SType.sym_Ptr       : "ptr",
+	SType.sym_Self      : "self",
+	SType.sym_TT_Type   : "tt",
+	SType.sym_TType     : "type",
+	SType.sym_Type      : "type",
+	SType.sym_Word      : "word",
 }
 
 class Range2i:
@@ -162,11 +238,11 @@ class Range2i:
 
 # Going to rename to SNode or SyntaxNode, this is the nodes generated and managed by the frontend
 class SNode extends RefCounted :
-	var Type         : String
-	var Attributes   : Dictionary
-	var Span         : Range2i
-	var Parent       : SNode
-	var Data         : Array
+	var Type         :  String
+	var Attributes   :  Dictionary
+	var Span         := Range2i.new()
+	var Parent       :  SNode
+	var Data         :  Array
 
 #region Methods
 	func name() -> String:
@@ -183,6 +259,12 @@ class SNode extends RefCounted :
 			_entry.Parent = self
 		
 		Data.insert(index, _entry )
+		
+	func set_Entry( index, _entry ) -> void:
+		if typeof(_entry) == TYPE_OBJECT:
+			_entry.Parent = self
+		
+		Data[index] = _entry
 
 	func add_TokVal( token ) -> void:
 		Data.append( token.Value )
@@ -197,9 +279,9 @@ class SNode extends RefCounted :
 		return entry(1).substr(1, entry(1).length() - 2)
 				
 	func set_Type( type ) -> void:
-		if G.check(type.has(type), "Attempted to set a type thats not in SType."):
+		if G.check( SType.values().find(type) != null, "Attempted to set a type thats not in SType."):
 			return
-		
+
 		Type = type
 #endregion Methods
 
@@ -237,7 +319,7 @@ class SNode extends RefCounted :
 
 class Sec_Allocator extends SNode:
 	func name(): 
-		return Data[1]
+		return Data[0]
 
 	func entry( id : int ):
 		return Data[ id ]
@@ -264,13 +346,10 @@ class Sec_AllocatorOp extends SNode:
 
 class Sec_Capture extends SNode:
 	func args():
-		return Data[1]
-		
-	func has_RetMap() -> bool:
-		return Data.size() > 1 && Data[2].Type == SType.sec_RetMap
-	
+		return Data[0]
+
 	func ret_Map():
-		return Data[2]
+		return Data[1]
 		
 	func entry( id : int ):
 		return Data[ id + 1 ]
@@ -281,6 +360,8 @@ class Sec_Capture extends SNode:
 	func _init():
 		set_Type( SType.sec_Cap )
 		Attributes[SAttribute.sector] = true
+		Data.append(null) # Capture Args
+		Data.append(null) # Return Map
 
 class Sec_CaptureArgs extends SNode:
 	func contains_self() -> bool:
@@ -289,10 +370,7 @@ class Sec_CaptureArgs extends SNode:
 				return true
 				
 		return false
-		
-	func map():
-		return Data[0]
-		
+
 	func entry( id : int ):
 		return Data[ id ]
 		
@@ -303,29 +381,12 @@ class Sec_CaptureArgs extends SNode:
 		set_Type( SType.sec_CapArgs )
 		Attributes[SAttribute.sector] = true
 
-class Sec_ReturnMap extends SNode:
-	func expression():
-		return Data[0]
-	
-	func entry( id ):
-		return Data[ id ]
-		
-	func num_Entries():
-		return Data.size() - 1
-		
-	func _init():
-		set_Type( SType.sec_RetMap )
-		Attributes[SAttribute.sector] = true
-
-class Sec_Conditional extends SNode:
+class Sec_Cond extends SNode:
 	func cond():
 		return Data[0]
 		
 	func body():
 		return Data[1]
-		
-	func has_Alt():
-		return num_Entries() > 2
 		
 	func alt():
 		return Data[2]
@@ -333,11 +394,16 @@ class Sec_Conditional extends SNode:
 	func _init():
 		set_Type( SType.sec_Cond )
 		Attributes[SAttribute.sector] = true
+		Data.append(null)
+		Data.append(null)
+		Data.append(null)
+
+class Sec_CondBody extends SNode:
+	func _init():
+		set_Type( SType.sec_CondBody )
+		Attributes[SAttribute.sector] = true
 
 class Sec_Enum extends SNode:
-	func has_capture():
-		return Data[0] != null
-	
 	func capture():
 		return Data[0]
 		
@@ -356,16 +422,23 @@ class Sec_EnumElement extends SNode:
 	func name():
 		return Data[0]
 		
-	func has_Assign():
-		return Data.size() > 0
+	func assignment():
+		return Data[1]
 	
 	func _init():
 		set_Type(SType.sec_EnumElement)
 		Attributes[SAttribute.sector] = true
+		Data.append(null) # Name
+		Data.append(null) # Assignment
 
 class Sec_Exe extends SNode:
 	func _init():
 		set_Type(SType.sec_Exe)
+		Attributes[SAttribute.sector] = true
+	
+class Sec_External extends SNode:
+	func _init():
+		set_Type(SType.sec_External)
 		Attributes[SAttribute.sector] = true
 	
 class Sec_ExeCond extends SNode:
@@ -374,16 +447,16 @@ class Sec_ExeCond extends SNode:
 		
 	func body():
 		return Data[1]
-		
-	func has_Alt():
-		return num_Entries() > 2
-		
+
 	func alt():
 		return Data[2]
 		
 	func _init():
 		set_Type(SType.sec_ExeCond)
 		Attributes[SAttribute.sector] = true
+		Data.append(null) # cond
+		Data.append(null) # body
+		Data.append(null) # alt
 
 class Sec_ExeSwitch extends SNode:
 	func cond():
@@ -406,9 +479,6 @@ class Sec_Heap extends SNode:
 		Attributes[SAttribute.allocator] = true
 
 class Sec_Loop extends SNode:
-	func has_Cond():
-		return Data[0] != null
-		
 	func cond():
 		return Data[0]
 		
@@ -427,6 +497,20 @@ class Sec_Loop extends SNode:
 class Sec_ReadOnly extends SNode:
 	func _init():
 		set_Type(SType.sec_RO)
+		Attributes[SAttribute.sector] = true
+
+class Sec_ReturnMap extends SNode:
+	func expression():
+		return Data[0]
+	
+	func entry( id ):
+		return Data[ id ]
+		
+	func num_Entries():
+		return Data.size() - 1
+		
+	func _init():
+		set_Type( SType.sec_RetMap )
 		Attributes[SAttribute.sector] = true
 
 class Sec_Stack extends SNode:
@@ -452,8 +536,31 @@ class Sec_StructUsing extends SNode:
 		Attributes[SAttribute.sector] = true
 		
 class Sec_Switch extends SNode:
+	func cond():
+		return Data[0]
+		
+	func entry( id ):
+		return Data[id]
+		
+	func num_Entries():
+		return Data.size() - 1
+	
 	func _init():
 		set_Type(SType.sec_Switch)
+		Attributes[SAttribute.sector] = true
+
+class Sec_SwitchCase extends SNode:
+	func case():
+		return Data[0]
+		
+	func entry( id ):
+		return Data[id]
+		
+	func num_Entries():
+		return Data.size() - 1
+	
+	func _init():
+		set_Type(SType.sec_SwitchCase)
 		Attributes[SAttribute.sector] = true
 
 class Sec_TranslationTime extends SNode:
@@ -462,19 +569,26 @@ class Sec_TranslationTime extends SNode:
 		Attributes[SAttribute.sector] = true
 
 class Sec_Type extends SNode:
-	func assignment():
+	func typedef():
 		return Data[0]
 	
-	func has_Assignment() -> bool:
-		return Data.size() > 1
+	func assignment():
+		return Data[1]
 	
 	func _init():
 		set_Type( SType.sec_Type )
 		Attributes[SAttribute.sector] = true
+		Data.append(null) # typedef
+		Data.append(null) # assignment
 
 class Sec_Union extends SNode:
 	func _init():
 		set_Type( SType.sec_Union )
+		Attributes[SAttribute.sector] = true
+
+class Sec_Using extends SNode:
+	func _init():
+		set_Type(SType.sec_Using)
 		Attributes[SAttribute.sector] = true
 
 class Sec_Identifier extends SNode:
@@ -490,6 +604,19 @@ class Sec_Identifier extends SNode:
 	func _init():
 		set_Type( SType.sec_Identifier )
 		Attributes[SAttribute.sector] = true
+
+class Expr_SMA extends SNode:
+	func name():
+		return Data[0]
+	
+	func member():
+		return Data[1]
+	
+	func _init():
+		set_Type(SType.op_SMA)
+		Attributes[SAttribute.expression] = true
+		Data.append(null) # Name
+		Data.append(null) # Member
 
 class Expr_Binary extends SNode:
 	func left():
@@ -510,10 +637,7 @@ class Expr_SBCap extends SNode:
 		
 	func arg():
 		return Data[1]
-		
-	func has_SMA():
-		return Data.size() > 2
-		
+
 	func sma():
 		return Data[2]
 	
@@ -521,6 +645,9 @@ class Expr_SBCap extends SNode:
 		set_Type(SType.expr_SBCap)
 		Attributes[SAttribute.expression] = true
 		Attributes[SAttribute.operation] = true
+		Data.append(null) # left
+		Data.append(null) # right
+		Data.append(null) # sma
 
 class Expr_Cast extends SNode:
 	func arg_Type():
@@ -562,6 +689,12 @@ class Expr_Unary extends SNode:
 		Attributes[SAttribute.operation] = true
 
 class Sym_Array extends SNode:
+	func amount():
+		return Data[0]
+		
+	func assoc_type():
+		return Data[1]
+	
 	func _init():
 		set_Type(SType.sym_Array)
 		Attributes[SAttribute.symbol] = true
@@ -577,18 +710,50 @@ class Sym_Identifier extends SNode:
 		return Data[1]
 
 	func _init():
+		print("USING ID's")
 		set_Type( SType.sym_Identifier )
 		Attributes[SAttribute.symbol] = true
 	
+class Sym_Literal extends SNode:
+	func value():
+		return Data[0]
+	
+	func _init(type):
+		if type != "":
+			set_Type(type)
+		Attributes[SAttribute.symbol] = true
+		Attributes[SAttribute.literal] = true
+	
 class Sym_Proc extends SNode:
+	func capture():
+		return Data[0]
+		
+	func ret_Map():
+		return Data[1]
+	
 	func _init():
 		set_Type(SType.sym_Proc)
+		Data.append(null)
+		Data.append(null)
 		Attributes[SAttribute.symbol] = true
-		
+
+class Sym_Type extends SNode:
+	func value():
+		return Data[0]
+	
+	func _init():
+		set_Type(SType.sym_Type)
+		Attributes[SAttribute.symbol] = true
+
 class Sym_TT_Type extends SNode:
 	func _init():
 		set_Type(SType.sym_TT_Type)
 		Attributes[SAttribute.symbol] = true
+
+class Op_Return extends SNode:
+	func _init():
+		set_Type(SType.op_Return)
+		Attributes[SAttribute.operation] = true
 
 const TType = Lexer.TType
 const TCatVal = Lexer.TCatVal
@@ -641,11 +806,15 @@ func parse_unit() -> SNode:
 			
 		#region LP_Sectors
 			TType.sec_If:
-				node.add_Entry( parse_sec_Conditional() )
+				node.add_Entry( parse_sec_Cond() )
 				matched = true
 				
 			TType.sym_Exe:
 				node.add_Entry( parse_sec_Exe() )
+				matched = true
+				
+			TType.sec_External:
+				node.add_Entry( parse_sec_External() )
 				matched = true
 				
 			TType.sym_RO:
@@ -670,9 +839,9 @@ func parse_unit() -> SNode:
 				matched = true
 
 		if !matched:
-			var literalNode = parse_expr_Element();
-			if literalNode != null:
-				node.add_Entry( literalNode )
+			var element = parse_expr_Element();
+			if element != null:
+				node.add_Entry( element )
 				eat(TType.def_End)
 				matched = true
 				
@@ -764,14 +933,15 @@ func parse_sec_AllocatorOp(node, identifier) -> SNode:
 func parse_sec_Capture() -> SNode:
 	var node = Sec_Capture.new()
 	start(node)
-	node.add_Entry( parse_sec_CaptureArgs() )
+	node.set_Entry(0, parse_sec_CaptureArgs() )
 	
 	if Tok == null:
 		end(node)
 		return node
 	
 	if Tok.Type == TType.op_Map:
-		node.add_Entry( parse_sec_ReturnMap() )
+		node.set_Entry(1, parse_sec_ReturnMap() )
+		return node
 	
 	var result = chk_Tok(TType.def_Start)
 	if  result == null:
@@ -789,9 +959,12 @@ func parse_sec_Capture() -> SNode:
 			#region LP_Sectors
 				TType.sym_Exe:
 					node.add_Entry( parse_sec_Exe() )
+					
+				TType.sec_External:
+					node.add_Entry( parse_sec_External() )
 				
 				TType.sec_If:
-					node.add_Entry( parse_sec_Conditional() )
+					node.add_Entry( parse_sec_Cond() )
 					
 				TType.sym_RO:
 					node.add_Entry( parse_sec_Readonly() )
@@ -826,7 +999,7 @@ func parse_sec_Capture() -> SNode:
 				node.add_Entry( parse_sec_Exe() )
 				
 			TType.sec_If:
-				node.add_Entry( parse_sec_Conditional() )
+				node.add_Entry( parse_sec_Cond() )
 				
 			TType.sym_RO:
 				node.add_Entry( parse_sec_Readonly() )
@@ -887,41 +1060,45 @@ func parse_sec_CaptureArgs() -> SNode:
 	end(node)
 	return node
 
-func parse_sec_Conditional() -> SNode:
-	var node = Sec_Conditional.new()
+func parse_sec_Cond() -> SNode:
+	var node = Sec_Cond.new()
 	start(node)
 	eat(TType.sec_If)
 	
-	node.add_Entry( parse_Expression() )
-	
-	parse_sec_ConditionalBody(node)
+	node.set_Entry(0, parse_Expression() )
+	node.set_Entry(1, parse_sec_CondBody() )
 	
 	if Tok && Tok.Type == TType.sec_Else:
 		eat(TType.sec_Else)
-		parse_sec_ConditionalBody(node)
+		node.set_Entry(2, parse_sec_CondBody() )
 		
 	end(node)
 	return node
 
-func parse_sec_ConditionalBody(node):
+func parse_sec_CondBody():
+	var node = Sec_CondBody.new()
+	start(node)
+	
 	var result = chk_Tok(TType.def_Start)
 	if  result == null:
 		return null
 	
-	eat(TType.def_Start)
-	
 	if result:
+		eat(TType.def_Start)
+		
 		while Tok.Type != TType.def_End:
 			match Tok.Type:
 				TType.cap_PStart:
 					node.add_Entry( parse_sec_Capture() )
 			
-			#region LP_Sectors
 				TType.sym_Exe:
 					node.add_Entry( parse_sec_Exe() )
 				
 				TType.sec_If:
-					node.add_Entry( parse_sec_Conditional() )
+					node.add_Entry( parse_sec_Cond() )
+					
+				TType.sec_External:
+					node.add_Entry( parse_sec_External() )
 					
 				TType.sym_RO:
 					node.add_Entry( parse_sec_Readonly() )
@@ -934,7 +1111,6 @@ func parse_sec_ConditionalBody(node):
 				
 				TType.sym_TT:
 					node.add_Entry( parse_sec_TranslationTime() )
-			#endregion LP_Sectors
 					
 				TType.sym_Identifier:
 					node.add_Entry( parse_sec_Identifier() )
@@ -951,12 +1127,14 @@ func parse_sec_ConditionalBody(node):
 			TType.cap_PStart:
 				node.add_Entry( parse_sec_Capture() )
 			
-		#region LP_Sectors
 			TType.sym_Exe:
 				node.add_Entry( parse_sec_Exe() )
 				
+			TType.sec_External:
+				node.add_Entry( parse_sec_External() )
+				
 			TType.sec_If:
-				node.add_Entry( parse_sec_Conditional() )
+				node.add_Entry( parse_sec_Cond() )
 				
 			TType.sym_RO:
 				node.add_Entry( parse_sec_Readonly() )
@@ -966,7 +1144,6 @@ func parse_sec_ConditionalBody(node):
 				
 			TType.sym_TT:
 				node.add_Entry( parse_sec_TranslationTime() )
-		#endregion LP_Sectors
 					
 			TType.sym_Identifier:
 				node.add_Entry( parse_sec_Identifier() )
@@ -975,6 +1152,9 @@ func parse_sec_ConditionalBody(node):
 				var error = G.Error.new(false, "Failed to match token.")
 				G.throw(error)
 				return null
+				
+	end(node)
+	return node
 	
 func parse_sec_Enum() -> SNode:
 	var node = Sec_Enum.new(); 
@@ -982,7 +1162,7 @@ func parse_sec_Enum() -> SNode:
 	eat(TType.sym_Enum)
 	
 	if Tok.Type == TType.cap_PStart:
-		node.Data[0] = parse_expr_Capture()
+		node.set_Entry(0, parse_expr_Capture() )
 	
 	var result = chk_Tok(TType.def_Start)
 	if  result == null:
@@ -1012,11 +1192,11 @@ func parse_sec_Enum() -> SNode:
 func parse_sec_EnumElement() -> SNode:
 	var node = Sec_EnumElement.new()
 	start(node)
-	node.add_Entry( parse_expr_Element() )
+	node.set_Entry(0, parse_expr_Element() )
 	
 	if Tok.Type == TType.op_Assign:
 		eat(TType.op_Assign)
-		node.add_Entry( parse_expr_Element() )
+		node.set_Entry(1, parse_expr_Element() )
 		
 	end(node)
 	return node
@@ -1128,11 +1308,11 @@ func parse_sec_ExeConditional() -> SNode:
 	start(node)
 	eat(TType.sec_If)
 	
-	node.add_Entry( parse_Expression() )
+	node.set_Entry(0, parse_Expression() )
 	
 	var ifBlock = SNode.new(SType.sec_Exe)
 	parse_sec_ExeBody(ifBlock)
-	node.add_Entry(ifBlock)
+	node.set_Entry(1, ifBlock)
 	
 	if Tok.Type != TType.sec_Else:
 		end(node)
@@ -1142,7 +1322,7 @@ func parse_sec_ExeConditional() -> SNode:
 		
 	var elseBlock = SNode.new(SType.sec_Exe)
 	parse_sec_ExeBody(elseBlock)
-	node.add_Entry(elseBlock)
+	node.set_Entry(2, elseBlock)
 	
 	end(node)
 	return node
@@ -1180,6 +1360,58 @@ func parse_sec_ExeSwitch() -> SNode:
 		parse_sec_ExeBody( scNode )
 		node.add_Entry( scNode )
 	
+	end(node)
+	return node
+
+func parse_sec_External() -> SNode:
+	var node = Sec_External.new()
+	start(node)
+	eat(TType.sec_External)
+	
+	var result = chk_Tok(TType.def_Start)
+	if  result == null:
+		return null
+	
+	if result:
+		eat(TType.def_Start)
+		
+		while Tok.Type != TType.def_End:
+			match Tok.Type:
+				TType.cap_PStart:
+					node.add_Entry( parse_sec_Capture() )
+			
+				TType.sec_If:
+					node.add_Entry( parse_sec_Cond() )
+
+				TType.sec_Switch:
+					node.add_Entry( parse_sec_Switch() )
+					
+				TType.sym_Identifier:
+					node.add_Entry( parse_sec_Identifier() )
+
+				_:
+					var error = G.Error.new(false, "Failed to match token.")
+					G.throw(error)
+					return null
+					
+		eat(TType.def_End)
+		
+	else:
+		match Tok.Type:
+			TType.cap_PStart:
+				node.add_Entry( parse_sec_Capture() )
+			
+			TType.sec_If:
+				node.add_Entry( parse_sec_Cond() )
+					
+			TType.sym_Identifier:
+				node.add_Entry( parse_sec_Identifier() )
+
+			_:
+				var error = G.Error.new(false, "Failed to match token.")
+				G.throw(error)
+				return null
+				
 	end(node)
 	return node
 
@@ -1229,11 +1461,8 @@ func parse_sec_Loop() -> SNode:
 	eat(TType.sec_Loop)
 	
 	if Tok.Type == TType.sec_If:
-		var nCond = SNode.new( SType.sec_LoopCond )
-		eat(TType.sec_If)
-	
-		nCond.add_Entry( parse_Expression() )
-		node. add_Entry( nCond )
+		eat(TType.sec_If)	
+		node.set_Entry(0, parse_Expression() ) 
 	
 	parse_sec_ExeBody(node)
 		
@@ -1241,8 +1470,7 @@ func parse_sec_Loop() -> SNode:
 	return node
 	
 func parse_sec_Readonly() -> SNode:
-	var node = SNode.new(SType.sec_RO)
-	node.Attributes[SAttribute.sector] = true
+	var node = Sec_ReadOnly.new()
 	start(node)
 	eat(TType.sym_RO)
 	
@@ -1261,7 +1489,7 @@ func parse_sec_Readonly() -> SNode:
 					
 			#region LP_Sectors
 				TType.sec_If:
-					node.add_Entry( parse_sec_Conditional() )
+					node.add_Entry( parse_sec_Cond() )
 					
 				TType.sec_Static:
 					node.add_Entry( parse_sec_Static() )
@@ -1287,7 +1515,7 @@ func parse_sec_Readonly() -> SNode:
 				node.add_Entry( parse_sec_Exe() )
 				
 			TType.sec_If:
-				node.add_Entry( parse_sec_Conditional() )
+				node.add_Entry( parse_sec_Cond() )
 			
 			TType.sec_Static:
 				node.add_Entry( parse_sec_Static() )
@@ -1304,18 +1532,17 @@ func parse_sec_ReturnMap() -> SNode:
 	start(node)
 	eat(TType.op_Map)
 	
-	match Tok.Type:
-		TType.sym_gd_Bool   : node.add_Entry(SType.builtin_bool);   eat(TType.sym_gd_Bool)
-		TType.sym_gd_Int    : node.add_Entry(SType.builtin_int);    eat(TType.sym_gd_Int)
-		TType.sym_gd_Float  : node.add_Entry(SType.builtin_float);  eat(TType.sym_gd_Float)
-		TType.sym_gd_String : node.add_Entry(SType.builtin_string); eat(TType.sym_gd_String)
-		
-		TType.sym_Identifier : node.add_Entry( parse_sym_Identifier() )
-		TType.sym_Exe        : node.add_Entry( parse_sym_Proc() )
-		TType.sym_Ptr        : node.add_Entry( parse_sym_Ptr() )
-		TType.cap_SBStart    : node.add_Entry( parse_sym_Array() )
-		TType.cap_PStart     : node.add_Entry( parse_Expression() )
-		
+	var type = parse_sym_Type()
+	if type.num_Entries() > 0:
+		node.add_Entry( type )
+	else:
+		match Tok.Type:
+			TType.cap_PStart:
+				node.add_Entry( parse_Expression() )
+				
+	print("HOW MANY")
+	print(node.num_Entries())
+
 	var result = chk_Tok( TType.def_Start )
 	if result == null:
 		end(node)
@@ -1332,6 +1559,9 @@ func parse_sec_ReturnMap() -> SNode:
 			#region LP_Sectors
 				TType.sym_Exe:
 					node.add_Entry( parse_sec_Exe() )
+	
+				TType.sec_External:
+					node.add_Entry( parse_sec_External() )
 	
 				TType.sec_Static:
 					node.add_Entry( parse_sec_Static() )
@@ -1353,6 +1583,9 @@ func parse_sec_ReturnMap() -> SNode:
 		#region LP_Sectors
 			TType.sym_Exe:
 				node.add_Entry( parse_sec_Exe() )
+				
+			TType.sec_External:
+				node.add_Entry( parse_sec_External() )
 	
 			TType.sec_Static:
 				node.add_Entry( parse_sec_Static() )
@@ -1494,7 +1727,7 @@ func parse_sec_StructUsing() -> SNode:
 	return null
 
 func parse_sec_Switch() -> SNode:
-	var node = SNode.new(SType.sec_Switch)
+	var node = Sec_Switch.new()
 	start(node)
 	eat(TType.sec_Switch)
 	
@@ -1520,7 +1753,7 @@ func parse_sec_Switch() -> SNode:
 	return node
 	
 func parse_sec_SwitchCase() -> SNode:
-	var node = SNode.new(SType.sec_SwitchCase)
+	var node = Sec_SwitchCase.new()
 	start(node)
 	node.add_Entry( parse_Expression() )
 	
@@ -1539,10 +1772,13 @@ func parse_sec_SwitchCase() -> SNode:
 						
 			#region LP_Sectors
 				TType.sec_If:
-					node.add_Entry( parse_sec_Conditional() )
+					node.add_Entry( parse_sec_Cond() )
 							
 				TType.sym_Exe:
 					node.add_Entry( parse_sec_Exe() )
+					
+				TType.sec_External:
+					node.add_Entry( parse_sec_External() )
 							
 				TType.sym_RO:
 					node.add_Entry( parse_sec_Readonly() )
@@ -1569,10 +1805,13 @@ func parse_sec_SwitchCase() -> SNode:
 						
 		#region LP_Sectors
 			TType.sec_If:
-				node.add_Entry( parse_sec_Conditional() )
+				node.add_Entry( parse_sec_Cond() )
 							
 			TType.sym_Exe:
 				node.add_Entry( parse_sec_Exe() )
+				
+			TType.sec_External:
+				node.add_Entry( parse_sec_External() )
 							
 			TType.sym_RO:
 				node.add_Entry( parse_sec_Readonly() )
@@ -1594,7 +1833,7 @@ func parse_sec_SwitchCase() -> SNode:
 	return node
 
 func parse_sec_TranslationTime() -> SNode:
-	var node = SNode.new(SType.sec_TT)
+	var node = Sec_TranslationTime.new()
 	start(node)
 	eat(TType.sym_TT)
 
@@ -1651,41 +1890,31 @@ func parse_sec_Type(typeTok : String) -> SNode:
 		eat(TType.op_A_Infer)
 		
 		match Tok.Type:
-			TType.literal_Digit   : node.add_Entry(SType.builtin_int)
-			TType.literal_Decimal : node.add_Entry(SType.builtin_float)
-			TType.literal_String  : node.add_Entry(SType.builtin_string)
-			TType.literal_Char    : node.add_Entry(SType.builtin_string)
-			TType.literal_True    : node.add_Entry(SType.builtin_bool)
-			TType.literal_False   : node.add_Entry(SType.builtin_bool)
-			TType.literal_Binary  : node.add_Entry(SType.builtin_int)
-			TType.literal_Octal   : node.add_Entry(SType.builtin_int)
-			TType.literal_Hex     : node.add_Entry(SType.builtin_int)
+			TType.literal_Digit   : node.set_Entry(0, SType.builtin_Int)
+			TType.literal_Decimal : node.set_Entry(0, SType.builtin_Float)
+			TType.literal_String  : node.set_Entry(0, SType.builtin_String)
+			TType.literal_Char    : node.set_Entry(0, SType.builtin_String)
+			TType.literal_True    : node.set_Entry(0, SType.builtin_Bool)
+			TType.literal_False   : node.set_Entry(0, SType.builtin_Bool)
+			TType.literal_Binary  : node.set_Entry(0, SType.builtin_Int)
+			TType.literal_Octal   : node.set_Entry(0, SType.builtin_Int)
+			TType.literal_Hex     : node.set_Entry(0, SType.builtin_Int)
 
-		node.add_Entry( parse_expr_Element() )
+		node.set_Entry(1, parse_expr_Element() )
 
 	else:
-		match Tok.Type:
-			TType.sym_gd_Bool   : node.add_Entry(SType.builtin_bool);   eat(TType.sym_gd_Bool)
-			TType.sym_gd_Int    : node.add_Entry(SType.builtin_int);    eat(TType.sym_gd_Int)
-			TType.sym_gd_Float  : node.add_Entry(SType.builtin_float);  eat(TType.sym_gd_Float)
-			TType.sym_gd_String : node.add_Entry(SType.builtin_string); eat(TType.sym_gd_String)
-		
-			TType.sym_Identifier : node.add_Entry( parse_expr_Call() )
-			TType.sym_Exe        : node.add_Entry( parse_sym_Proc() )
-			TType.sym_Ptr        : node.add_Entry( parse_sym_Ptr() )
-			TType.cap_SBStart    : node.add_Entry( parse_sym_Array() )
-			TType.sym_TT         : node.add_Entry( parse_sym_TT_Type() )
+		node.set_Entry(0, parse_sym_Type() )
 
 		if Tok && Tok.Type == TType.op_Assign:
 			eat(TType.op_Assign)
 			
-			node.add_Entry( parse_Expression() )
+			node.set_Entry(1, parse_Expression() )
 
 	end(node)
 	return node
 
 func parse_sec_Union() -> SNode:
-	var node = SNode.new(SType.sec_Union)
+	var node = Sec_Union.new()
 	start(node)
 	eat(TType.sec_Union)
 	
@@ -1714,7 +1943,7 @@ func parse_sec_Union() -> SNode:
 	return node
 
 func parse_sec_Using() -> SNode:
-	var node = SNode.new(SType.sec_Using)
+	var node = Sec_Using.new()
 	start(node)
 	eat(TType.sec_Using)
 	
@@ -1755,6 +1984,9 @@ func parse_sec_Identifier() -> SNode:
 					
 				TType.sym_Exe:
 					node.add_Entry( parse_sec_Exe() )
+					
+				TType.sec_External:
+					node.add_Entry( parse_sec_External() )
 					
 				TType.sym_RO:
 					node.add_Entry( parse_sec_Readonly() )
@@ -1802,6 +2034,9 @@ func parse_sec_Identifier() -> SNode:
 				
 			TType.sym_Exe:
 				node.add_Entry( parse_sec_Exe() )
+				
+			TType.sec_External:
+				node.add_Entry( parse_sec_External() )
 				
 			TType.sym_RO:
 				node.add_Entry( parse_sec_Readonly() )
@@ -1854,12 +2089,12 @@ func parse_expr_Binary_tok(elementFn : Callable, tType : String, SType) -> SNode
 	
 	var   result = Tok != null && Tok.Type == tType
 	while result:
+		var node = Expr_Binary.new(SType)
+		start(node)
 		eat(Tok.Type)
 	
 		var right = parse_Expression()
 		
-		var \
-		node = SNode.new(result)
 		node.add_Entry(left)
 		node.add_Entry(right)
 		
@@ -1868,6 +2103,7 @@ func parse_expr_Binary_tok(elementFn : Callable, tType : String, SType) -> SNode
 		
 		left   = node
 		result = Tok != null && Tok.Type == tType
+		end(node)
 	
 	return left
 	
@@ -1908,11 +2144,6 @@ func parse_expr_Element() -> SNode:
 			
 		TType.sym_Identifier:
 			return parse_sym_Identifier()
-			
-		TType.sym_gd_Bool   : return parse_Simple(SType.builtin_bool,   TType.sym_gd_Bool);
-		TType.sym_gd_Int    : return parse_Simple(SType.builtin_int,    TType.sym_gd_Int);
-		TType.sym_gd_Float  : return parse_Simple(SType.builtin_float,  TType.sym_gd_Float);
-		TType.sym_gd_String : return parse_Simple(SType.builtin_string, TType.sym_gd_String);
 		
 		# Literal detection needs to be moved to its own block...
 		TType.literal_String  : return parse_Literal(SType.literal_String,  TType.literal_String)
@@ -1937,8 +2168,8 @@ func parse_expr_SMA() -> SNode:
 		eat(TType.op_SMA)
 		
 		var \
-		node = SNode.new(SType.op_SMA)
-		node.add_Entry( parse_expr_Call() )
+		node = Expr_SMA.new()
+		node.set_Entry(1, parse_expr_Call() )
 		node.Span.Start = start
 		end(node)
 		return node
@@ -1950,9 +2181,9 @@ func parse_expr_SMA() -> SNode:
 		eat(TType.op_SMA)
 		
 		var \
-		node = SNode.new(SType.op_SMA)
-		node.add_Entry(element)
-		node.add_Entry( parse_expr_Call() )
+		node = Expr_SMA.new()
+		node.set_Entry(0, element)
+		node.set_Entry(1, parse_expr_Call() )
 		node.Span.Start = start
 		end(node)
 		return node
@@ -1965,16 +2196,16 @@ func parse_expr_SBCap() -> SNode:
 	if Tok == null || Tok.Type != TType.cap_SBStart:
 		return left
 		
-	var node = SNode.new(SType.expr_SBCap)
+	var node = Expr_SBCap.new()
 	start(node)
 	eat(TType.cap_SBStart)
 	
-	node.add_Entry(left)
-	node.add_Entry(parse_Expression())
+	node.set_Entry(0, left)
+	node.set_Entry(1, parse_Expression())
 	eat(TType.cap_SBEnd)
 	
 	if Tok.Type == TType.op_SMA:
-		node.add_Entry( parse_expr_SMA() )
+		node.set_Entry(2, parse_expr_SMA() )
 	
 	end(node)
 	return node
@@ -1996,7 +2227,7 @@ func parse_expr_CastCapture() -> SNode:
 	return null
 
 func op_Callable(node):
-	match node.type():
+	match node.Type:
 		SType.expr_SBCap     : return true
 		SType.op_Cast        : return true
 		SType.sym_Identifier : return true
@@ -2011,7 +2242,7 @@ func parse_expr_Call() -> SNode:
 		node = SNode.new(SType.op_Call)
 		node.add_Entry( element )
 		node.add_Entry( parse_expr_Capture() )
-		node.Span.Start = element.Start
+		node.Span.Start = element.Span.Start
 	
 		end(node)
 		return node
@@ -2154,7 +2385,7 @@ func op_Assignment():
 			return null
 	
 func parse_expr_Assignment() -> SNode:
-	return parse_expr_Binary(parse_expr_LogicalOr, op_Assignment())
+	return parse_expr_Binary(parse_expr_LogicalOr, op_Assignment)
 	
 func parse_expr_Delimited() -> SNode:
 	return parse_expr_Binary_tok(parse_expr_Assignment, TType.op_CD, SType.op_CD)
@@ -2165,21 +2396,11 @@ func parse_sym_Array() -> SNode:
 	start(node)
 	
 	eat(TType.cap_SBStart)
-	node.add_Entry( parse_Expression() )
+	if Tok.Type != TType.cap_SBEnd:
+		node.add_Entry( parse_Expression() )
 	eat(TType.cap_SBEnd)
 	
-	match Tok.Type:
-		TType.sym_Type : node.add_Entry(SType.sym_TType); eat(TType.sym_Type)
-		
-		TType.sym_gd_Bool   : node.add_Entry(SType.builtin_bool);   eat(TType.sym_gd_Bool)
-		TType.sym_gd_Int    : node.add_Entry(SType.builtin_int);    eat(TType.sym_gd_Int)
-		TType.sym_gd_Float  : node.add_Entry(SType.builtin_float);  eat(TType.sym_gd_Float)
-		TType.sym_gd_String : node.add_Entry(SType.builtin_string); eat(TType.sym_gd_String)
-		
-		TType.sym_Identifier : node.add_Entry( parse_expr_Call() )
-		TType.sym_Exe        : node.add_Entry( parse_sym_Proc() )
-		TType.sym_Ptr        : node.add_Entry( parse_sym_Ptr() )
-		TType.cap_SBStart    : node.add_Entry( parse_sym_Array() )
+	node.add_Entry( parse_sym_Type() )
 	
 	end(node)
 	return node
@@ -2195,15 +2416,15 @@ func parse_sym_Identifier() -> SNode:
 	return node
 
 func parse_sym_Proc() -> SNode:
-	var node = SNode.new(SType.sym_Proc)
+	var node = Sym_Proc.new()
 	start(node)
 	eat(TType.sym_Exe)
 	
 	if Tok.Type == TType.cap_PStart:
-		node.add_Entry( parse_sec_CaptureArgs() )
+		node.set_Entry(0, parse_sec_CaptureArgs() )
 	
 	if Tok.Type == TType.op_Map:
-		node.add_Entry( parse_sec_ReturnMap() )
+		node.set_Entry(1, parse_sec_ReturnMap() )
 			
 	end(node)
 	return node
@@ -2214,16 +2435,11 @@ func parse_sym_Ptr() -> SNode:
 	eat(TType.sym_Ptr)
 	
 	match Tok.Type:
-		TType.sym_gd_Bool   : node.add_Entry(SType.builtin_bool);   eat(TType.sym_gd_Bool)
-		TType.sym_gd_Int    : node.add_Entry(SType.builtin_int);    eat(TType.sym_gd_Int)
-		TType.sym_gd_Float  : node.add_Entry(SType.builtin_float);  eat(TType.sym_gd_Float)
-		TType.sym_gd_String : node.add_Entry(SType.builtin_string); eat(TType.sym_gd_String)
-		
-		TType.sym_Identifier : node.add_Entry( parse_expr_Call() )
-		TType.sym_Exe        : node.add_Entry( parse_sym_Proc() )
-		TType.sym_Ptr        : node.add_Entry( parse_sym_Ptr() )
-		TType.cap_SBStart    : node.add_Entry( parse_sym_Array() )
-#		TType.sym_Type       : node.add_Entry( parse_Simple(SType.sym_TType, TType.sym_Type) )
+		TType.sym_Byte       : node.add_Entry( parse_Simple(SType.sym_Byte, TType.sym_Byte) )
+		TType.sym_Word       : node.add_Entry( parse_Simple(SType.sym_Word, TType.sym_Word) )
+
+	if node.num_Entries() == 0:
+		node.add_Entry( parse_sym_Type() )
 	
 	end(node)
 	return node
@@ -2236,12 +2452,12 @@ func parse_sym_Type(token = null) -> SNode:
 		eat(TType.sym_Type)
 
 	match Tok.Type:
-		TType.sym_Type : node.add_Entry(SType.sym_TType); eat(TType.sym_Type)
+		TType.sym_Type : node.add_Entry( parse_Simple(SType.sym_TType, TType.sym_Type) )
 
-		TType.sym_gd_Bool   : node.add_Entry(SType.builtin_bool);   eat(TType.sym_gd_Bool)
-		TType.sym_gd_Int    : node.add_Entry(SType.builtin_int);    eat(TType.sym_gd_Int)
-		TType.sym_gd_Float  : node.add_Entry(SType.builtin_float);  eat(TType.sym_gd_Float)
-		TType.sym_gd_String : node.add_Entry(SType.builtin_string); eat(TType.sym_gd_String)
+		TType.sym_gd_Bool   : node.add_Entry( parse_Simple(SType.builtin_Bool, TType.sym_gd_Bool) )
+		TType.sym_gd_Int    : node.add_Entry( parse_Simple(SType.builtin_Int,   TType.sym_gd_Int) )
+		TType.sym_gd_Float  : node.add_Entry( parse_Simple(SType.builtin_Float,   TType.sym_gd_Float) )
+		TType.sym_gd_String : node.add_Entry( parse_Simple(SType.builtin_String,   TType.sym_gd_String) )
 
 		TType.sym_Identifier : node.add_Entry( parse_expr_Call() )
 		TType.sym_Exe        : node.add_Entry( parse_sym_Proc() )
@@ -2256,18 +2472,7 @@ func parse_sym_TT_Type() -> SNode:
 	start(node)
 	eat(TType.sym_TT)
 	
-	match Tok.Type:
-		TType.sym_Type : node.add_Entry(SType.sym_TType); eat(TType.sym_Type)
-		
-		TType.sym_gd_Bool   : node.add_Entry(SType.builtin_bool);   eat(TType.sym_gd_Bool)
-		TType.sym_gd_Int    : node.add_Entry(SType.builtin_int);    eat(TType.sym_gd_Int)
-		TType.sym_gd_Float  : node.add_Entry(SType.builtin_float);  eat(TType.sym_gd_Float)
-		TType.sym_gd_String : node.add_Entry(SType.builtin_string); eat(TType.sym_gd_String)
-		
-		TType.sym_Identifier : node.add_Entry( parse_expr_Call() )
-		TType.sym_Exe        : node.add_Entry( parse_sym_Proc() )
-		TType.sym_Ptr        : node.add_Entry( parse_sym_Ptr() )
-		TType.cap_SBStart    : node.add_Entry( parse_sym_Array() )
+	node.add_Entry( parse_sym_Type() )
 
 	end(node)
 	return node
@@ -2299,12 +2504,14 @@ func parse_op_Return() -> SNode:
 func parse_Simple(SType, tType) -> SNode:
 	var node = SNode.new(SType)
 	start(node)
+	
 	eat(tType)
+	
 	end(node)
 	return node
 
 func parse_Literal(SType, tType) -> SNode:
-	var node = SNode.new(SType)
+	var node = Sym_Literal.new(SType)
 	start(node)
 	
 	node.add_TokVal(Tok)
@@ -2318,8 +2525,8 @@ func parse_TokValue(SType, tType) -> SNode:
 	start(node)
 	
 	node.add_TokVal(Tok)
-	eat(tType
-	)
+	eat(tType)
+	
 	end(node)
 	return node
 	

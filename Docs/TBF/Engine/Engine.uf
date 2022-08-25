@@ -1,1 +1,6 @@
 external LoadGame -> State exe;
+
+//LoadGame_Proc type exe -> State
+//external LoadGame LoadGame_Proc
+
+//external LoadGame type exe -> State

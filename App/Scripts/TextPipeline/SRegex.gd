@@ -26,12 +26,13 @@ const TokenType : Dictionary = \
 	expr_PStart = "Parenthesis Start",
 	expr_PEnd   = "Parenthesis End",
 
-	glyph_between = "Glyphs Between",
-	glyph_digit   = "Digit",
-	glyph_inline  = "inline",
-	glyph_space   = "Space",
-	glyph_word    = "Word",
-	glyph_ws      = "Whitespace",
+	glyph_between   = "Glyphs Between",
+	glyph_digit     = "Digit",
+	glyph_inline    = "inline",
+	glyph_space     = "Space",
+	glyph_word      = "Word",
+	glyph_ws        = "Whitespace",
+	glyph_linebreak = "Line Break",
 
 	glyph_dash    = "-",
 	glyph_dot     = ". dot",
@@ -69,12 +70,13 @@ const Spec : Dictionary = \
 	TokenType.expr_PStart : "^\\(",
 	TokenType.expr_PEnd   : "^\\)",
 
-	TokenType.glyph_between : "^\\-",
-	TokenType.glyph_digit   : "^\\bdigit\\b",
-	TokenType.glyph_inline  : "^\\binline\\b",
-	TokenType.glyph_space   : "^\\bspace\\b",
-	TokenType.glyph_word    : "^\\bword\\b",
-	TokenType.glyph_ws      : "^\\bwhitespace\\b",
+	TokenType.glyph_between   : "^\\-",
+	TokenType.glyph_digit     : "^\\bdigit\\b",
+	TokenType.glyph_inline    : "^\\binline\\b",
+	TokenType.glyph_space     : "^\\bspace\\b",
+	TokenType.glyph_word      : "^\\bword\\b",
+	TokenType.glyph_ws        : "^\\bwhitespace\\b",
+	TokenType.glyph_linebreak : "^\\linebreak\\b",
 
 	TokenType.op_lazy   : "^\\.\\blazy\\b",
 	TokenType.op_repeat : "^\\.\\brepeat\\b",
@@ -272,6 +274,7 @@ const NodeType : Dictionary = \
 	space         = "Space",
 	word          = "Word",
 	whitespace    = "Whitespace",
+	linebreak     = "Line Break",
 	string        = "String",
 	str_start     = "String Start",
 	str_end       = "String End",
@@ -310,6 +313,8 @@ func is_Glyph(glyph = NextToken) :
 		TokenType.glyph_word :
 			return true
 		TokenType.glyph_ws :
+			return true
+		TokenType.glyph_linebreak:
 			return true
 		TokenType.glyph_dash :
 			return true
@@ -431,6 +436,9 @@ func parse_Expression(endToken):
 
 			TokenType.glyph_word :
 				node.Value.append( parse_GlyphWord() )
+				
+			TokenType.glyph_linebreak:
+				node.Value.append( parse_GlyphLineBreak() )
 
 			TokenType.glyph_ws :
 				node.Value.append( parse_GlyphWhitespace() )
@@ -515,6 +523,7 @@ func parse_Between(quantifier : bool = false):
 			glyph =  parse_GlyphInline()
 #		TokenType.glyph_word :
 #			glyph =  parse_GlyphWord()
+#		TokenType.glyph_nl :
 		TokenType.glyph_ws :
 			glyph = parse_GlyphWhitespace()
 		TokenType.glyph_dash :
@@ -643,6 +652,14 @@ func parse_GlyphWord():
 	node.Value = "\\w"
 
 	return node
+	
+func parse_GlyphLineBreak():
+	eat(TokenType.glyph_linebreak)
+	
+	var \
+	node       = ASTNode.new()
+	node.Type  = NodeType.linebreak
+	node.Value = "\\R"
 
 func parse_GlyphWhitespace():
 	eat(TokenType.glyph_ws)
@@ -778,6 +795,9 @@ func parse_OpNot():
 
 		TokenType.glyph_word:
 			node.Value = parse_GlyphWord()
+			
+		TokenType.glyph_linebreak:
+			node.Value = parse_GlyphLineBreak()
 			
 		TokenType.glyph_ws:
 			node.Value = parse_GlyphWhitespace()
@@ -933,6 +953,8 @@ func compile_Union(node : ASTNode):
 				result += entry.Value
 			NodeType.word:
 				result += entry.Value
+			NodeType.linebreak:
+				result += entry.Value
 			NodeType.whitespace:
 				result += entry.Value
 
@@ -1060,6 +1082,8 @@ func compile_OpNot(node : ASTNode):
 			result += "\\W"
 		NodeType.whitespace:
 			result += "\\S"
+		NodeType.linebreak:
+			result += "\\N"
 		NodeType.look:
 			result += compile_LookAhead(entry, true)
 		NodeType.string:

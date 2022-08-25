@@ -9,7 +9,7 @@ var AST       : TParser.SNode
 
 #region Editor
 @onready var Editor  := get_node("HBox/CodeEdit") as TextEdit
-@onready var ASTView := get_node("HBox/ASTView") as TextEdit
+@onready var SView := get_node("HBox/SView") as TextEdit
 @onready var SView_Tree := get_node("HBox/SView_Tree") as STree
 @onready var SEView := get_node("HBox/SE_Viewport/SubViewport") as SubViewport
 #endregion Editor
@@ -45,7 +45,7 @@ func _input(event):
 	
 		AST = ast
 	
-		ASTView.text = JSON.new().stringify(ast.to_SExpression(), "\t")
+		SView.text = JSON.new().stringify(ast.to_SExpression(), "\t")
 		
 		SView_Tree.clear()
 		SView_Tree.generate(ast)

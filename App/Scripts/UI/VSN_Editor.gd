@@ -170,8 +170,8 @@ func process_sec_Type(ast, container):
 		container.add_child(header)
 	
 	match ast.entry(1):
-		SType.builtin_bool:
-			create_Label( STxt[SType.builtin_bool], SType.builtin_bool, header )
+		SType.builtin_Bool:
+			create_Label( STxt[SType.builtin_Bool], SType.builtin_Bool, header )
 	
 	if ast.has_Assignment():
 		create_Label( STxt[SType.op_Assign], SType.op_Assign, header )
