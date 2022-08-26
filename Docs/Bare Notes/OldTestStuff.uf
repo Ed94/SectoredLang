@@ -1,0 +1,94 @@
+checked (tt objType : type)
+{
+	Tags enum {
+		obj
+		Err
+	}
+
+	// This is the resolved type of "checked"
+	union( Tags ) {
+		obj : objType
+		Err : ErrorData
+	}
+}
+
+// Inside ModuleName.gen.uf (Will be in the Data Model for Runtime)
+
+// Symbols with dependent captures as part of their name 
+// (that do not resolve to procedures or functions)
+//  are only allowed for generated symbols
+// During the LP PMG (Program Model Generation) runtime.
+// When you debug, the frontend will jump to a render 
+// of this generated type.
+checked(int)  
+{
+	Tags enum {
+		obj
+		Err
+	}
+	
+	union( Tags ) {
+		obj : int
+		Err : ErrorData
+	}
+}
+// Inside ModuleName.gen.uf END 
+
+ErrorData struct {
+	Message      : String
+	ShouldAssert : bool
+}
+
+// meta director's "CallersContext" specifier makes 
+// the resolved execution's context the same as the calling execution's
+meta.CallersContext
+check ( condition : bool, messsage : String ) exe 
+{
+	if condition == false {
+		Log(message, LogCategory.Error)
+		
+		stack err = ErrorData { 
+			Message = messsage
+			ShouldAssert = false 
+		}
+		ret err
+	}
+}
+
+SomeType
+{
+	static A : float = 1.23
+	
+	type int
+
+	NestedSym type := 0xFF
+	
+				   // "checked(int)" is generated in "ModuleName.gen.uf" 
+				   // when the dependency resolution pass is done.
+	(arg : int) -> checked(int)
+	{
+		RandomAction exe
+		{
+			stack Bad := 0
+			check( arg != Bad, "Should have an error..." )
+			
+			ret arg + 1
+		}
+	}
+}
+
+
+// Type is derived from SomeData's assigned type.
+static inst : SomeType
+
+demo exe 
+{
+	SomeType.NestedSym = 0x01
+	inst             = 4
+	
+	stack possibleError : Error
+	
+	possibleError = SomeType.RandomAction( symbol )
+}
+
+exe demo

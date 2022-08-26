@@ -62,47 +62,49 @@ func populate(node):
 			item.set_text(Value, ast.name().name())
 			
 		SType.sec_Cap:
-			pass
+			generate(ast.args(), node)
+			
+			if ast.ret_Map():
+				generate(ast.ret_Map(), node)
 			
 		SType.sec_Cond:
 			pass
 			
 		SType.sec_Enum:
-			pass
+			if ast.capture():
+				generate(ast.capture(), node)
 			
 		SType.sec_Exe:
 			pass
+		
+		SType.sec_ExeSwitch:
+			generate(ast.cond(), node)
 			
 		SType.sec_Loop:
 			if ast.cond():
 				generate(ast.cond(), node)
-			
-		SType.sec_Heap:
-			pass
-			
+
 		SType.sec_RetMap:
 			if ast.expression():
 				generate(ast.expression(), node)
-			
+					
 		SType.sec_Struct:
 			pass
 			
 		SType.sec_Switch:
-			pass
+			generate(ast.cond(), node)
 			
 		SType.sec_SwitchCase:
-			pass
+			generate(ast.case(), node)
 			
 		SType.sec_Type:
 			pass
-#			if ast.typedef().value().Attributes.contains(SAttribute.literal):
-#				item.set_text(Value, ast.typedef().value().value())
-			
-		SType.sec_TT:
-			pass
-		
+
 		SType.sec_Identifier:
 			item.set_text(Value, ast.name())
+			
+			if ast.ret_Map():
+				generate(ast.ret_Map(), node)
 			
 		SType.sym_Identifier:
 			item.set_text(Value, ast.name())
@@ -126,7 +128,7 @@ func populate(node):
 					SType.literal_True: skip = true
 					
 					SType.sec_Allocator: skip = true
-					SType.sec_Identifier: skip = true
+					SType.sec_Identifier: if index == 1: skip = true
 					
 					SType.sym_Identifier: skip = true
 					
@@ -168,7 +170,7 @@ func generate(ast, parent = null):
 	if ! parent:
 		Root = node
 		set_hide_root(true)
-	
+
 	var   index := 1
 	while index <= ast.num_Entries():
 		generate( ast.entry(index), node )

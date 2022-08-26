@@ -142,7 +142,6 @@ const TypeColor := {
 	SType.sec_Cond       : Color.CHARTREUSE,
 	SType.sec_Enum       : Color.LIGHT_GOLDENROD,
 	SType.sec_Exe        : Color.CHARTREUSE,
-	SType.sec_ExeCond    : Color.CHARTREUSE,
 	SType.sec_ExeSwitch  : Color.CHARTREUSE,
 	SType.sec_External   : Color.GOLD,
 	SType.sec_Heap       : Color.RED,
