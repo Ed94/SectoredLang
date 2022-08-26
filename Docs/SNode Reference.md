@@ -64,7 +64,9 @@ allocator <name>
 
 ## Capture
 
-A parenthesized set of named or unamed (special if so) arguments that be used in resolved symbols that depend on additional contextual information to provided either for translation time symbol generation or for data transformation during execution.
+A parenthesized set of named or unamed (special if so) arguments which can be used in resolved symbols that depend on additional contextual information provided, either for translation-time symbol generation or for data transformation, during execution.
+
+Named captures with translation-time types are considered dependent captures. Dependent captures must be resolved at translation-time to generate a program model compatiable symbol.
 
 Available Sectors :
 
@@ -129,7 +131,7 @@ else
 
 ## Enum
 
-Sector denoting a list of identifiers that are enumerated. An optional capture may be provided that resolves to a built-in type supported to be used with enumerations.
+Sector denoting a list of identifiers that are enumerated. An optional capture may be provided that resolves to a built-in type. Used to denote the type of the enum.
 
 Available Sectors : None
 
@@ -165,7 +167,7 @@ exe
 
 ## Exe Conditional
 
-An if-else set of sectors. Sectors within are only considiered if the `<conditional expression>` resolves to a true value.Conditional. This variant is constrained to the available sectors and operations of an exe sector.
+An if-else set of sectors. Sectors within are only considiered if the `<conditional expression>` resolves to a true value. This variant is constrained to the available sectors and operations of an exe sector.
 
 Available Sectors & Operations :
 
@@ -205,6 +207,17 @@ else
 
 A sector where a value resolved from an expression is matched with one of a series of case values. The case value matched will be used executed (implemented as either as conditional or jump table).
 
+Available Sectors & Operations :
+
+* Allocator
+* Break
+* Conditional (Exe)
+* Heap
+* Loop
+* Return
+* Stack
+* Switch (Exe)
+
 ```
 switch <expression> <case expression> <sector or operation>
 
@@ -222,8 +235,6 @@ switch <expression>
 ## Exe Using
 
 Used in execution sectors to allow members of an identifier sector or variable definition to be used without the identifier namespace. If its a variable, the instance members of a struct or union are transparently available as well.
-
-A sector where a value resolved from an expression is matched with one of a series of case values. The case value matched will be used in translation time or the program model.
 
 If the using sector is defined with a body it will only be applied to the body, otherwise it will be applied to the immediate sector body declared within.
 
@@ -291,7 +302,9 @@ heap
 
 ## Identifier
 
-A user defined symbol that is used to associate with a valid definition. In the case of a sector, it behaves as a namespace for an encapsulation of definitions.
+A user defined symbol that is used as a namespace for an encapsulation of definitions.
+
+An identifier may only resolve to either a type definition or executable and not both type definitions can either be define using the type sector, struct sector, or union sector. Layout sector may only be defined if the type definition is a struct sector.
 
 Available Sectors :
 
@@ -344,7 +357,7 @@ A layout (alignment = 4) {
 
 	VarB
 	pad : <byte value>
-	
+
 	VarA
 }
 ```
@@ -515,12 +528,14 @@ switch <expression>
 
 Defines an encapsulation of sectors that are intended to be processed at translation-time.
 
-*Note: Currently the design of the langauge has it so that only the static sector really has a usage with this sector.  
-Sectors like the Conditional, Exe (when not bound to identifier), and Switch do not need this sector for the RSParser to infer that they will be translation time (its implicit).
+Note: Any sectors defined within a translation-time sector which are not **static** sector symbols will not be available at for runtime usage.
 
 Available Sectors :
 
+* Capture
 * Conditional
+* Exe
+* Identifier
 * Static
 * Switch
 
