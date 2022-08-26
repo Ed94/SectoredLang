@@ -5,7 +5,7 @@ They do not have clear semantic intent and that needs to be resolved before cons
 Thats done by translating SNodes to [RSNodes]().  
 These can either be generated via the text pipeline (Text Editor, Lexer and TParser) or it may be generated directly by a SNode editor.
 
-|  |  |
+| Field | Description |
 | :---- | :---- |
 | Type       | Type of SNode |
 | Attributes | Addtional type information reguarding the context of this node. |
@@ -22,7 +22,7 @@ Parses SNodes and generates an ast tree of RSNodes which may be processed by the
 
 Nodes which all contextual ambiguity for symbols provided from an SNode tree are resolved.
 
-|  |  |
+| Field | Description |
 | :---- | :---- |
 | Type       | Type of RSNode |
 | Attributes | Addtional type information reguarding the context of this node. |
@@ -57,7 +57,7 @@ These are a GUI visual representation of an set of SNodes.
 
 ![img](https://i.imgur.com/NczGVdy.png)
 
-|  |  |
+| Field | Description |
 | :---- | :---- |
 | Content  | A valid stack of SNodes |
 | HB       | Horizontal box optionally created if the SNode stack has a context body |

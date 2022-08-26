@@ -1,8 +1,9 @@
 # Rename to STree
 class_name STree extends Tree
 
-var TypeColor = GScript.TypeColor
-const SType := TParser.SType
+var TypeColor     = GScript.TypeColor
+
+const SType      := TParser.SType
 const SAttribute := TParser.SAttribute
 const Type  := 0
 const Value := 1

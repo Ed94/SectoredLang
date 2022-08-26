@@ -1,0 +1,21 @@
+Cycler 
+{
+	ro static Exist type bool
+
+
+	Initialize exe 
+	loop if Exist == false 
+	{
+		Timing. TakeInitialSnapshot
+		
+		Input.    Update
+		State.    Update
+		Renderer. Update
+		
+		Timing. TakeEndingSnapshot
+		Timing. Update
+	}
+
+	Lapse      exe Exist = false
+	LoadModule exe Exist = true
+}

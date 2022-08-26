@@ -1,0 +1,6 @@
+main ( argc : int, argv : [][]u8 ) -> u32
+{
+	LP.Print( LP.Format("Hello World!"))
+
+	return 0
+}

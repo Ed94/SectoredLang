@@ -954,8 +954,6 @@ func parse_sec_Capture() -> SNode:
 	
 	if Tok.Type == TType.op_Map:
 		node.set_Entry(1, parse_sec_ReturnMap() )
-#		end(node)
-#		return node
 	
 	var result = chk_Tok(TType.def_Start)
 	if  result == null:
@@ -1819,11 +1817,6 @@ func parse_sec_TranslationTime() -> SNode:
 	start(node)
 	eat(TType.sym_TT)
 
-#	if G.check(Tok.Type == TType.sym_TT, "Next token should have been a translation time symbol"):
-#		return node
-#
-#	node.add_TokVal(Tok)
-	
 	if Tok == null:
 		end(node)
 		return node
@@ -1834,10 +1827,9 @@ func parse_sec_TranslationTime() -> SNode:
 		
 		while Tok.Type != TType.def_End:
 			match Tok.Type:
-			#region LP_Sectors	
 				TType.sec_Static:
 					node.add_Entry( parse_sec_Static() )
-			#endregion LP_Sectors
+					
 				_:
 					var error = G.Error.new(false, "Failed to match token.")
 					G.throw(error)
@@ -1847,10 +1839,8 @@ func parse_sec_TranslationTime() -> SNode:
 
 	else:
 		match Tok.Type:
-		#region LP_Sectors
 			TType.sec_Static:
 				node.add_Entry( parse_sec_Static() )
-		#endregion LP_Sectors
 
 	end(node)
 	return node

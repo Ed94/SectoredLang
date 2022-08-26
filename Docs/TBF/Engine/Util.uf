@@ -1,1 +1,0 @@
-bit (pos : tt Type) -> (1 << pos)
