@@ -1,6 +1,6 @@
 # Sectors
 
-Sectors are any symbol that may contextually encapsulate a valid statement element or set of statements bound by a statement context.
+Sectors are any symbol that may contextually encapsulate a valid statement element, or set of statements bound by a statement context.
 
 ```
 <statement>
@@ -15,7 +15,7 @@ Sectors are any symbol that may contextually encapsulate a valid statement eleme
 
 ---
 
-A statement element is a stack of sectors and expressions that terminate either with an \<end definition> symbol or satisfy its terminating condition during parsing.
+A statement element is a stack of sectors and expressions, which terminate either with an `<end definition>` symbol or satisfy its terminating condition during parsing.
 
 
 ```
@@ -30,15 +30,19 @@ A statement element is a stack of sectors and expressions that terminate either 
 }
 ```
 
+**Note: The context of a stack of sectors inherits the restrictions of its most restrictive sector. (This is enforced when generating RSNodes in the SParser)**
+
 ---
 
 # Standard Sectors
 
-**Note: Some of these sectors may be omitted by the langauge platform if unsupported (example: interpreter will most likely not support heap allocation)**
+**Note: Some of these sectors may be omitted by the langauge platform if unsupported (example: interpreters will most likely not support heap allocation)**
 
 ## Alias
 
-A statement that will associate an user identifier with another symbol. 
+A statement that will associate a user identifier with another symbol. This is only for the sector context the alias is used in.  
+Aliases are removed during one of the backend stages while producing the program model.
+The intention is to keep them available as far as possible for readability.
 
 Available Sectors : None
 
@@ -48,7 +52,7 @@ alias <identifier> : <symbol>
 
 ## Allocator
 
-User defined allocators.  Denotes memory associated with a varaible of addressable type (a type resolving to an address).
+User defined allocators. Denotes memory associated with a varaible of addressable type (a type resolving to an address).
 
 Available Sectors : None
 
@@ -62,6 +66,59 @@ allocator <name>
 }
 ```
 
+Allocators are defined within identifiers using an interface pattern :
+```
+// Equivalent of backend definitoin.
+// Interfaces can either be implemented as traits or virtuals. 
+// virtual indicates runtime dispatch, trait indicates translation-time resolved dispatch (static-dispatch).
+
+allocator interface ( Type : tt Type ) {
+	allocate (                     numDesired : uw ) -> ptr Type exe;
+	resize   ( address : ptr Type, numDesired : uw ) -> ptr Type exe;
+	free     ( address : ptr Type )                              exe;
+	wipe                                                         exe;
+}
+
+<identifier>
+{
+	trait allocator
+	{
+		allocate ( numDesired : uw ) -> ptr Type exe { ... };
+		resize (address : ptr Type, numDesired : uw ) -> ptr Type exe;
+		free ( address : ptr Type ) exe;
+		wipe exe;
+	}
+}
+```
+
+Allocator interfaces are unqiue in that they allow self capture.
+```
+<identifier> trait allocator (Type : tt type, self) { ... }
+```
+
+If attempting dynamic-dispatch with an allocator, be aware the allocator type will not be the same if using a self capture.
+
+Allocator resolved symbols for non-self captures :
+```
+<identifier>.allocator.allocate( numDesired : uw ) -> ptr ResolvedType exe
+<identifier>.allocator.resize( address : ptr ResolvedType, numDesired : uw ) -> ptr ResolvedType exe
+<identifier>.allocator.free( address : ptr ResolvedType ) exe
+<identifier>.allocator.wipe exe;
+```
+
+Allocator resolved symbols for self captures :
+```
+<identifier>.allocator.allocate (self : ptr <identifier>, numDesired : uw ) -> ptr ResolvedType exe
+<identifier>.allocator.resize ( self : ptr <identifier>, address : ptr ResolvedType, numDesired : uw ) -> ptr ResolvedType exe
+<identifier>.allocator.free ( self : ptr <identifier>, address : ptr ResolvedType ) exe
+<identifier>.allocator.wipe ( self : ptr <identifier> ) exe;
+```
+
+These will not be compatiable with each other.
+(This is the case for any interface implementation that changes the dependencies of a any of the interface symbols)
+
+**Note : Like all program source, the IDE should be able to show the runtime resolved symbols for any RSNode.**
+
 ## Capture
 
 A parenthesized set of named or unamed (special if so) arguments which can be used in resolved symbols that depend on additional contextual information provided, either for translation-time symbol generation or for data transformation, during execution.
@@ -70,16 +127,21 @@ Named captures with translation-time types are considered dependent captures. De
 
 Available Sectors :
 
+* Alias
 * Capture
 * Conditional
 * Exe
 * External
 * Identifier
+* Inline
+* Layer
 * Readonly
 * Return Map
 * Static
 * Switch
 * Translation Time
+
+(These are used )
 
 ```
 (...) <sector stack>;
@@ -97,10 +159,13 @@ An if-else set of sectors. Sectors within are only considiered if the `<conditio
 
 Available Sectors :
 
+* Alias
 * Capture
 * Exe
 * External
 * Identifier
+* Inline
+* Layer
 * Readonly
 * Switch
 * Static
@@ -149,7 +214,11 @@ Available Sectors & Operations :
 * Allocator
 * Break
 * Conditional (Exe)
+* Continue
+* Fall
+* Goto
 * Heap
+* Label
 * Loop
 * Return
 * Stack
@@ -174,7 +243,11 @@ Available Sectors & Operations :
 * Allocator
 * Break
 * Conditional (Exe)
+* Continue
+* Fall
+* Goto
 * Heap
+* Label
 * Loop
 * Return
 * Stack
@@ -212,7 +285,11 @@ Available Sectors & Operations :
 * Allocator
 * Break
 * Conditional (Exe)
+* Continue
+* Fall
+* Goto
 * Heap
+* Label
 * Loop
 * Return
 * Stack
@@ -243,11 +320,16 @@ Available Sectors :
 * Allocator
 * Break
 * Conditional (Exe)
+* Continue
+* Fall
+* Goto
 * Heap
+* Label
 * Loop
 * Return
 * Stack
 * Switch (Exe)
+* Using
 
 ```
 <executable sector>
@@ -284,6 +366,22 @@ extenral
 }
 ```
 
+## Goto
+
+Allows for unconditional jump operations to marked positions in the execution graph set via labels.
+
+Available Sectors : None
+
+```
+<executable sector>
+{
+	label A
+	...
+	goto A
+	...
+}
+```
+
 ## Heap
 
 Denotes heap allocated memory associated with a varaible of addressable type (a type resolving to an address).
@@ -304,29 +402,283 @@ heap
 
 A user defined symbol that is used as a namespace for an encapsulation of definitions.
 
-An identifier may only resolve to either a type definition or executable and not both type definitions can either be define using the type sector, struct sector, or union sector. Layout sector may only be defined if the type definition is a struct sector.
+An identifier may only resolve to either a type definition or executable and not both type definitions can either be defined using the type sector, struct sector, or union sector. Layout sector may only be defined if the type definition is a struct sector.
+
+**structs** and **unions** may have multiple defintions within the sector.  
+If multiple definitions are defined they are conncatenated into a single struct or union for the program model.
+
+type, struct and union defintions **cannot** be mixed in an identifier sector. Only *one* of these types of definitons may be used.  
+(The program model only supports resolving a symbol to a single type definition class)
 
 Available Sectors :
 
+* Alias
 * Capture
 * Conditional
 * Enum
 * Exe
 * External
 * Identifier
+* Inline
+* Interface
+* Layer
 * Layout
 * Readonly
 * Return Map
 * Static
 * Struct
 * Switch
+* Trait
 * Translation Time
 * Typedef
 * Union
+* Virtual
 
 ```
-<stack> A <stack>;
-<stack> A { <sectors> }
+A <stack>;
+A { <sectors> }
+```
+
+## Identifier Using
+
+Used to inject an identifier's definitions into another identifer achieving inheritance.
+
+Available Sectors : None
+
+```
+<identifier>
+{
+	using <another identifier>
+
+	...
+}
+```
+
+Note that this will literally inject the definitions into the identifier sector and doesn't provide stuff like a *super* or *parent* symbol to reference the current parent. If this is desired consider the following pattern:
+
+```
+<identifier>
+{
+	alias super : <another identifier>
+	using super
+}
+```
+
+Any interface implementation injected will be available. If an override is intended I recommend manual inheritance instead:
+
+```
+<identifier>
+{
+	alias super : <another identifier>
+	
+	<interface implementation> ...
+
+	struct
+	{
+		using super
+		...
+	}
+	// or
+	union
+	{
+		using super
+	}
+	// or
+	type super
+}
+```
+
+## Inline
+
+Indicates to the program generator that the executable implementation for symbols in this sector should be inlined instead of a call to a subroutine.
+
+Available Sectors :
+
+* Capture
+* Conditional
+* Identifier
+* Switch
+
+```
+inline (...) -> ... 
+{
+	...
+}
+```
+
+## Interface
+
+Provides a way to define a set of exectuable symbols that may have their dispatch implementation generated by the backend of the language platform.
+
+Used in conjunction with the trait and virtual sectors to define standard interfaces for functionality on data types.
+
+Available Sectors :
+
+* Capture
+* Conditional
+* Exe
+* Identifier
+* Switch
+
+**Note : Use of the interface sector is entirely optional and manual interfaces are perfeclty possible.**
+
+Example of manually defined interface:
+```
+// State definition with a dynamic dispatch interface
+State
+{
+	Proc
+	{
+		Load   type exe;
+		Unload type exe;
+		Update type exe ( delta : f64 )
+		Render type exe;
+	}
+
+	struct
+	{
+		Load   : ptr Proc.Load
+		Unload : ptr Proc.Unload
+		Update : ptr Proc.Update
+		Render : ptr Proc.Render
+	}
+}
+
+IntroState
+{
+	alias super : State
+	using super
+
+	StateImpl
+	{
+		Load exe { ... }
+		Unload exe { ... }
+		Update ( delta : f64 ) exe { ... }
+		Render exe { ... }
+	}
+
+	Init ( self ) exe
+	{
+		Load   = StateImpl. Load
+		Unload = StateImpl. Unload
+		Update = StateImpl. Update
+		Render = StateImpl. Render
+	}
+}
+
+AnotherState
+{
+	...
+}
+
+
+static 
+{
+	intro   : IntroState
+	another : AnotherState
+}
+
+pickState -> ptr State exe { ... }
+
+exe
+{
+	stack randState : ptr State
+
+	randState = pickState
+	randState.Load()
+}
+```
+
+## Label
+
+Allows for positions in the execution graph to be marked for unconditional jumping using the goto sector.
+
+Available Sectors & Operations :
+
+* Allocator
+* Break
+* Conditional (Exe)
+* Heap
+* Label
+* Loop
+* Return
+* Stack
+* Switch (Exe)
+
+```
+<executable sector>
+{
+	label A
+	{
+		...
+		goto B
+	}
+
+	label B
+	...
+	goto A
+}
+```
+
+## Layer
+
+A language platform policy encapsulated as a sector. Changes the allowed features that the langauge platform may provide from what was specified in the modules. 
+
+Available Sectors :
+
+* Alias
+* Capture
+* Conditional
+* Exe
+* External
+* Identifier
+* Inline
+* Readonly
+* Static
+* Switch
+* Translation Time
+
+```
+// Policy with more pragmatic rules on syntax for heavy engineering.
+layer Engine.Core
+{
+	Something struct
+	{
+		...
+	}
+
+	Something Transformation (...) -> ptr ... exe
+	{
+		...
+	}
+}
+
+// Policy wiht rules more friendly for gameplay-level code or scripting.
+layer Gameplay
+{
+	Character
+	{
+		alias super : Entity
+		using super
+
+		...
+
+		Init exe -> ptr Character
+		{
+			stack newCharacter : ptr Character = null
+
+			// Only gameplay level code and above may use a garbage collector.
+			GC Character
+
+			if newCharacter == null
+				ret ...
+
+			SetupComponents
+			...
+		}
+	}
+}
+
 ```
 
 ## Layout
@@ -353,10 +705,10 @@ A layout {
 // or
 A layout (alignment = 4) { 
 	VarC
-	pad : <byte value>
+	_bytepad : <byte value>
 
 	VarB
-	pad : <byte value>
+	_bytepad : <byte value>
 
 	VarA
 }
@@ -370,8 +722,10 @@ Available Sectors & Operations :
 
 * Allocator
 * Break
+* Continue
 * Conditional (Exe)
 * Heap
+* Label
 * Loop
 * Return
 * Stack
@@ -500,11 +854,14 @@ A sector where a value resolved from an expression is matched with one of a seri
 
 Available Sectors :
 
+* Alias
 * Capture
 * Conditional
 * Exe
 * External
 * Identifier
+* Inline
+* Layer
 * Readonly
 * Static
 * Switch
@@ -524,62 +881,22 @@ switch <expression>
 }
 ```
 
-## Translation Time
+## Trait
 
-Defines an encapsulation of sectors that are intended to be processed at translation-time.
+Used in conjunction with interfaces to define a static dispatch implementation that will be generated by the translation-time executer.
 
-Note: Any sectors defined within a translation-time sector which are not **static** sector symbols will not be available at for runtime usage.
-
-Available Sectors :
+Available Sectors : 
 
 * Capture
 * Conditional
 * Exe
 * Identifier
-* Static
 * Switch
 
 ```
-tt <sector stack>
-
-tt
+trait <identifier with interface definition>
 {
-	<sector stack>
-}
-```
-
-## Unit
-
-Defines an encapsualted *Unit* of a program model. Defined by the user in a module file.
-
-Available Sectors :
-
-* Capture
-* Conditional
-* Exe
-* External
-* Readonly
-* Static
-* Switch
-* Translation Time
-* Identifier
-
-## Union
-
-Denotes a union type definition. May optionally have a capture that resolves to an enumeration which will serve to define a tagged union. The `<name>` identifiers for the union must match the tag enumeration `<name>`s
-
-Available Sectors : None
-
-```
-union (<enum>)
-{
-	<name> <type sector>
-	...
-}
-
-union
-{
-	<name> <type sector>
+	<interface member> ... exe { ... }
 	...
 }
 ```
@@ -620,6 +937,125 @@ Any other sector:
 }
 ```
 
+## Translation Time
+
+Defines an encapsulation of sectors that are intended to be processed at translation-time.
+
+Note: Any sectors defined within a translation-time sector which are not **static** sector symbols will not be available at for runtime usage.
+
+Available Sectors :
+
+* Alias
+* Capture
+* Conditional
+* Exe
+* Identifier
+* Interface
+* Layer
+* Static
+* Switch
+
+```
+tt <sector stack>
+
+tt
+{
+	<sector stack>
+}
+```
+Note: This has a bunch of potential in the future for metaprogramming... Not sure how far yet ast wise but to give an idea:
+```
+// This captures a symbol associated with a sector as a sector instead of a type.
+tt inherit ( userSymbol : sector identifier ) exe
+{
+	// We define a symbol *super* in the current context calling inherit.
+	alias super : userSymbol
+
+	// We inject super's defintions into the current context.
+	using super
+}
+
+// This will resolve to an invalid symbol for the current sector unless its done within an identifier.
+
+// Usage:
+BaseIdentifier
+{
+	...
+}
+
+InheritingIdentifier
+{
+	inherit(BaseIdentifier)
+}
+
+// In generated node:
+InheritingIdentifier
+{
+	alias super : userSymbol
+	using super
+}
+```
+
+## Unit
+
+Defines an encapsualted *Unit* of a program model. Defined by the user in a module file.
+
+Available Sectors :
+
+* Alias
+* Capture
+* Conditional
+* Exe
+* External
+* Identifier
+* Interface
+* Inline
+* Layer
+* Readonly
+* Static
+* Switch
+* Translation Time
+
+## Union
+
+Denotes a union type definition. May optionally have a capture that resolves to an enumeration which will serve to define a tagged union. The `<name>` identifiers for the union must match the tag enumeration `<name>`s
+
+Available Sectors : None
+
+```
+union (<enum>)
+{
+	<name> <type sector>
+	...
+}
+
+union
+{
+	<name> <type sector>
+	...
+}
+```
+
+## Virtual
+
+Used in conjunction with interfaces to define a dynamic dispatch implementation that will be generated by the program model generator.
+
+Available Sectors : 
+
+* Capture
+* Conditional
+* Exe
+* Identifier
+* Switch
+
+```
+virtual <identifier with interface definition>
+{
+	<interface member> ... exe { ... }
+	...
+}
+```
+
 # Expressions
 
 An executable set actions of symbols or just a symbol.
@@ -630,12 +1066,12 @@ Operator Precedence (First is lowest)
 | Category | Symbol |
 | :---- | :---- |
 | Delimited | `,` |
-| Assignment | `= += -= *= /= %= != ~= ^= &= |= <<= >>=` |
-| Logical Or | `||` |
+| Assignment | = += -= *= /= %= != ~= ^= &= |= <<= >>= |
+| Logical Or | `\|\|` |
 | Logical And | `&&` |
 | Equality | `== !=` |
 | Relational | `> >= < <=` |
-| Bitwise Or | `|` |
+| Bitwise Or | `\|` |
 | Bitwise And | `&` |
 | Bitsift | `<< >>` |
 | Additive | `+ -` |

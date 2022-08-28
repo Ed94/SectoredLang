@@ -1,6 +1,6 @@
 # SNode : Syntax Nodes
 
-These are intended to be the nodes that closest correlate to use expression in the langauge.  
+These are intended to be the nodes that the user describe the program model.  
 They do not have clear semantic intent and that needs to be resolved before constructing the full program model.
 Thats done by translating SNodes to [RSNodes]().  
 These can either be generated via the text pipeline (Text Editor, Lexer and TParser) or it may be generated directly by a SNode editor.

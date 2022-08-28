@@ -339,6 +339,7 @@ placeholder_text = " Sectored Lang - IDE - V0.0.1"
 minimap_draw = true
 minimap_width = 40
 line_folding = true
+gutters_draw_line_numbers = true
 gutters_draw_fold_gutter = true
 indent_automatic = true
 indent_automatic_prefixes = ["{", "[", "("]

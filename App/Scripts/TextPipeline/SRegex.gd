@@ -76,7 +76,7 @@ const Spec : Dictionary = \
 	TokenType.glyph_space     : "^\\bspace\\b",
 	TokenType.glyph_word      : "^\\bword\\b",
 	TokenType.glyph_ws        : "^\\bwhitespace\\b",
-	TokenType.glyph_linebreak : "^\\linebreak\\b",
+	TokenType.glyph_linebreak : "^\\blinebreak\\b",
 
 	TokenType.op_lazy   : "^\\.\\blazy\\b",
 	TokenType.op_repeat : "^\\.\\brepeat\\b",
@@ -660,6 +660,8 @@ func parse_GlyphLineBreak():
 	node       = ASTNode.new()
 	node.Type  = NodeType.linebreak
 	node.Value = "\\R"
+	
+	return node
 
 func parse_GlyphWhitespace():
 	eat(TokenType.glyph_ws)

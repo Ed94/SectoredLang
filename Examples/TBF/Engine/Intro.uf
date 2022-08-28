@@ -109,7 +109,7 @@ Intro
 				index += 1
 			}
 
-			loop if index = 0, index < Version.Length
+			loop if index == 0, index < Version.Length
 			{
 				RenderCells.Version[index].Char.UnicodeChar = Version[index]
 				index += 1
@@ -124,95 +124,102 @@ Intro
 
 	Unload exe Renderer.WriteLog("Intro State: Unloaded")
 
-	Update exe
+	Update 
 	{
 		static
 		{
-			LogTitle   = true
-			LogVersion = true
-			LogFade    = true
-			LogEnd     = true
+			LogTitle   := true
+			LogVersion := true
+			LogFade    := true
+			LogEnd     := true
 
-			Log_ChangeToWhite_Title   = true
-			Log_ChangeToWhite_Version = true
+			Log_ChangeToWhite_Title   := true
+			Log_ChangeToWhite_Version := true
 
-			Log_FadeToGrey = true
+			Log_FadeToGrey := true
 		}
-
-		Timer.Intro.     Tick
-		Timer.Till_Title.Tick
-
-		Renderer.WriteToPersistentSection(4, "Intro Time Elapsed: %.7LF", Timer.Intro.Elapsed)
-
-		if Timer.Till_Title.Ended
+		
+		exe
 		{
+			Timer.Intro.     Tick
+			Timer.Till_Title.Tick
 
-		}
+			Renderer.WriteToPersistentSection(4, "Intro Time Elapsed: %.7LF", Timer.Intro.Elapsed)
 
-		Timer.Till_FadeToGrey.Tick
-
-		if Timer.Till_FadeToGrey.Ended
-		{
-			Change.TitleTo_Grey
-			Change.VersionTo_Grey
-
-			if Log_FadeToGrey
+			if Timer.Till_Title.Ended
 			{
-				Renderer.WriteLog("Title should fade to grey now.")
-				Log_FadeToGrey = false
+
 			}
 
-			Timer.Till_FadeOut.Tick;
+			Timer.Till_FadeToGrey.Tick
 
-			if LogFade && Timer.Till_FadeOut.Ended
+			if Timer.Till_FadeToGrey.Ended
 			{
-				Renderer.WriteLog("Title should fade out now.")
+				Change.TitleTo_Grey
+				Change.VersionTo_Grey
 
-				RenderTitle  = false
-				RenderVersio = false
+				if Log_FadeToGrey
+				{
+					Renderer.WriteLog("Title should fade to grey now.")
+					Log_FadeToGrey = false
+				}
 
-				LogFade = false
+				Timer.Till_FadeOut.Tick
+
+				if LogFade && Timer.Till_FadeOut.Ended
+				{
+					Renderer.WriteLog("Title should fade out now.")
+
+					RenderTitle  = false
+					RenderVersio = false
+
+					LogFade = false
+				}
 			}
-		}
 
-		if LogEnd && Timer.Intro.Ended
-		{
-			Renderer.WriteToLog("Intro ends now.")
+			if LogEnd && Timer.Intro.Ended
+			{
+				Renderer.WriteToLog("Intro ends now.")
 
-			LogEnd = false
+				LogEnd = false
 
-			Engine.State.LoadGame
+				Engine.State.LoadGame
+			}
 		}
 	}
 
-	Render exe
+
+	Render 
 	{
 		static 
 		{
-			startingCell : Win32.COORD = { 0, 9 }
-			endingCell   : Win32.COORD = { 0, 9 }
+			startingCell : Win32.COORD { 0, 9 }
+			endingCell   : Win32.COORD { 0, 9 }
 		}
-
-		if RenderTitle
+		
+		exe
 		{
-			startingCell.X = (Renderer.Width / 2) - (cast(u16, Title.Length) / 2))
-			endingCell.  X = (Renderer.Width / 2) + (cast(u16, Title.Length) / 2))
+			if RenderTitle
+			{
+				startingCell.X = (Renderer.Width / 2) - (cast(u16, Title.Length) / 2)
+				endingCell.  X = (Renderer.Width / 2) + (cast(u16, Title.Length) / 2)
 
-			startingCell.Y = 9
-			endingCell.  Y = 9
+				startingCell.Y = 9
+				endingCell.  Y = 9
 
-			Renderer.WriteToBufferCells(RenderCells.Title, startingCell, endingCell)
-		}
+				Renderer.WriteToBufferCells(RenderCells.Title, startingCell, endingCell)
+			}
 
-		if RenderVersion
-		{
-			startingCell.X = (Renderer.Width / 2) - (cast(u16, Version.Length / 2))
-			endingCell.  X = (Renderer.Width / 2) + (cast(u16, Version.Length / 2))
+			if RenderVersion
+			{
+				startingCell.X = (Renderer.Width / 2) - (cast(u16, Version.Length) / 2)
+				endingCell.  X = (Renderer.Width / 2) + (cast(u16, Version.Length) / 2)
 
-			startingCell.Y = 11
-			endingCell.  Y = 11
+				startingCell.Y = 11
+				endingCell.  Y = 11
 
-			Renderer.WriteToBufferCells(RenderCells.Version, startingCell, endingCell)
+				Renderer.WriteToBufferCells(RenderCells.Version, startingCell, endingCell)
+			}
 		}
 	}
 

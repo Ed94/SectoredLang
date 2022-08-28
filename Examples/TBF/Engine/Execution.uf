@@ -16,7 +16,7 @@ Execution
 		}
 		
 		Print_StartMessage exe {
-			Renderer. DLog("TBF MAS Engine")
+			Renderer. DLog("TBF Sectored Lang Engine")
 			Renderer. DLog("")
 			Renderer. DLog("Version: Prototype - C Translated")
 		}

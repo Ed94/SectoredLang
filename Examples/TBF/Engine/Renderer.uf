@@ -4,23 +4,23 @@ Renderer
 	{
 		Width  : u16 = 80
 		
-		BorderLine   = 24
-		DebugStart   = 25
-		DebugLogSize = 18
+		BorderLine   := 24
+		DebugStart   := 25
+		DebugLogSize := 18
 
-		DebugPersistentStart  = 44
-		PersistentSectionSize = 4
+		DebugPersistentStart  := 44
+		PersistentSectionSize := 4
 
-		GameEnd = 23
+		GameEnd := 23
 	}
 
 	if Config.Debug
 	{
-		tt static Height = 48
+		tt static Height := 48
 	}
 	else
 	{
-		tt static Height = 24
+		tt static Height := 24
 	}
 
 	Line type [Width] Cell
@@ -80,13 +80,13 @@ Renderer
 
 	DrawGameScanline 
 	{
-		static cellIndex : Win32.COORD = { 0, 0 }
+		static cellIndex : Win32.COORD { 0, 0 }
 
 		exe
 		{
 			stack
 			{
-				blockChar : const WideChar = '-'
+				blockChar : ro WideChar = '-'
 				cellUnit  : Cell
 			}
 
@@ -103,7 +103,7 @@ Renderer
 				index += 1
 			}
 
-			stack cellIndex_End : Win32.COORD = { Renderer_Width, cellIndex.Y }
+			stack cellIndex_End : Win32.COORD { Renderer_Width, cellIndex.Y }
 
 			Console.WriteToBufferCells( cast(ptr Cell, cellLine.ptr), cellIndex, cellIndex_End)
 
@@ -148,16 +148,16 @@ Renderer
 		Console.CursorSettings.dwSize   = Win32.Console_Cursor_MinSize
 		Console.CursorSettings.bVisible = Win32.Console_Cursor_NotVisible
 
-		Memory Console.Buffer : allocate(Cell, Width * Height)
+		allocator Memory Console.Buffer : allocate(Cell, Width * Height)
 
 		Memory.Format.Fill(Cell, Console.Buffer, 0, Width * Height)
 
 		tt if Config.Debug
 		{
 			stack 
-			borderCell : Cell;
+			borderCell : Cell
 			borderCell.Char.UnicodeChar = '='
-			borderCell.Attributes       = Console_WhiteCell
+			borderCell.Attributes       = Console.WhiteCell
 
 			stack   index : uw = 0
 			loop if index < Width
@@ -202,29 +202,29 @@ Renderer
 
 	Update exe
 	{
-		if ! RefreshTimer.Ended 
+		if ! RefreshTimer.Ended()
 			ret
 
-		Clear
+		Clear()
 
-		DrawGameScanlines
+		DrawGameScanlines()
 
-		State.Render
+		State.Render()
 
-		tt if Debug
+		tt if Config.Debug
 		{
 			stack 
 			{
-				startingCell : Win32.COORD = {     0, BorderLine }
-				finalCell    : Win32.COORD = { Width, BorderLine }
+				startingCell : Win32.COORD {     0, BorderLine }
+				finalCell    : Win32.COORD { Width, BorderLine }
 			}
 
-			Console.WriteToBufferCells( cast(ptr Cell, Border.GameDebug.ptr, startingCell, finalCell) )
+			Console.WriteToBufferCells( cast(ptr Cell, Border.GameDebug.ptr), startingCell, finalCell )
 
 			startingCell.Y = DebugPersistentStart - 1
 			finalCell.   Y = DebugPersistentStart - 1
 
-			Conosle.WriteToBufferCells( cast(ptr Cell, Border.LogPersistent.ptr, startingCell, finalCell) )
+			Conosle.WriteToBufferCells( cast(ptr Cell, Border.LogPersistent.ptr), startingCell, finalCell )
 
 			stack index : uw = 0
 
@@ -300,45 +300,50 @@ Renderer
 					allocator Memory DebugLogSection.Dynamic.Data : resize(DebugLogSection.Dynamic.Num)
 				}
 
-			Write (logString : ro string(u16)) exe
+			Write (logString : ro string(u16)) 
 			{
 				static { 
 					nextLine : u32 = 0
 					linePos  : uw = 0
 				}
-
-				if nextLine == 0
-					AddLine;
-
-				stack   index : uw = 0
-				loop if index < logString.Length
+				
+				exe
 				{
-					if linePos > Width - 1
+					if nextLine == 0
+						AddLine()
+
+					stack   index : uw = 0
+					loop if index < logString.Length
 					{
-						linePos   = 0
-						nextLine += 1
-						AddLine
+						if linePos > Width - 1
+						{
+							linePos   = 0
+							nextLine += 1
+							AddLine()
+						}
+
+						DebugLogSection.Dynamic.Data[nextLine][linePos].Char.UnicodeChar = logString[index]
+						DebugLogSection.Dynamic.Data[nextLine][linePos].Attributes       = Conosle.WhiteCell
+						index += 1
 					}
 
-					DebugLogSection.Dynamic.Data[nextLine][linePos].Char.UnicodeChar = logString[index]
-					DebugLogSection.Dynamic.Data[nextLine][linePos].Attributes       = Conosle.WhiteCell
-					index += 1
-				}
+					loop if index = 0, index < Width
+					{
+						DebugLogSection.Dynamic.Data[nextLine][index].Char.UnicodeChar = 0
+						DebugLogSection.Dynamic.Data[nextLine][index].Attributes       = 0
+						index += 1
+					}
 
-				loop if index = 0, index < Width
-				{
-					DebugLogSection.Dynamic.Data[nextLine][index].Char.UnicodeChar = 0
-					DebugLogSection.Dynamic.Data[nextLine][index].Attributes       = 0
-					index += 1
+					AddLine()
+					nextLine += 1
+					DebugLogSection.RelativeLastLine = 1
 				}
-
-				AddLine
-				nextLine += 1
-				DebugLogSection.RelativeLastLine = 1
 			}
 		}
 
-		WriteToPersistentSection (row : s32, lineFormat : ro string(u16), ...) exe
+		WriteToPersistentSection (row : s32, lineFormat : ro string(u16)
+		/*, ...*/ // Not supported yet...
+		) exe
 		{
 			stack
 			{
@@ -347,9 +352,11 @@ Renderer
 				cellsFormatted       : ptr Cell
 			}
 
-			cellsFormatted = string.Format(translationBuffer, Width, lineFormat, ...)
+			cellsFormatted = string.Format(translationBuffer, Width, lineFormat
+			/*, ...*/ // Not supported yet...
+			)
 
-			stack   index : uw = 0;
+			stack   index : uw = 0
 			loop if index < cellsFormatted
 			{
 				PersistentSection[index].Char.UnicodeChar = translationBuffer[index]
@@ -357,7 +364,7 @@ Renderer
 				index += 1
 			}
 
-			loop if index = cellsFormatted, index < Width; 
+			loop if index = cellsFormatted, index < Width
 			{
 				PersistentSection[index].Char.UnicodeChar = 0
 				PersistentSection[index].Attributes       = 0

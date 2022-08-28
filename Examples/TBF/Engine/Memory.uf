@@ -48,11 +48,12 @@ Memory
 			ret  Data[Length - 1]
 		}
 
-		(allocator)
+		trait allocator
 		{
 			(Type : tt type)
 			{
-				// ResolvedSymbol: Memory.BlockArray.allocate (self, heap, tt Type : type, numDesired : uw) -> ptr Type exe
+				// ResolvedSymbol: Memory.BlockArray.allocate (Type : tt type, self : ptr BlockArray, numDesired : uw) -> ptr Type exe
+				// Heap resolved symbol : LP.OS.heap.allocate (numDesired : uw)
 				allocate (numDesired : uw) -> ptr Type exe
 				{
 					stack newBlock : ptr Block = Add()
@@ -68,7 +69,7 @@ Memory
 
 				resize(address : ptr Type, numDesired : uw) -> ptr Type exe
 				{
-					stack index : uw = 0; loop 
+					stack index : uw = 0 loop 
 					{
 						if index >= Length 
 							ret null
@@ -88,6 +89,8 @@ Memory
 
 					ret cast(ptr Type, Data[index].Location)
 				}
+				
+				free (address : ptr Type) exe;
 			}
 
 			wipe exe
@@ -100,6 +103,8 @@ Memory
 						Data[index].Location : free()
 						Data[index]          : free()
 					}
+					
+					index += 1
 				}
 
 				heap Data : free()
@@ -107,7 +112,7 @@ Memory
 		}
 	} // BlockArray (self)
 
-	(allocator)
+	trait allocator
 	{
 		(Type : tt type)
 		{
@@ -123,7 +128,7 @@ Memory
 
 			resize(address : ptr Type, numDesired : uw) -> ptr Type exe
 			{
-				stack index : uw = 0; loop 
+				stack index : uw = 0 loop 
 				{
 					if index >= GlobalAllocs.Length 
 						ret null
@@ -139,6 +144,8 @@ Memory
 
 				ret resizedMemory
 			}
+			
+			free (address : ptr Type) exe;
 		}
 
 		wipe exe allocator GlobalAllocs wipe

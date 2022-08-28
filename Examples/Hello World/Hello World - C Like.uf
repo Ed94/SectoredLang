@@ -1,6 +1,6 @@
-main ( argc : int, argv : [][]u8 ) -> u32
+main ( argc : int, argv : [][] u8 ) -> u32 exe
 {
-	LP.Print( LP.Format("Hello World!"))
+	LP.Print( "Hello World!")
 
 	return 0
 }

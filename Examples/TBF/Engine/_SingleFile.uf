@@ -1,0 +1,1447 @@
+Config tt static Debug : bool = true
+
+Cycler 
+{
+	ro static Exist type bool
+
+
+	Initialize exe 
+	loop if Exist == false 
+	{
+		Timing. TakeInitialSnapshot
+		
+		Input.    Update
+		State.    Update
+		Renderer. Update
+		
+		Timing. TakeEndingSnapshot
+		Timing. Update
+	}
+
+	Lapse      exe Exist = false
+	LoadModule exe Exist = true
+}
+
+external LoadGame -> State exe;
+
+Execution
+{
+	Flags enum (u32) {
+		Success
+		Failure
+	}
+
+	private
+	{
+		PrepareModules exe {
+			Cycler.   LoadModule
+			Timing.   LoadModule
+			Input.    LoadModule
+			Renderer. LoadModule
+			State.    LoadModule
+		}
+		
+		Print_StartMessage exe {
+			Renderer. DLog("TBF Sectored Lang Engine")
+			Renderer. DLog("")
+			Renderer. DLog("Version: Prototype - C Translated")
+		}
+		
+		UnloadModules exe {
+			Renderer. UnloadModule
+			Memory  . UnloadModule
+		}
+	}
+	
+	Entrypoint exe {
+		PrepareModules
+		Print_StartMessage
+		
+		Cycler.Initialize
+		
+		UnloadModules
+		
+		ret Flags.Success
+	}
+}
+
+Input
+{
+	tt static {
+		NumTracked : u32 = 6
+		BufferSize : u32 = 10
+	}
+
+	State enum (u32) {
+		None
+		Released
+		Pressed
+		PressHeld
+	}
+
+	KeySignals struct {
+		Up    : bool
+		Down  : bool
+		Left  : bool
+		Right : bool
+		Enter : bool
+		Tab   : bool
+	}
+
+	SignalState	union {
+		Keys  : KeySignals
+		Array : [NumTracked] bool
+	}
+
+	RingBuffer struct {
+		Buffer : [BufferSize] State
+		Index  : u32
+	}
+
+	InputEventProc type exe(inputState : State) 
+
+	Subscriptions struct {
+		Array : ptr InputEventProc
+		Num   : u32
+	}
+
+
+	ro static {
+		CurrentSignalState  : SignalState
+		PreviousSignalState : SignalState
+
+		KeyStates    : [NumTracked] State
+		KeyEventSubs : [NumTracked] Subscriptions
+	}
+	
+
+	Key {
+		CodeFromIndex (index : uw) -> KeyCode 
+		exe switch (index)
+		{
+			0	ret KeyCode.ArrowUp
+			1	ret KeyCode.ArrowDown
+			2	ret KeyCode.ArrowLeft
+			3	ret KeyCode.ArrowRight
+			4	ret KeyCode.Enter
+			5	ret KeyCode.Tab
+			
+			default ret KeyCode.None
+		}
+
+		IndexFromCode (key : KeyCode) -> KeyCode 
+		exe switch (key)
+		{
+			KeyCode.ArrowUp		ret 0
+			KeyCode.ArrowDown	ret 1
+			KeyCode.ArrowLeft	ret 2
+			KeyCode.ArrowRight	ret 3
+			KeyCode.Enter		ret 4
+			KeyCode.Tab			ret 5
+			default				ret u32.max
+		}
+	}
+
+	Update exe
+	{
+		stack index : uw = 0
+		loop if index < NumTracked
+		{
+			stack current, previous : ptr bool
+
+			current  = CurrentSignalSignalState.Array[index].ptr
+			previous = PreviousSignalState.     Array[index].ptr
+
+			previous.val = current.val
+			current. val = GetKeySignal( Key.CodeFromIndex(index) )
+
+			stack currentState : ptr State
+
+			currentState = KeyStates[index].ptr
+			
+			stack latestState : State = State.None
+
+			if current == previous
+			{
+				if current == true
+					latestState = State.PressHeld
+
+				else if currentState.val != State.PressHeld	{
+					latestState = State.None
+				}
+			}
+			else
+			{
+				if current == false
+					latestState = State.Released
+				else
+					latestState = State.Pressed
+			}
+
+			if latestState != currentState.val
+			{
+				currentState.val = latestState
+
+				stack   subIndex uw = 0
+				loop if subIndex < KeyEventSubs[index].Num
+				{	
+					if  KeyEventSubs[index].Array[subIndex]
+						KeyEventSubs[index].Array[subIndex](currentState.val)
+
+					subIndex += 1
+				}
+			}
+
+			index += 1
+		}
+	}
+
+	(key : KeyCode, callback : ptr InputEventProc)
+	{
+		SubscribeTo exe
+		{
+			stack subs : ptr Subscriptions = KeyEventSubs[ Key.IndexFromCode(key) ]
+
+			if subs.Num == 0
+			{
+				allocator Memory subs.Array : allocate(ptr InputEventProc, 1)
+
+				subs.Num += 1
+			}
+			else
+			{
+				stack   subIndex : uw = 0
+				loop if subIndex < sub.Num
+					if subIndex.Array[subIndex].val == null 
+					{
+						subs.Array[ subs.Num - 1 ] = callback
+						ret
+					}
+
+				stack            resized : ptr uw = null
+				allocator Memory resized : resize(ptr InputEventProc, subs.Array, (subs.Num + 1) )
+
+				check("Failed to globally reallocate subscription array")
+
+				subs.Array  = resized
+				subs.Num   += 1
+			}
+
+			subs.Array[ subs.Num -1 ] = callback
+		}
+
+		Unsubscribe exe
+		{
+			stack {
+ 				subs     : ptr Subscriptions = KeyEventSubs[ Key.IndexFromCode(key) ]
+				subIndex : uw = 0
+			}
+
+			loop if subIndex < sub.Num
+				if  subs.Array[subIndex] == callback
+					subs.Array[subIndex] = null
+		}
+	}
+}
+
+Intro
+{
+	static
+	{
+		State : Engine.State
+
+		DoneOnce : bool = false
+
+		Title   : String(u16) = "Trial By Fire Engine"
+		Version : String(u16) = "Type SectoredLang (C Phase 14)"
+
+		RenderTitle   : bool = false
+		RenderVersion : bool = false
+	}
+
+	RenderCells static
+	{
+		Title   : ptr Console.Cell = null
+		Version : ptr Console.Cell = null
+	}
+
+	Timer 
+	{
+		static
+		{
+			Intro : Engine.Timer
+			
+			Till_Title      : Engine.Timer	
+			Till_Version    : Engine.Timer
+			Till_FadeToGrey : Engine.Timer
+
+			Till_Title_ToWhite   : Engine.Timer
+			Till_Version_ToWhite : Engine.Timer
+
+			Till_FadeOut : Engine.Timer
+		}
+	}
+
+	Change
+	{
+		TitleTo_Grey exe
+		{
+			stack   index : uw = 0
+			loop if index < Title.Length
+			{
+				RenderCells.Title[index].Attributes = Console.AttributeFlags.Foreground_Intensity
+				index += 1
+			}
+		}
+
+		VersionTo_Grey exe
+		{
+			stack   index : uw = 0
+			loop if index < Version.Length
+			{
+				RenderCells.Verson[index].Attributes = Console.AttributeFlags.Foreground_Intensity
+				index += 1
+			}
+		}
+
+		TitleTo_White exe
+		{
+			stack   index : uw = 0
+			loop if index < Title.Length
+			{
+				RenderCells.Title[index].Attributes = Console.WhiteCell
+				index += 1
+			}
+		}
+
+		VersionTo_White exe
+		{
+			stack   index : uw = 0
+			loop if index < Version.Length
+			{
+				RenderCells.Version[index].Attributes = Console.WhiteCell
+				index += 1
+			}
+		}
+	}
+
+	Load exe
+	{
+		if ! DoneOnce
+		{
+			using Timer
+			{
+				Intro.EndTime = 7.0
+
+				Till_Title.  EndTime = 2.0
+				Till_Version.EndTime = 1.2
+
+				Till_FadeOut.EndTime = 0.134
+
+				Till_Title_ToWhite.EndTime   = 0.134
+				Till_Version_ToWhite.EndTime = 0.134
+			}
+
+			allocator Memory
+			{
+				RenderCells.Title   : allocate(Cell, Title.Length)
+				RenderCells.Version : allocate(Cell, Version.Length)
+			}
+
+			stack   index : uw = 0
+			loop if index < Title.Length
+			{
+				RenderCells.Title[index].Char.UnicodeChar = Title[index]
+				index += 1
+			}
+
+			loop if index == 0, index < Version.Length
+			{
+				RenderCells.Version[index].Char.UnicodeChar = Version[index]
+				index += 1
+			}
+
+			DoneOnce = true
+		}
+
+		Change.TitleTo_Grey
+		Change.VersionTo_Grey
+	}
+
+	Unload exe Renderer.WriteLog("Intro State: Unloaded")
+
+	Update 
+	{
+		static
+		{
+			LogTitle   := true
+			LogVersion := true
+			LogFade    := true
+			LogEnd     := true
+
+			Log_ChangeToWhite_Title   := true
+			Log_ChangeToWhite_Version := true
+
+			Log_FadeToGrey := true
+		}
+		
+		exe
+		{
+			Timer.Intro.     Tick
+			Timer.Till_Title.Tick
+
+			Renderer.WriteToPersistentSection(4, "Intro Time Elapsed: %.7LF", Timer.Intro.Elapsed)
+
+			if Timer.Till_Title.Ended
+			{
+
+			}
+
+			Timer.Till_FadeToGrey.Tick
+
+			if Timer.Till_FadeToGrey.Ended
+			{
+				Change.TitleTo_Grey
+				Change.VersionTo_Grey
+
+				if Log_FadeToGrey
+				{
+					Renderer.WriteLog("Title should fade to grey now.")
+					Log_FadeToGrey = false
+				}
+
+				Timer.Till_FadeOut.Tick
+
+				if LogFade && Timer.Till_FadeOut.Ended
+				{
+					Renderer.WriteLog("Title should fade out now.")
+
+					RenderTitle  = false
+					RenderVersio = false
+
+					LogFade = false
+				}
+			}
+
+			if LogEnd && Timer.Intro.Ended
+			{
+				Renderer.WriteToLog("Intro ends now.")
+
+				LogEnd = false
+
+				Engine.State.LoadGame
+			}
+		}
+	}
+
+
+	Render 
+	{
+		static 
+		{
+			startingCell : Win32.COORD { 0, 9 }
+			endingCell   : Win32.COORD { 0, 9 }
+		}
+		
+		exe
+		{
+			if RenderTitle
+			{
+				startingCell.X = (Renderer.Width / 2) - (cast(u16, Title.Length) / 2)
+				endingCell.  X = (Renderer.Width / 2) + (cast(u16, Title.Length) / 2)
+
+				startingCell.Y = 9
+				endingCell.  Y = 9
+
+				Renderer.WriteToBufferCells(RenderCells.Title, startingCell, endingCell)
+			}
+
+			if RenderVersion
+			{
+				startingCell.X = (Renderer.Width / 2) - (cast(u16, Version.Length) / 2)
+				endingCell.  X = (Renderer.Width / 2) + (cast(u16, Version.Length) / 2)
+
+				startingCell.Y = 11
+				endingCell.  Y = 11
+
+				Renderer.WriteToBufferCells(RenderCells.Version, startingCell, endingCell)
+			}
+		}
+	}
+
+	GetState -> ptr Engine.State
+	{
+		static firstGet : bool = true
+
+		exe
+		{
+			if firstGet {
+				State.Load   = Load.ptr
+				State.Unload = Unload.ptr
+				State.Update = Update.ptr
+				State.Render = Render.ptr
+
+				firstGet = false
+			}
+
+			ret State.ptr
+		}
+	}
+}
+
+(NumType : tt type)
+{
+	(value : NumType) -> NumType 
+	{
+		Abs exe
+		{
+			stack 
+			posOrZero : bool
+			posOrZero = value >= cast(NumType, 0)
+
+			if posOrZero
+				ret value
+			else
+				ret -value
+		}
+
+		Sign exe
+		{
+			stack 
+			isPos : bool
+			isPos = value > cast(NumType, 0)
+
+			if isPos
+				ret cast(NumType, 1)
+
+			else
+			{
+				stack
+				isNeg : bool
+				isNeg = value < cast(NumType, 0)
+
+				if isNeg
+					ret cast(NumType, -1)
+				else
+					ret cast(NumType, 0)
+			}
+		}
+	}
+}
+
+
+f32 (self : f32)
+{
+	IsNearlyZero (errorTolerance : f32 = FloatAccuracy.Micro) -> bool exe
+		ret Abs(f32, self) <= errorTolerance
+}
+
+f64 (self : f64) 
+{
+	IsNearlyZero (errorTolerance : f64 = FloatAccuracy.Micro) -> bool exe
+		ret Abs(f64, self) <= errorTolerance
+}
+
+Memory
+{
+	Block struct
+	{
+		Location : ptr uw
+		Size     :     uw
+	}
+
+	BlockArray struct
+	{
+		Data   : []ptr Block
+		Length : uw
+	}
+
+	static GlobalAllocs : BlockArray
+
+	BlockArray (self)
+	{
+		Add -> ptr Block exe
+		{
+			if Data == null
+			{
+				heap Data : allocate(1)
+
+				check(Data, "Failed to globally allocate block array")
+
+				Length = 1
+			}
+			else
+			{
+				stack {
+					newSize  : u32       = Length + 1
+					newBlock : ptr Block = null
+				}
+
+				heap newBlock : allocate(newSize)
+				if   newBlock
+				{
+					Format.Set(newBlock, Data, Length)
+
+					Data = newBlock
+				}
+				
+				else throw("Failed to globally reallocate block array")
+			}
+
+			heap Data[Length - 1] : allocate(1)
+			ret  Data[Length - 1]
+		}
+
+		trait allocator
+		{
+			(Type : tt type)
+			{
+				// ResolvedSymbol: Memory.BlockArray.allocate (Type : tt type, self : ptr BlockArray, numDesired : uw) -> ptr Type exe
+				// Heap resolved symbol : LP.OS.heap.allocate (numDesired : uw)
+				allocate (numDesired : uw) -> ptr Type exe
+				{
+					stack newBlock : ptr Block = Add()
+
+					newBlock.Size = numDesired * Type.sizeof
+					
+					heap newBlock.Location : allocate(numDesired * Type.sizeof)
+
+					check(newBlock.Location, "Failed to allocate block")
+
+					ret cast(ptr Type, newBlock.Location)
+				}
+
+				resize(address : ptr Type, numDesired : uw) -> ptr Type exe
+				{
+					stack index : uw = 0 loop 
+					{
+						if index >= Length 
+							ret null
+
+						if Data[index].Location == address
+							break
+					}
+
+					stack newLocation : ptr uw = null
+					heap  newLocation : allocate(numDesired * Type.sizeof)
+
+					check(newLocation, "Failed to resize block")
+
+					heap Data[index].Location : free()
+
+					Data[index].Location = newLocation
+
+					ret cast(ptr Type, Data[index].Location)
+				}
+				
+				free (address : ptr Type) exe;
+			}
+
+			wipe exe
+			{
+				stack   index : uw = 0
+				loop if index == Length
+				{
+					heap 
+					{
+						Data[index].Location : free()
+						Data[index]          : free()
+					}
+					
+					index += 1
+				}
+
+				heap Data : free()
+			}
+		}
+	} // BlockArray (self)
+
+	trait allocator
+	{
+		(Type : tt type)
+		{
+			allocate (numDesired : uw) -> ptr Type exe
+			{
+				stack                  allocedMemory : ptr Type = null
+				allocator GlobalAllocs allocedMemory : allocate(Type, numDesired)
+
+				check(allocedMemory, "Failed to globally allocate memory")
+
+				ret allocedMemory
+			}
+
+			resize(address : ptr Type, numDesired : uw) -> ptr Type exe
+			{
+				stack index : uw = 0 loop 
+				{
+					if index >= GlobalAllocs.Length 
+						ret null
+
+					if GlobalAllocs.Data[index].Location == address
+						break
+				}
+
+				stack                  resizedMemory : ptr type = null
+				allocator GlobalAllocs resizedMemory : resize(Type, numDesired)
+
+				check(resizedMemory, "Failed to globally reallocate memory")
+
+				ret resizedMemory
+			}
+			
+			free (address : ptr Type) exe;
+		}
+
+		wipe exe allocator GlobalAllocs wipe
+	}
+}
+
+if Win32 {
+alias WinUser : LP.OS.Win32.WinUser
+
+KeyCode enum (u32)
+{
+	None       = 0x00
+	ArrowUp    = WinUser.VK_UP
+	ArrowDown  = WinUser.VK_DOWN
+	ArrowLeft  = WinUser.VK_LEFT
+	ArrowRight = WinUser.VK_Right
+	Enter      = WinUser.VK_RETURN
+	Tab        = WinUser.VK_TAB
+}
+
+GetKeySignal (key : KeyCode) -> bool exe ret GetAsyncKeyState(key) & 0x8000
+
+Console
+{
+	AttributeFlag
+	{
+		enum (u16)
+		{
+			Foreground_Blue      = bit(0)
+			Foreground_Green     = bit(1)
+			Foreground_Red       = bit(2)
+			Foreground_Intensity = bit(3)
+
+			Background_Blue      = bit(4)
+			Background_Green     = bit(5)
+			Background_Red       = bit(6)
+			Background_Intensity = bit(7)
+		}
+	}
+
+	Cell type Win32.CHAR_INFO
+
+	tt static WhiteCell : u16 = 
+		  AttributeFlag.Foreground_Red 
+		| AttirbuteFlag.Foreground_Green 
+		| AttributeFlag.Foreground_Blue 
+		| AttributeFlag.Foreground_Intensity
+
+	static 
+	{
+		Buffer : ptr Cell
+
+		WindowHandle : Win32.HWND
+		OutputHandle : Win32.HANDLE
+
+		CoordSize  : Win32.COORD
+		SBI        : Win32.CONSOLE_SCREEN_BUFFER_INFO
+		BufferSize : Win32.DWORD
+		Size       : Win32.SMALL_RECT
+
+		CursorSettings : Win32.CONSOLE_CURSOR_INFO
+	}
+
+	tt static ScreenPos_00 : Win32.COORD = 0, 0
+
+
+	() -> bool
+	{
+		IOBuffer {
+			Bind exe;
+			Unbind exe;
+		}
+
+		(char : u16, length : Win32.DWORD, writeCoord : Win32.COORD, numCharsWritter : Win32.LPDWORD)
+		FillConsoleOutputCharacter exe ret Win32.FillConsoleOutputCharacter(
+			OutputHandle,
+			char,
+			length,
+			writeCoord,
+			numCharsWritter
+		)
+
+		(attribute : Win32.WORD, length : Win32.DWORD, writeCoord : Win32.COORD, numAttrsWritten : Win32.LPDWORD)
+		FillConsoleOutputAttribute exe ret Win32.FillConsoleOutputAttribute(
+			OutputHandle,
+			attribute,
+			length,
+			writeCoord,
+			numAttrsWritten
+		)
+
+		Request exe
+		{
+			check(Win32.AllocConsole, "Failed to get console for rendering from operating system")
+			check(Bind_IOBuffer,      "Failed to bind standard IO to renderer's console")
+		}
+
+		SetCursorInfo       (info : Win32.CONSOLE_CURSOR_INFO) exe;
+
+		SetCursorPosition   (position : Win32.COORD) exe;
+		
+		SetScreenBufferSize (size : Win32.COORD) exe;
+
+		SetWindowInfo       (bAbsolute : bool, window : ptr Win32.SMALL_RECT) exe;
+
+		SetCursorPosition   (position : Win32.COORD) exe Win32.SetConsoleCursorPosition(OutputHandle, position)
+
+		SetWindowPos(
+			 X,  Y : s32,
+			CX, CY : s32, 
+			uFlags : u32
+		) exe;
+
+		SetTitle (title : string(u16)) exe ret SetConsoleTitleW(title)
+
+		UpdateInfo exe ret GetConsoleScreenBufferInfo( OutputHandle, SBI.ptr )
+
+		WriteOutput exe ret Win32.WriteConsoleOutputW(
+			OutputHandle,
+			Buffer,
+			CoordSize,
+			ScreenPos_00,
+			Size
+		)
+
+		WriteToBufferCells (cells : ptr ro Cell, initialCell, finalCell : Win32.COORD) exe
+		{
+			stack 
+			{
+				lineOffset  : uw = initialCell.Y * CoordSize.X
+				colOffset   : uw = initialCell.X
+				totalOffset : uw = lineOffset - colOffset
+
+				bufferOffset : ptr Cell = Buffer[totalOffset].ptr
+				dataSize     : uw       = totalOffset
+			}
+
+			lineOffset  = finalCell.Y * CoordSize.X
+			colOffset   = finalCell.X
+			totalOffset = lineOffset  + colOffset
+			dataSize    = totalOffset - dataSize
+
+			if dataSize == 0
+				dataSize = 1
+
+			Memory.Format.Set(Cell, bufferOffset, cells, dataSize)
+		}
+	}
+}
+
+
+
+WinMain export 
+(hInstance : Win32.HINSTANCE, hPrevInstance : Win32.HINSTANCE, lpCmdLine : Win32.PWSTR, nCmdShow : Win32.INT) -> Win32.INT
+exe
+{
+	EntryPoint()
+	ret 0
+}
+
+} // LP.OS.Win32
+
+Renderer
+{
+	tt static 
+	{
+		Width  : u16 = 80
+		
+		BorderLine   := 24
+		DebugStart   := 25
+		DebugLogSize := 18
+
+		DebugPersistentStart  := 44
+		PersistentSectionSize := 4
+
+		GameEnd := 23
+	}
+
+	if Config.Debug
+	{
+		tt static Height := 48
+	}
+	else
+	{
+		tt static Height := 24
+	}
+
+	Line type [Width] Cell
+
+	Lines struct {
+		Data : ptr Line
+		Num  : uw
+	}
+
+	static
+	{
+		CharactersWritten : WIn32.DWORD
+
+		ScreenCenter   : Vec2(s32)
+		ScreenPosition : Vec2(s32)
+
+		RefreshTimer : Timer
+	}
+
+	DebugLogSection static
+	{
+		Dynamic          : Lines
+		RelativeLastLine : u32 = 1
+	}
+
+	Border static
+	{
+		GameDebug     : Line
+		LogPersistent : Line
+	}
+
+	if Config.Debug 
+		static PersistentSection : [PersistentSectionSize] Line
+
+	tt static
+	{
+		ConsoleTitle : string(u16) = "TBF SectoredLang Engine : C Phase 14"
+	}
+
+
+	() -> bool
+	{
+		FillCellsWithWhitespace exe ret Conosole.FillConsoleOutputCharacter(
+			' ',
+			Conosle.BufferSize,
+			ScreenPos_00,
+			CharactersWritten.ptr
+		)
+
+		FormatCells exe ret Console.FillConsoleOutputAttribute(
+			Console.SBI.wAttributes,
+			Console.BufferSize,
+			ScreenPos_00,
+			CharactersWritten.ptr
+		)
+	}
+
+	DrawGameScanline 
+	{
+		static cellIndex : Win32.COORD { 0, 0 }
+
+		exe
+		{
+			stack
+			{
+				blockChar : ro WideChar = '-'
+				cellUnit  : Cell
+			}
+
+			cellUnit.Char.UnicodeChar = blockChar
+			cellUnit.Attributes       = Console.AttributeFlag.Foreground_Intensity
+
+			stack cellLine : [Renderer_Width] Cell
+
+			stack   index : uw = 0
+			loop if index < Renderer_Width
+			{
+				cellLine[index] = cellUnit
+
+				index += 1
+			}
+
+			stack cellIndex_End : Win32.COORD { Renderer_Width, cellIndex.Y }
+
+			Console.WriteToBufferCells( cast(ptr Cell, cellLine.ptr), cellIndex, cellIndex_End)
+
+			cellIndex.Y += 1
+
+			if cellIndex.X >= Width
+			{
+				cellIndex.X  = 0
+				cellIndex.Y += 1
+			}
+
+			if cellIndex.Y > GameEnd
+			{
+				cellIndex.X = 0
+				cellIndex.Y = 0
+			}
+		}
+	}
+
+	Clear exe if Console.UpdateInfo
+		Memory.Format.Set(Cell, Buffer, 0, Width * Height)
+
+	InitializeData exe
+	{
+		ScreenCenter.X = Win32.GetSystemMetrics(Win32.SM_CXSCREEN) / 2
+		ScreenCenter.Y = Win32.GetSystemMetrics(Win32.SM_CYSCREEN) / 2
+
+		ScreenPosition.X = (ScreenCenter.X - ((Width  / 2) * 8)) - 20
+		ScreenPosition.Y = (ScreenCenter.Y - ((Height / 2) * 8)) - 200
+
+		RefreshTimer.Elapsed = 0.0
+		RefreshTimer.EndTime = 1.0 / 60.0
+
+		Console.CoordSize.X = Width 
+		Console.CoordSize.Y = Height
+
+		Console.Size.Left   = Console_ScreenPos_00.X
+		Console.Size.Top    = Console_ScreenPos_00.Y
+		Console.Size.Right  = Renderer_Width  - 1
+		Console.Size.Bottom = Renderer_Height - 1
+
+		Console.CursorSettings.dwSize   = Win32.Console_Cursor_MinSize
+		Console.CursorSettings.bVisible = Win32.Console_Cursor_NotVisible
+
+		allocator Memory Console.Buffer : allocate(Cell, Width * Height)
+
+		Memory.Format.Fill(Cell, Console.Buffer, 0, Width * Height)
+
+		tt if Config.Debug
+		{
+			stack 
+			borderCell : Cell
+			borderCell.Char.UnicodeChar = '='
+			borderCell.Attributes       = Console.WhiteCell
+
+			stack   index : uw = 0
+			loop if index < Width
+			{
+				Border.GameDebug    [index] = borderCell
+				Border.LogPersistent[index] = borderCell
+				index += 1
+			}
+
+			DebugLogSection_Dynamic.Array = null
+			DebugLogSection_Dynamic.Num   = 0
+		}
+	}
+
+	LoadModule exe {
+		SetupConsole
+		InitializeData
+		Console.SetTitle(ConsoleTitle)
+		UpdateSizeAndPosition
+	}
+
+	ProcessTiming (deltaTime : f64) exe 
+	{
+		RefreshTimer.Tick(deltaTime)
+	}
+
+	RenderFrame exe Conosle.WriteOutput
+
+	ResetDrawPosition exe Console.SetCursorPosition(Console.ScreenPos_00)
+
+	SetupConsole exe
+	{
+		Console.Request
+	}
+
+	UnloadModule exe
+	{
+		check(Conosle.Unbind_IOBuffer, "Failed to unbind standard IO from renderer console")
+		check(Console.Free, "Failed to free renderer console properly.")
+
+	}
+
+	Update exe
+	{
+		if ! RefreshTimer.Ended()
+			ret
+
+		Clear()
+
+		DrawGameScanlines()
+
+		State.Render()
+
+		tt if Config.Debug
+		{
+			stack 
+			{
+				startingCell : Win32.COORD {     0, BorderLine }
+				finalCell    : Win32.COORD { Width, BorderLine }
+			}
+
+			Console.WriteToBufferCells( cast(ptr Cell, Border.GameDebug.ptr), startingCell, finalCell )
+
+			startingCell.Y = DebugPersistentStart - 1
+			finalCell.   Y = DebugPersistentStart - 1
+
+			Conosle.WriteToBufferCells( cast(ptr Cell, Border.LogPersistent.ptr), startingCell, finalCell )
+
+			stack index : uw = 0
+
+			if DebugLogSection.Dynamic.Num <= 18
+			{
+				loop if index = 0, index < DebugLogSection.Dynamic.Num -1
+				{
+					startingCell.Y = DebugStart + cast(u16, index)
+					finalCell.   Y = DebugStart + cast(u16, index)
+
+					Console.WriteToBufferCells(DebugLogSection.Dynamic.Data[index], startingCell, finalCell)
+					index += 1
+				}
+			}
+			else
+			{
+				stack LogStart : uw = DebugLogSection.Dynamic.Num - 18 - DebugLogSection.RelativeLastLine
+
+				loop if index = 0, index < DebugLogSize
+				{
+					startingCell.Y = DebugStart + cast(u16, index)
+					finalCell.   Y = DebugStart + cast(u16, index)
+
+					Console.WriteToBufferCells( cast(ptr Cell, DebugLogSection.Dynamic.Data[LogStart + index]), startingCell, finalCell)
+					index += 1
+				}
+			}
+
+			loop if index = 0, index < PersistentSectionSize
+			{
+				startingCell.Y = DebugPersistentStart + cast(u16, index)
+				finalCell.   Y = DebugPersistentStart + cast(u16, index)
+
+				Console.WriteToBufferCells( cast(ptr Cell, PersistentSection[index].ptr), startingCell, finalCell)
+				index += 1
+			}
+		}
+
+		RenderFrame
+		RefreshTimer.Reset
+	}
+	
+	UpdateSizeAndPosition exe
+	{
+		SetCursorInfo(CursorSettings)
+
+		SetWindowInfo(true, Size)
+
+		SetScreenBufferSize(true, Size)
+
+		SetWindowPos(
+			ScreenPosition.X, ScreenPosition.Y,
+			0, 0,
+			Win32.SWP_NOSIZE
+		)
+	}
+
+	if Config.Debug
+	{
+		Log
+		{
+			AddLine exe
+				if DebugLogSection.Dynamic.Num == 0
+				{
+					allocator Memory 
+					DebugLogSection.Dynamic.Data : allocate(1)
+					DebugLogSection.Dynamic.Num += 1
+				}
+				else
+				{
+					DebugLogSection.Dynamic.Num += 1
+
+					allocator Memory DebugLogSection.Dynamic.Data : resize(DebugLogSection.Dynamic.Num)
+				}
+
+			Write (logString : ro string(u16)) 
+			{
+				static { 
+					nextLine : u32 = 0
+					linePos  : uw = 0
+				}
+				
+				exe
+				{
+					if nextLine == 0
+						AddLine()
+
+					stack   index : uw = 0
+					loop if index < logString.Length
+					{
+						if linePos > Width - 1
+						{
+							linePos   = 0
+							nextLine += 1
+							AddLine()
+						}
+
+						DebugLogSection.Dynamic.Data[nextLine][linePos].Char.UnicodeChar = logString[index]
+						DebugLogSection.Dynamic.Data[nextLine][linePos].Attributes       = Conosle.WhiteCell
+						index += 1
+					}
+
+					loop if index = 0, index < Width
+					{
+						DebugLogSection.Dynamic.Data[nextLine][index].Char.UnicodeChar = 0
+						DebugLogSection.Dynamic.Data[nextLine][index].Attributes       = 0
+						index += 1
+					}
+
+					AddLine()
+					nextLine += 1
+					DebugLogSection.RelativeLastLine = 1
+				}
+			}
+		}
+
+		WriteToPersistentSection (row : s32, lineFormat : ro string(u16)
+		/*, ...*/ // Not supported yet...
+		) exe
+		{
+			stack
+			{
+				translationBuffer    : [Width]u16
+				persistentSubSection : Line = PersistentSection[row - 1]
+				cellsFormatted       : ptr Cell
+			}
+
+			cellsFormatted = string.Format(translationBuffer, Width, lineFormat
+			/*, ...*/ // Not supported yet...
+			)
+
+			stack   index : uw = 0
+			loop if index < cellsFormatted
+			{
+				PersistentSection[index].Char.UnicodeChar = translationBuffer[index]
+				PersistentSection[index].Attributes       = Console.WhiteCell
+				index += 1
+			}
+
+			loop if index = cellsFormatted, index < Width
+			{
+				PersistentSection[index].Char.UnicodeChar = 0
+				PersistentSection[index].Attributes       = 0
+				index += 1
+			}
+		}
+	}
+}
+
+EFocusState enum (u32)
+{
+	Game
+	Logs
+}
+
+static
+{	
+	CurrentState : ptr State   = null
+	FocusState   : EFocusState = EFocusState.Game
+}
+
+State 
+{
+	Proc
+	{
+		Load   type exe
+		Unload type exe
+		Update type exe ( delta : f64 )
+		Render type exe
+	}
+
+	struct {
+		Load   : ptr Proc.Load
+		Unload : ptr Proc.Unload
+		Update : ptr Proc.Update
+		Render : ptr Proc.Render
+	}
+
+	private (inputState : Input.EState)
+	{
+		OnKeyArrowUp exe switch (inputState)
+		{
+			Input.EState.Pressed 
+				switch (FocusState)
+					EFocusState.Logs
+						Renderer.Logs.ScrollUp
+		}
+
+		OnKeyArrowDown exe switch (inputState)
+		{
+			Input.EState.Pressed
+				switch (FocusState) 
+					EFocusState.Logs
+						Renderer.Logs.ScrollDown
+		}
+
+		OnKeyTab exe switch (inputState)
+		{
+			Input.EState.Pressed
+				switch (FocusState)
+				{
+					EFocusState.Game
+						FocusState = EFocusState.Logs
+
+					EFocusState.Logs
+						FocusState = EFocusState.Game
+				}
+		}
+	}
+
+	LoadModule exe
+	{
+		CurrentState = Intro.GetState
+		CurrentState.Load
+
+		Input.SubscribeTo(Key.ArrowUp,   State.OnKeyArrowUp.  ptr)
+		Input.SubscribeTo(Key.ArrowDown, State.OnKeyArrowDown.ptr)
+		Input.SubscribeTo(Key.Tab,       State.OnKeyTab.      ptr)
+	}
+
+	SetState (state : ptr State) exe
+	{
+		if (CurrentState)
+			CurrentState.Unload
+
+		CurrentState = state
+		CurrentState.Load
+	}
+
+	Update exe 
+		if (CurrentState) CurrentState.Update
+
+	Render exe
+		if (CurrentState) CurrentState.Render
+
+	LoadGame exe SetState( Engine.LoadGame )
+}
+
+Timing
+{
+	tt static 
+	{
+		TickToMicroseconds  := 1000000
+		MicrosecondToSecond := 10000000
+	}
+
+	ro
+	{
+		static 
+		{
+			DeltaTime : f64
+			Frequency : u64
+		}
+
+		Cycle static
+		{
+			TicksElapsed : s64
+			Microseconds : f64
+		}
+
+		TimeSnapshot static
+		{
+			Initial : u64
+			End     : u64
+		}
+	}
+
+	LoadModule exe InitializeData
+
+	TakeInitialSnapshot exe
+		LP.Clock.QueryPerformanceCounter( TimeSnapshot.Initial.ptr )
+
+	TakeEndingSnapshot exe
+		LP.Clock.QueryPerformanceCounter( TimeSnapshot.End.ptr )
+
+	Update exe
+	{
+		Cycle.TicksElapsed = TimeSnapshot.End - TimeSnapshot.Initial
+		Cycle.Microseconds = cast(f64, Cycle.TicksElapsed * TickToMicroseconds)
+		Cycle.Microseconds = cast(f64, Frequency)
+
+		DeltaTime = cast(f64, Cycle.TicksElapsed) cast(f64, MicrosecondToSecond)
+
+		Renderer.ProcessTiming(DeltaTime)
+	}
+
+	private 
+	{
+		InitializeData exe
+		{
+			Timing.Cycle.TicksElapsed = 0
+			Timing.Cycle.Microseconds = 0.0
+			Timing.DeltaTime          = 0.0
+
+			LP.Clock.QueryPerformanceFrequency( Frequency.ptr )
+		}
+	}
+}
+
+
+Timer struct 
+{
+	Elapsed : f64
+	EndTime : f64
+}
+
+Timer (self)
+{
+	Ended exe 
+		ret Elapsed >= EndTime
+
+	Reset exe
+		Elapsed = 0.01
+
+	Tick exe
+	{
+		if DeltaTime.IsNearlyZero( FloatAccuracy.Nano )
+		{
+			Elapsed = Elapsed + FloatAccuracy.Nano
+			ret
+		}
+
+		Elapsed = Elapsed + DeltaTime
+	}
+}
+
+if LP.gdscript
+{
+	b8  type bool
+	b16 type int
+	b32 type int
+	b64 type int
+
+	uw type int
+	sw type int
+
+	u8  type int
+	u16 type int
+	u32 type int
+	u64 type int
+
+	f32 type float
+	f64 type float
+}
+
+
+FloatAccuracy
+{
+	tt static
+	{
+		Deci  : f32 = 0.1
+		Centi : f32 = 0.01
+		Milli : f32 = 0.001
+		Micro : f32 = 0.00001
+		Nano  : f32 = 0.00000001
+	}	
+}
+
+
+(Type : tt type) Vec2 struct
+{
+	X : Type
+	Y : Type
+}
+
+bit (pos : tt Type) -> (1 << pos);

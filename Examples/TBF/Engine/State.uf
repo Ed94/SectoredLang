@@ -1,5 +1,3 @@
-Proc type exe
-
 EFocusState enum (u32)
 {
 	Game
@@ -14,11 +12,19 @@ static
 
 State 
 {
+	Proc
+	{
+		Load   type exe
+		Unload type exe
+		Update type exe ( delta : f64 )
+		Render type exe
+	}
+
 	struct {
-		Load   : ptr Proc
-		Unload : ptr Proc
-		Update : ptr Proc
-		Render : ptr Proc
+		Load   : ptr Proc.Load
+		Unload : ptr Proc.Unload
+		Update : ptr Proc.Update
+		Render : ptr Proc.Render
 	}
 
 	private (inputState : Input.EState)

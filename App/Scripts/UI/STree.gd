@@ -77,10 +77,7 @@ func populate(node):
 			
 		SType.sec_Exe:
 			pass
-		
-		SType.sec_ExeSwitch:
-			generate(ast.cond(), node)
-			
+
 		SType.sec_Loop:
 			if ast.cond():
 				generate(ast.cond(), node)

@@ -1,9 +1,8 @@
 if Win32 {
+alias WinUser : LP.OS.Win32.WinUser
 
 KeyCode enum (u32)
 {
-	alias WinUser = LP.OS.Win32.WinUser
-
 	None       = 0x00
 	ArrowUp    = WinUser.VK_UP
 	ArrowDown  = WinUser.VK_DOWN
@@ -13,7 +12,7 @@ KeyCode enum (u32)
 	Tab        = WinUser.VK_TAB
 }
 
-GetKeySignal (KeyCode key) -> bool exe ret GetAsyncKeyState(key) & 0x8000
+GetKeySignal (key : KeyCode) -> bool exe ret GetAsyncKeyState(key) & 0x8000
 
 Console
 {
@@ -56,14 +55,14 @@ Console
 		CursorSettings : Win32.CONSOLE_CURSOR_INFO
 	}
 
-	tt static ScreenPos_00 : Win32.COORD = 0,0
+	tt static ScreenPos_00 : Win32.COORD = 0, 0
 
 
 	() -> bool
 	{
 		IOBuffer {
-			Bind exe
-			Unbind exe
+			Bind exe;
+			Unbind exe;
 		}
 
 		(char : u16, length : Win32.DWORD, writeCoord : Win32.COORD, numCharsWritter : Win32.LPDWORD)
@@ -90,21 +89,21 @@ Console
 			check(Bind_IOBuffer,      "Failed to bind standard IO to renderer's console")
 		}
 
-		SetCursorInfo       (info : Win32.CONSOLE_CURSOR_INFO) exe
+		SetCursorInfo       (info : Win32.CONSOLE_CURSOR_INFO) exe;
 
-		SetCursorPosition   (position : Win32.COORD) exe
+		SetCursorPosition   (position : Win32.COORD) exe;
 		
-		SetScreenBufferSize (size : Win32.COORD) exe
+		SetScreenBufferSize (size : Win32.COORD) exe;
 
-		SetWindowInfo       (bAbsolute : bool, window : ptr Win32.SMALL_RECT) exe
+		SetWindowInfo       (bAbsolute : bool, window : ptr Win32.SMALL_RECT) exe;
 
 		SetCursorPosition   (position : Win32.COORD) exe Win32.SetConsoleCursorPosition(OutputHandle, position)
 
 		SetWindowPos(
-			 X,  Y : s32
+			 X,  Y : s32,
 			CX, CY : s32, 
 			uFlags : u32
-		) exe
+		) exe;
 
 		SetTitle (title : string(u16)) exe ret SetConsoleTitleW(title)
 
