@@ -16,6 +16,8 @@ var Parent     : VSNode
 var AST    
 var Content    : HBoxContainer
 var HB         : HBoxContainer
+var VIndent    : Panel
+var Indent     : HSplitContainer
 var VB         : VBoxContainer
 var Children   := []
 
@@ -48,18 +50,16 @@ func create_Body():
 	HB.name = "HB"
 	self.add_child(HB)
 					
-	var \
-	indent = Panel.new()
-	indent.custom_minimum_size = Indent_MinSize
+	VIndent = Panel.new()
+	VIndent.custom_minimum_size = Indent_MinSize
 	# Coloring this might be complicated...
-	indent.name = "indent"
-	HB.add_child(indent)
+	VIndent.name = "VIndent"
+	HB.add_child(VIndent)
 					
-	var \
-	hspacer = HSplitContainer.new()
-	hspacer.custom_minimum_size = Indent_HSpacer_MinSize
-	hspacer.name = "hspacer"
-	HB.add_child(hspacer)
+	Indent = HSplitContainer.new()
+	Indent.custom_minimum_size = Indent_HSpacer_MinSize
+	Indent.name = "Indent"
+	HB.add_child(VIndent)
 					
 	VB = VBoxContainer.new()
 	VB.custom_minimum_size = Header_MinSize
@@ -71,7 +71,7 @@ func generate():
 	Content.name = "Content"
 	self.add_child(Content)
 	
-	match AST.type():
+	match AST.Type:
 		SType.sec_Exe:
 			process_sec_Exe(AST, Content)
 
@@ -97,15 +97,44 @@ func generate():
 	name = nodeName
 	return
 	
+func process_sec_Generic(ast, container):
+	create_ASTLabel( ast, container )
+	
+	if ast.num_Entries() == 1:
+		var entry = ast.entry(1)
+		match entry.Type:
+			SType.sec_Static:
+				process_sec_Static(entry, container)
+			
+			SType.sec_TT:
+				process_sec_TranslationTime(entry, container)
+
+			_:
+				process_expr(entry, container)
+		return
+				
+	create_Body()
+				
+	var index = 1
+	while index <= ast.num_Entries(): 
+		Children.append( VSNode.new(ast.entry(index), self) )
+		index += 1
+		
+	return
+	
+func process_sec_Alias(ast, container):
+	create_ASTLabel( ast, container )
+	
+	
+	
 func process_sec_Exe(ast, container):
 	create_ASTLabel( ast, container )
 	
 	if ast.num_Entries() == 1:
 		var entry = ast.entry(1)
-		match entry.type():
+		match entry.Type:
 			_:
-				process_expr(ast, container)
-				pass
+				process_expr(entry, container)
 		return
 				
 	create_Body()
@@ -138,7 +167,7 @@ func process_sec_TranslationTime(ast, container):
 	
 	if ast.num_Entries() == 1:
 		var entry = ast.entry(1)
-		match entry.type():
+		match entry.Type:
 			SType.sec_Static:
 				process_sec_Static(entry, container)
 		return
@@ -186,7 +215,7 @@ func process_sym_Identifier(ast, container):
 		process_sec_Type(ast.typedef(), container)
 	
 func process_expr(ast, container):
-	match ast.type():
+	match ast.TYpe:
 		SType.literal_Binary  : process_literal(ast, container)
 		SType.literal_Char    : process_literal(ast, container)
 		SType.literal_Decimal : process_literal(ast, container)
@@ -200,6 +229,8 @@ func process_expr(ast, container):
 		SType.op_Subtract:
 			process_op_Binary(ast, container)
 		SType.op_Multiply:
+			process_op_Binary(ast, container)
+		SType.op_Divide:
 			process_op_Binary(ast, container)
 
 	return
@@ -224,6 +255,15 @@ func process_literal(ast, container):
 	create_Label( ast.entry(1), ast.type(), container )
 	return
 
+
+
+
+
+
+
+
+#region Node
+
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	pass # Replace with function body.
@@ -239,3 +279,5 @@ func _init(ast, parent):
 	AST    = ast
 
 	generate()
+	
+#endregion Node

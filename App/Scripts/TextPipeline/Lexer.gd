@@ -532,6 +532,10 @@ class Token extends RefCounted:
 	# Line , Col
 	var Start : Vector2i
 	var End   : Vector2i
+	
+	func to_str(): return "({type} ||| {value}) Span: {start} {end}".format(
+		{ "type" : Type, "value" : Value, "start" : Start, "end" : End }
+	)
 
 var SourceText : String
 var Cursor     : int
@@ -568,8 +572,10 @@ func reached_EndOfText():
 func tokenize(programSrcText):
 	SourceText = programSrcText
 	Cursor     = 0
+	Column     = 0
+	Line       = 0
 	TokenIndex = 0
-
+	
 	Tokens.clear()
 
 	while reached_EndOfText() == false :

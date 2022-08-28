@@ -291,7 +291,7 @@ func create_Label(text : String, type : String, container):
 
 #region Node
 
-func _input(event: InputEvent) -> void:
+func _unhandled_input(event: InputEvent) -> void:
 	match CurrentMode:
 		Mode.Edit:
 			if event.is_action_pressed("SEditor_Mode_Nav"):

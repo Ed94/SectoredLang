@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3 uid="uid://c3bapvtsputmr"]
+[gd_scene load_steps=21 format=3 uid="uid://c3bapvtsputmr"]
 
 [ext_resource type="StyleBox" uid="uid://nqey8i51uq6n" path="res://Styles/AppBG.SBF.tres" id="1_cc3py"]
 [ext_resource type="Script" path="res://Scripts/Persistent.gd" id="1_p5snc"]
@@ -10,6 +10,7 @@
 [ext_resource type="Script" path="res://Scripts/UI/STextEditor.gd" id="5_beomd"]
 [ext_resource type="Script" path="res://Scripts/UI/STree.gd" id="5_ddx1b"]
 [ext_resource type="Script" path="res://Scripts/Nodes/SEditorViewport.gd" id="5_h7oa2"]
+[ext_resource type="Script" path="res://Scripts/SE_Viewport.gd" id="5_m45ir"]
 [ext_resource type="Script" path="res://Scripts/Nodes/SEditorCamera.gd" id="6_wurw0"]
 [ext_resource type="Theme" uid="uid://ir46m6m80a2q" path="res://Styles/SEditor_SectorID.tres" id="7_ohm8i"]
 [ext_resource type="Script" path="res://Scripts/UI/Output.gd" id="7_xfrtc"]
@@ -36,6 +37,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 theme = SubResource("Theme_l44yk")
 script = ExtResource("1_p5snc")
+metadata/_edit_vertical_guides_ = [214.0]
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 anchor_right = 1.0
@@ -61,24 +63,51 @@ grow_horizontal = 2
 grow_vertical = 2
 metadata/_edit_layout_mode = 1
 
-[node name="SE_Viewport" type="SubViewportContainer" parent="VBoxContainer/Views/HBox"]
+[node name="SView_Tree" type="Tree" parent="VBoxContainer/Views/HBox"]
 visible = false
-offset_right = 797.0
+offset_right = 751.0
 offset_bottom = 865.0
 size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.4
+columns = 2
+script = ExtResource("5_ddx1b")
+
+[node name="SView" type="TextEdit" parent="VBoxContainer/Views/HBox"]
+visible = false
+offset_left = 377.0
+offset_right = 704.0
+offset_bottom = 865.0
+grow_horizontal = 0
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.35
+theme_override_font_sizes/font_size = 12
+placeholder_text = "AST Viewer
+"
+editable = false
+metadata/_edit_use_custom_anchors = true
+
+[node name="SE_Viewport" type="SubViewportContainer" parent="VBoxContainer/Views/HBox"]
+offset_right = 1600.0
+offset_bottom = 865.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
 size_flags_stretch_ratio = 0.45
+mouse_default_cursor_shape = 2
 stretch = true
+script = ExtResource("5_m45ir")
+metadata/_edit_layout_mode = 1
 
 [node name="SubViewport" type="SubViewport" parent="VBoxContainer/Views/HBox/SE_Viewport"]
 process_mode = 1
 disable_3d = true
 handle_input_locally = false
-size = Vector2i(797, 865)
-render_target_update_mode = 0
+size = Vector2i(1600, 865)
+render_target_update_mode = 4
 script = ExtResource("5_h7oa2")
 
 [node name="Camera2D" type="Camera2D" parent="VBoxContainer/Views/HBox/SE_Viewport/SubViewport"]
-visible = false
 current = true
 script = ExtResource("6_wurw0")
 
@@ -304,33 +333,10 @@ text = "ret err"
 theme = ExtResource("7_ohm8i")
 script = ExtResource("8_s3wc3")
 
-[node name="SView_Tree" type="Tree" parent="VBoxContainer/Views/HBox"]
-visible = false
-offset_right = 751.0
-offset_bottom = 865.0
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 0.4
-columns = 2
-script = ExtResource("5_ddx1b")
-
-[node name="SView" type="TextEdit" parent="VBoxContainer/Views/HBox"]
-visible = false
-offset_left = 377.0
-offset_right = 704.0
-offset_bottom = 865.0
-grow_horizontal = 0
-grow_vertical = 2
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 0.35
-theme_override_font_sizes/font_size = 12
-placeholder_text = "AST Viewer
-"
-editable = false
-metadata/_edit_use_custom_anchors = true
-
 [node name="CodeEdit" type="CodeEdit" parent="VBoxContainer/Views/HBox"]
-offset_right = 1600.0
-offset_bottom = 865.0
+visible = false
+offset_right = 1595.0
+offset_bottom = 900.0
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
@@ -371,7 +377,7 @@ grow_horizontal = 2
 grow_vertical = 2
 metadata/_edit_layout_mode = 1
 
-[node name="OpenFileTab" type="Button" parent="VBoxContainer/MenuTabs" node_paths=PackedStringArray("AuxNode")]
+[node name="Open File" type="Button" parent="VBoxContainer/MenuTabs" node_paths=PackedStringArray("AuxNode")]
 offset_right = 81.0
 offset_bottom = 31.0
 toggle_mode = true
@@ -379,11 +385,22 @@ action_mode = 0
 text = "Open File"
 icon_alignment = 1
 script = ExtResource("2_fr1oi")
-AuxNode = NodePath("../../../AuxPanels/FileDialog")
+AuxNode = NodePath("../../../AuxPanels/OpenFileDialog")
+
+[node name="Save File" type="Button" parent="VBoxContainer/MenuTabs" node_paths=PackedStringArray("AuxNode")]
+offset_left = 85.0
+offset_right = 160.0
+offset_bottom = 31.0
+toggle_mode = true
+action_mode = 0
+text = "Save File"
+icon_alignment = 1
+script = ExtResource("2_fr1oi")
+AuxNode = NodePath("../../../AuxPanels/SaveFileDialog")
 
 [node name="LogTab" type="Button" parent="VBoxContainer/MenuTabs" node_paths=PackedStringArray("AuxNode")]
-offset_left = 85.0
-offset_right = 129.0
+offset_left = 164.0
+offset_right = 208.0
 offset_bottom = 31.0
 toggle_mode = true
 action_mode = 0
@@ -394,8 +411,8 @@ script = ExtResource("2_fr1oi")
 AuxNode = NodePath("../../../AuxPanels/Log")
 
 [node name="OutTab" type="Button" parent="VBoxContainer/MenuTabs" node_paths=PackedStringArray("AuxNode")]
-offset_left = 133.0
-offset_right = 197.0
+offset_left = 212.0
+offset_right = 276.0
 offset_bottom = 31.0
 toggle_mode = true
 action_mode = 0
@@ -458,7 +475,7 @@ theme_override_colors/font_color = Color(1, 1, 1, 1)
 editable = false
 metadata/_edit_layout_mode = 1
 
-[node name="FileDialog" type="FileDialog" parent="AuxPanels"]
+[node name="OpenFileDialog" type="FileDialog" parent="AuxPanels" node_paths=PackedStringArray("TabBtn")]
 transparent_bg = true
 title = "Open a File"
 position = Vector2i(100, 100)
@@ -470,3 +487,16 @@ file_mode = 0
 access = 2
 show_hidden_files = true
 script = ExtResource("9_pga44")
+TabBtn = NodePath("../../VBoxContainer/MenuTabs/Open File")
+
+[node name="SaveFileDialog" type="FileDialog" parent="AuxPanels" node_paths=PackedStringArray("TabBtn")]
+transparent_bg = true
+position = Vector2i(100, 100)
+size = Vector2i(400, 361)
+min_size = Vector2i(400, 300)
+ok_button_text = "Save"
+dialog_close_on_escape = false
+access = 2
+show_hidden_files = true
+script = ExtResource("9_pga44")
+TabBtn = NodePath("../../VBoxContainer/MenuTabs/Save File")

@@ -49,6 +49,11 @@ _global_script_classes=[{
 "language": &"GDScript",
 "path": "res://Scripts/UI/Output.gd"
 }, {
+"base": "SubViewportContainer",
+"class": &"SE_ViewportContainer",
+"language": &"GDScript",
+"path": "res://Scripts/SE_Viewport.gd"
+}, {
 "base": "Camera2D",
 "class": &"SEditorCamera",
 "language": &"GDScript",
@@ -108,6 +113,7 @@ _global_script_class_icons={
 "MasEnv": "",
 "NParser": "",
 "Output": "",
+"SE_ViewportContainer": "",
 "SEditorCamera": "",
 "SEditorViewport": "",
 "SLFileDialog": "",
@@ -204,11 +210,6 @@ SEditor_Mode_Nav={
 SEditor_Mode_Edit={
 "deadzone": 0.5,
 "events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"store_command":true,"alt_pressed":true,"shift_pressed":false,"meta_pressed":false,"command_pressed":false,"pressed":false,"keycode":69,"physical_keycode":0,"unicode":0,"echo":false,"script":null)
-]
-}
-Editor_SwitchToggleFocus={
-"deadzone": 0.5,
-"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"store_command":true,"alt_pressed":true,"shift_pressed":false,"meta_pressed":false,"command_pressed":true,"pressed":false,"keycode":70,"physical_keycode":0,"unicode":0,"echo":false,"script":null)
 ]
 }
 

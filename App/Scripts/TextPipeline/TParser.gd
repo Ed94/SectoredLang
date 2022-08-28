@@ -5,6 +5,15 @@
 
 class_name TParser extends Object
 
+#region  Assertion Setup
+#var Error = G.Error
+
+func throw(msg : String, shouldAssert := false):
+	G.throw(G.Error.new(shouldAssert, msg))
+
+#endregion Assertion Setup
+
+
 # NOTE:
 # The parser  model used here may be able to generate an ast that the interpreter at the 
 # "GDScript level" of implementation will not be able to support (Or possibly LLVM for that matter).
@@ -799,7 +808,6 @@ class Sym_Identifier extends SNode:
 		return Data[1]
 
 	func _init():
-		print("USING ID's")
 		set_Type( SType.sym_Identifier )
 		Attributes[SAttribute.symbol] = true
 	
@@ -887,8 +895,8 @@ class Op_Return extends SNode:
 		Attributes[SAttribute.operation] = true
 		Data.append(null) # Optional Expression
 
-const TType = Lexer.TType
-const TCatVal = Lexer.TCatVal
+const TType     = Lexer.TType
+const TCatVal   = Lexer.TCatVal
 const TCategory = Lexer.TCategory
 var   Lex   : Lexer
 var   Tok
@@ -900,22 +908,22 @@ func chk_Tok( tokeSType ):
 	return Tok.Type == tokeSType
 
 # Gets the next token only if the current token is the specified intended token (tokeSType)
-func eat( tokeSType ):
+func eat( tokeSType ) -> bool:
 	var currToken = Tok
 	
-	if G.check(currToken != null, "Tok was null"):
-		return null
+	if G.check(currToken != null, "Tok was null!"):
+		return true
 	
-	var assertStrTmplt = "Unexpected token: {value} , expected: {type} ; Span: {start} {end}"
+	var assertStrTmplt = "Unexpected token:   {value} \nExpected:   {type} \nSpan: {start} {end}"
 	var assertStr      = assertStrTmplt.format({"value" : currToken.Value, "type" : tokeSType, "start" : currToken.Start, "end" : currToken.End})
 		
 	if G.check(currToken.Type == tokeSType, assertStr):
 		Tok = null
-		return null
+		return true
 
 	Tok = Lex.next_Token()
 
-	return currToken
+	return false
 
 func start_span(node):
 	node.Span.Start = Tok.Start
@@ -983,30 +991,50 @@ func parse_unit() -> SNode:
 				matched = true
 
 		if !matched:
-			var element = parse_expr_Element();
-			if element != null:
-				node.add_Entry( element )
-				eat(TType.def_End)
-				matched = true
-				
-		if !matched:
-			var error = G.Error.new(false, "Failed to match token")
-			G.throw(error)
-			return null
+			throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
+			end_span(node)
+			return node
 			
 	end_span(node)
 	return node
 
 #region Sectors
+
+func parse_AnySector(node) -> SNode:
+	parse_sec_IdentifierBody(node)
+	return
 	
 func parse_sec_Alias() -> SNode:
 	var node = Sec_Alias.new()
 	start_span(node)
 	eat(TType.sec_Alias)
+		
+	var result = chk_Tok( TType.def_Start )
+	if  result == null:
+		end_span(node)
+		return node
 	
-	node.add_Entry( parse_sym_Identifier() )
-	eat(TType.op_Define)
-	node.add_Entry( parse_expr_Dependent() )
+	if result: 
+		eat(TType.def_Start)
+		
+		while Tok.Type != TType.def_End:
+			node.add_Entry( parse_sym_Identifier() )
+	
+			if eat(TType.op_Define):
+				throw("Expecting op_Define: {tok}".format({ "tok" : Tok.to_str() }))
+				end_span(node)
+				return node
+		
+			node.add_Entry( parse_expr_Dependent() )
+	else:
+		node.add_Entry( parse_sym_Identifier() )
+	
+		if eat(TType.op_Define):
+			throw("Expecting op_Define: {tok}".format({ "tok" : Tok.to_str() }))
+			end_span(node) 
+			return node
+		
+		node.add_Entry( parse_expr_Dependent() )
 	
 	end_span(node)
 	return node
@@ -1031,19 +1059,30 @@ func parse_sec_Allocator() -> SNode:
 
 			if Tok.Type == TType.sym_Identifier:
 				identifier = parse_expr_Dependent()
-				eat(TType.op_Define)
+				
+				if eat(TType.op_Define):
+					throw("Expecting op_Define {tok}".format({ "tok" : Tok.to_str() }))
+					end_span(node)
+					return node
 
 			var op = parse_sec_AllocatorOp(node, identifier)
 			node.add_Entry(op)
 		
-		eat(TType.def_End)
+		if eat(TType.def_End):
+			throw("Expecting def_End {tok}".format( { "tok" : Tok.to_Str()  } ))
+			end_span(node)
+			return
 		
 	else:
 		var identifier
 
 		if Tok.Type == TType.sym_Identifier:
 			identifier = parse_expr_Dependent()
-			eat(TType.op_Define)
+			
+			if eat(TType.op_Define):
+				throw("Expecting op_Define {tok}".format({ "tok" : Tok.to_str() }))
+				end_span(node)
+				return node
 		
 		var op = parse_sec_AllocatorOp(node, identifier)
 		node.add_Entry(op)
@@ -1086,6 +1125,16 @@ func parse_sec_AllocatorOp(node, identifier) -> SNode:
 			
 			if Tok.Type == TType.cap_PStart:
 				opNode.add_Entry( parse_expr_Capture() )
+		
+		TType.sym_Identifier:
+			opNode.set_Type(SType.sym_Identifier)
+			opNode.add_Entry( identifier )
+			opNode.add_Entry( parse_sym_Identifier() )
+			
+			if Tok.Type == TType.cap_PStart:
+				opNode.add_Entry( parse_expr_Capture() )
+		_:
+			throw("Expecting Allocator op or Custom op {tok}".format( { "tok" : Tok.to_str() } ))
 
 	end_span(opNode)
 	return opNode
@@ -1134,7 +1183,7 @@ func parse_sec_Wipe() -> SNode:
 func parse_sec_AllocImpl_Body(node):
 	var result = chk_Tok(TType.def_Start)
 	if  result == null:
-		return null
+		return
 	
 	if result:
 		eat(TType.def_Start)
@@ -1158,8 +1207,14 @@ func parse_sec_AllocImpl_Body(node):
 					
 				TType.sec_Switch:
 					node.add_Entry( parse_sec_Switch() )
+					
+				_:
+					throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
+					return
 				
-		eat(TType.def_End)
+		if eat(TType.def_End):
+			throw("{type} : Expecting def_End {tok}".format( { "type" : node.Type, "tok" : Tok.to_Str()  } ))
+			return
 		
 	else:
 		match Tok.Type:
@@ -1180,6 +1235,10 @@ func parse_sec_AllocImpl_Body(node):
 					
 			TType.sec_Switch:
 				node.add_Entry( parse_sec_Switch() )
+				
+			_:
+				throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
+				return
 				
 	return
 #endregion Allocator Interface
@@ -1206,12 +1265,17 @@ func parse_sec_Capture() -> SNode:
 		
 		while Tok.Type != TType.def_End:
 			if 	! parse_sec_CaptureBody(node):
+				end_span(node)
 				return node
 
-		eat(TType.def_End)
+		if eat(TType.def_End):
+			throw("Expecting def_End {tok}".format( { "tok" : Tok.to_Str()  } ))
+			end_span(node)
+			return
 		
 	else:
 		if 	! parse_sec_CaptureBody(node):
+			end_span(node)
 			return node
 
 	end_span(node)
@@ -1242,6 +1306,11 @@ func parse_sec_CaptureArgs() -> SNode:
 				for symbol in symbols:
 					symbol.add_Entry( type )
 					node.add_Entry( symbol )
+					
+			_:
+				throw("Invalid argument element: {tok}".format( { "tok" : Tok.to_str() } ))
+				end_span(node)
+				return node
 
 		match chk_Tok(TType.op_CD):
 			true: eat(TType.op_CD)
@@ -1312,8 +1381,7 @@ func parse_sec_CaptureBody(node) -> bool:
 			if Tok.Type == TType.def_End:
 				return true
 			
-			var error = G.Error.new(false, "Failed to match token.")
-			G.throw(error)
+			throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
 			return false
 	
 	return true
@@ -1396,11 +1464,14 @@ func parse_sec_CondBody():
 					node.add_Entry( parse_sec_TranslationTime() )
 
 				_:
-					var error = G.Error.new(false, "Failed to match token.")
-					G.throw(error)
-					return null
+					throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
+					end_span(node)
+					return node
 					
-		eat(TType.def_End)
+		if eat(TType.def_End):
+			throw("Expecting def_End {tok}".format( { "tok" : Tok.to_Str()  } ))
+			end_span(node)
+			return
 		
 	else:
 		match Tok.Type:
@@ -1451,9 +1522,9 @@ func parse_sec_CondBody():
 				node.add_Entry( parse_sec_TranslationTime() )
 
 			_:
-				var error = G.Error.new(false, "Failed to match token.")
-				G.throw(error)
-				return null
+				throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
+				end_span(node)
+				return node
 				
 	end_span(node)
 	return node
@@ -1478,11 +1549,14 @@ func parse_sec_Enum() -> SNode:
 			if Tok.Type == TType.sym_Identifier:
 				node.add_Entry( parse_sec_EnumElement() )
 			else:
-				var error = G.Error.new(false, "Failed to match token.")
-				G.throw(error)
-				return null
+				throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
+				end_span(node)
+				return node
 				
-		eat(TType.def_End)
+		if eat(TType.def_End):
+			throw("Expecting def_End {tok}".format( { "tok" : Tok.to_Str()  } ))
+			end_span(node)
+			return
 		
 	else:
 		if Tok.Type == TType.sym_Identifier:
@@ -1590,8 +1664,16 @@ func parse_sec_ExeBody(node):
 			
 				if expression != null:
 					node.add_Entry( expression )
+
+				matched = true
 					
-		eat(TType.def_End)
+			if !matched:
+				throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
+				return
+				
+		if eat(TType.def_End):
+			throw("Expecting def_End {tok}".format( { "tok" : Tok.to_Str()  } ))
+			return
 		
 	else:
 		var matched = false
@@ -1650,6 +1732,12 @@ func parse_sec_ExeBody(node):
 			if expression != null:
 				node.add_Entry( expression )
 				
+			matched = true
+					
+		if !matched:
+			throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
+			return
+
 	return
 
 func parse_sec_ExeConditional() -> SNode:
@@ -1703,7 +1791,10 @@ func parse_sec_ExeSwitch() -> SNode:
 			
 			end_span(scNode)
 			
-		eat(TType.def_End)
+		if eat(TType.def_End):
+			throw("Expecting def_End {tok}".format( { "tok" : Tok.to_Str()  } ))
+			end_span(node)
+			return node
 	
 	else:
 		var scNode = Sec_SwitchCase.new()
@@ -1770,11 +1861,14 @@ func parse_sec_External() -> SNode:
 					node.add_Entry( parse_sec_Switch() )
 
 				_:
-					var error = G.Error.new(false, "Failed to match token.")
-					G.throw(error)
-					return null
+					throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
+					end_span(node)
+					return node
 					
-		eat(TType.def_End)
+		if eat(TType.def_End):
+			throw("Expecting def_End {tok}".format( { "tok" : Tok.to_Str()  } ))
+			end_span(node)
+			return node
 		
 	else:
 		match Tok.Type:
@@ -1791,9 +1885,9 @@ func parse_sec_External() -> SNode:
 				node.add_Entry( parse_sec_Switch() )
 
 			_:
-				var error = G.Error.new(false, "Failed to match token.")
-				G.throw(error)
-				return null
+				throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
+				end_span(node)
+				return node
 				
 	end_span(node)
 	return node
@@ -1817,12 +1911,18 @@ func parse_sec_Heap() -> SNode:
 			if Tok.Type == TType.sym_Identifier:
 				identifier = parse_expr_Dependent()
 				
-			eat(TType.op_Define)
+			if eat(TType.op_Define):
+				throw("Expecting op_Define: {tok}".format({ "tok" : Tok.to_str() }))
+				end_span(node)
+				return node
 
 			var op = parse_sec_AllocatorOp(node, identifier)
 			node.add_Entry(op)
 			
-		eat( TType.def_End )
+		if eat(TType.def_End):
+			throw("Expecting def_End {tok}".format( { "tok" : Tok.to_Str()  } ))
+			end_span(node)
+			return node
 		
 	else:
 		var identifier
@@ -1830,7 +1930,10 @@ func parse_sec_Heap() -> SNode:
 		if Tok.Type == TType.sym_Identifier:
 			identifier = parse_expr_Dependent()
 			
-		eat(TType.op_Define)
+		if eat(TType.op_Define):
+			throw("Expecting op_Define: {tok}".format({ "tok" : Tok.to_str() }))
+			end_span(node)
+			return node
 		
 		var op = parse_sec_AllocatorOp(node, identifier)
 		node.add_Entry(op)
@@ -1865,7 +1968,10 @@ func parse_sec_Identifier() -> SNode:
 			if ! parse_sec_IdentifierBody(node):
 				return node
 					
-		eat(TType.def_End)
+		if eat(TType.def_End):
+			throw("Expecting def_End {tok}".format( { "tok" : Tok.to_Str()  } ))
+			end_span(node)
+			return node
 
 	else:
 		parse_sec_IdentifierBody(node)
@@ -1875,6 +1981,7 @@ func parse_sec_Identifier() -> SNode:
 	
 func parse_sec_IdentifierBody(node) -> bool:
 	match Tok.Type:
+#region Memory Interface
 		TType.op_Alloc:
 			node.add_Entry( parse_sec_Alloc() )
 					
@@ -1886,7 +1993,7 @@ func parse_sec_IdentifierBody(node) -> bool:
 					
 		TType.op_Wipe:
 			node.add_Entry( parse_sec_Wipe() )
-				
+#endregion Memory Interface
 		
 		TType.sec_Alias:
 			node.add_Entry( parse_sec_Alias() )
@@ -1949,9 +2056,9 @@ func parse_sec_IdentifierBody(node) -> bool:
 			node.add_Entry( parse_sec_Virtual() )
 					
 		_:
-			var error = G.Error.new(false, "Failed to match token.")
-			G.throw(error)
-			return false
+			throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
+			end_span(node)
+			return node
 	
 	return true
 	
@@ -1982,11 +2089,14 @@ func parse_sec_Inline() -> SNode:
 					node.add_Entry( parse_sec_Switch() )
 
 				_:
-					var error = G.Error.new(false, "Failed to match token.")
-					G.throw(error)
-					return null
+					throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
+					end_span(node)
+					return node
 					
-		eat(TType.def_End)
+		if eat(TType.def_End):
+			throw("Expecting def_End {tok}".format( { "tok" : Tok.to_Str()  } ))
+			end_span(node)
+			return node
 	
 	else:
 		match Tok.Type:
@@ -2001,6 +2111,11 @@ func parse_sec_Inline() -> SNode:
 
 			TType.sec_Switch:
 				node.add_Entry( parse_sec_Switch() )
+				
+			_:
+				throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
+				end_span(node)
+				return node
 
 	end_span(node)
 	return node
@@ -2035,11 +2150,14 @@ func parse_sec_Interface() -> SNode:
 					node.add_Entry( parse_sec_Switch() )
 
 				_:
-					var error = G.Error.new(false, "Failed to match token.")
-					G.throw(error)
-					return null
+					throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
+					end_span(node)
+					return node
 					
-		eat(TType.def_End)
+		if eat(TType.def_End):
+			throw("Expecting def_End {tok}".format( { "tok" : Tok.to_Str()  } ))
+			end_span(node)
+			return node
 	
 	else:
 		match Tok.Type:
@@ -2057,6 +2175,11 @@ func parse_sec_Interface() -> SNode:
 
 			TType.sec_Switch:
 				node.add_Entry( parse_sec_Switch() )
+				
+			_:
+				throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
+				end_span(node)
+				return node
 
 	end_span(node)
 	return node
@@ -2091,9 +2214,9 @@ func parse_sec_Interface_ImplBody(node) -> bool:
 			node.add_Entry( parse_sec_Switch() )
 
 		_:
-			var error = G.Error.new(false, "Failed to match token.")
-			G.throw(error)
-			return false
+			throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
+			end_span(node)
+			return node
 			
 	return true
 	
@@ -2152,11 +2275,14 @@ func parse_sec_Layer() -> SNode:
 					node.add_Entry( parse_sec_TranslationTime() )
 
 				_:
-					var error = G.Error.new(false, "Failed to match token.")
-					G.throw(error)
-					return null
+					throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
+					end_span(node)
+					return node
 					
-		eat(TType.def_End)
+		if eat(TType.def_End):
+			throw("Expecting def_End {tok}".format( { "tok" : Tok.to_Str()  } ))
+			end_span(node)
+			return node
 	
 	else:
 		match Tok.Type:
@@ -2186,6 +2312,11 @@ func parse_sec_Layer() -> SNode:
 				
 			TType.sym_TT:
 				node.add_Entry( parse_sec_TranslationTime() )
+				
+			_:
+				throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
+				end_span(node)
+				return node
 
 	end_span(node)
 	return node
@@ -2207,8 +2338,16 @@ func parse_sec_Layout() -> SNode:
 				
 			TType.sym_Identifier:
 				node.add_Entry( parse_sym_Identifier() )
+				
+			_:
+				throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
+				end_span(node)
+				return node
 		
-	eat(TType.def_End)
+		if eat(TType.def_End):
+			throw("Expecting def_End {tok}".format( { "tok" : Tok.to_Str()  } ))
+			end_span(node)
+			return node
 	
 	end_span(node)
 	return node
@@ -2255,11 +2394,14 @@ func parse_sec_Readonly() -> SNode:
 					node.add_Entry( parse_sec_Static() )
 
 				_:
-					var error = G.Error.new(false, "Failed to match token.")
-					G.throw(error)
-					return null
+					throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
+					end_span(node)
+					return node
 					
-		eat(TType.def_End)
+		if eat(TType.def_End):
+			throw("Expecting def_End {tok}".format( { "tok" : Tok.to_Str()  } ))
+			end_span(node)
+			return node
 		
 	else:
 		match Tok.Type:
@@ -2277,6 +2419,11 @@ func parse_sec_Readonly() -> SNode:
 
 			TType.sec_Static:
 				node.add_Entry( parse_sec_Static() )
+				
+			_:
+				throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
+				end_span(node)
+				return node
 
 	end_span(node)
 	return node
@@ -2325,7 +2472,10 @@ func parse_sec_Stack() -> SNode:
 				identifier.add_Entry( type )
 				node.      add_Entry( identifier )
 			
-		eat( TType.def_End )
+		if eat(TType.def_End):
+			throw("Expecting def_End {tok}".format( { "tok" : Tok.to_Str()  } ))
+			end_span(node)
+			return node
 		
 	else:
 		var \
@@ -2373,7 +2523,10 @@ func parse_sec_Static() -> SNode:
 				identifier.add_Entry( type )
 				node.      add_Entry( identifier )
 			
-		eat( TType.def_End )
+		if eat(TType.def_End):
+			throw("Expecting def_End {tok}".format( { "tok" : Tok.to_Str()  } ))
+			end_span(node)
+			return node
 		
 	else:
 		var \
@@ -2417,7 +2570,10 @@ func parse_sec_Struct() -> SNode:
 				identifier.add_Entry( type )
 				node.      add_Entry( identifier )
 		
-	eat(TType.def_End)
+	if eat(TType.def_End):
+		throw("Expecting def_End {tok}".format( { "tok" : Tok.to_Str()  } ))
+		end_span(node)
+		return node
 	
 	end_span(node)
 	return node
@@ -2450,7 +2606,10 @@ func parse_sec_Switch() -> SNode:
 		while Tok.Type != TType.def_End:
 			node.add_Entry( parse_sec_SwitchCase() )
 			
-		eat(TType.def_End)
+		if eat(TType.def_End):
+			throw("Expecting def_End {tok}".format( { "tok" : Tok.to_Str()  } ))
+			end_span(node)
+			return node
 	
 	else:
 		node.add_Entry( parse_sec_SwitchCase() )
@@ -2512,8 +2671,16 @@ func parse_sec_SwitchCase() -> SNode:
 											
 				TType.sym_TT:
 					node.add_Entry( parse_sec_TranslationTime() )
+					
+				_:
+					throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
+					end_span(node)
+					return node
 
-		eat(TType.def_End)
+		if eat(TType.def_End):
+			throw("Expecting def_End {tok}".format( { "tok" : Tok.to_Str()  } ))
+			end_span(node)
+			return node
 		
 	else:
 		match Tok.Type:
@@ -2556,6 +2723,11 @@ func parse_sec_SwitchCase() -> SNode:
 											
 			TType.sym_TT:
 				node.add_Entry( parse_sec_TranslationTime() )
+				
+			_:
+				throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
+				end_span(node)
+				return node
 
 	end_span(node)
 	return node
@@ -2579,7 +2751,10 @@ func parse_sec_Trait() -> SNode:
 			if ! parse_sec_Interface_ImplBody(node):
 				return node
 					
-		eat(TType.def_End)
+		if eat(TType.def_End):
+			throw("Expecting def_End {tok}".format( { "tok" : Tok.to_Str()  } ))
+			end_span(node)
+			return node
 	
 	else:
 		parse_sec_Interface_ImplBody(node)
@@ -2627,11 +2802,14 @@ func parse_sec_TranslationTime() -> SNode:
 					node.add_Entry( parse_sec_Static() )
 					
 				_:
-					var error = G.Error.new(false, "Failed to match token.")
-					G.throw(error)
-					return null
+					throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
+					end_span(node)
+					return node
 					
-		eat(TType.def_End)
+		if eat(TType.def_End):
+			throw("Expecting def_End {tok}".format( { "tok" : Tok.to_Str()  } ))
+			end_span(node)
+			return node
 
 	else:
 		match Tok.Type:
@@ -2660,9 +2838,9 @@ func parse_sec_TranslationTime() -> SNode:
 				node.add_Entry( parse_sec_Static() )
 				
 			_:
-				var error = G.Error.new(false, "Failed to match token.")
-				G.throw(error)
-				return null
+				throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
+				end_span(node)
+				return node
 
 	end_span(node)
 	return node
@@ -2674,7 +2852,9 @@ func parse_sec_Type(typeTok : String) -> SNode:
 	if typeTok == TType.op_Define && Tok.Type == TType.op_A_Infer:
 		pass
 	else:
-		eat(Tok.Type)
+		if eat(Tok.Type):
+			throw("Expecting {typeTok}: {tok}".format( { "typeTok" : typeTok, "tok" : Tok.to_Str()  } ))
+			end_span(node)
 
 	if Tok == null:
 		end_span(node)
@@ -2713,7 +2893,10 @@ func parse_sec_Type(typeTok : String) -> SNode:
 			
 			node.set_Entry(1, parse_Expression() )
 			
-			eat(TType.def_End)
+			if eat(TType.def_End):
+				throw("Expecting def_End {tok}".format( { "tok" : Tok.to_Str()  } ))
+				end_span(node)
+				return node
 
 	end_span(node)
 	return node
@@ -2742,7 +2925,10 @@ func parse_sec_Union() -> SNode:
 		identifier.add_Entry( type )
 		node.      add_Entry( identifier )
 		
-	eat(TType.def_End)
+	if eat(TType.def_End):
+		throw("Expecting def_End {tok}".format( { "tok" : Tok.to_Str()  } ))
+		end_span(node)
+		return node
 	
 	end_span(node)
 	return node
@@ -2767,7 +2953,10 @@ func parse_sec_Virtual() -> SNode:
 			if ! parse_sec_Interface_ImplBody(node):
 				return node
 					
-		eat(TType.def_End)
+		if eat(TType.def_End):
+			throw("Expecting def_End {tok}".format( { "tok" : Tok.to_Str()  } ))
+			end_span(node)
+			return node
 	
 	else:
 		parse_sec_Interface_ImplBody(node)
@@ -2919,7 +3108,11 @@ func parse_expr_SBCap() -> SNode:
 	
 	node.set_Entry(0, left)
 	node.set_Entry(1, parse_Expression())
-	eat(TType.cap_SBEnd)
+	
+	if eat(TType.cap_SBEnd):
+		throw("Expecting cap_SBEnd {tok}".format( { "tok" : Tok.to_Str()  } ))
+		end_span(node)
+		return node
 	
 	if Tok.Type == TType.op_SMA:
 		node.set_Entry(2, parse_expr_SMA() )
@@ -2950,6 +3143,9 @@ func op_Callable(node):
 
 func parse_expr_Dependent() -> SNode:
 	var element = parse_expr_SBCap()
+	
+	if element == null:
+		return element
 
 	if op_Callable(element) && Tok.Type == TType.cap_PStart:
 		var \
@@ -2971,7 +3167,11 @@ func parse_expr_Capture() -> SNode:
 	eat(TType.cap_PStart)
 	if Tok.Type != TType.cap_PEnd:
 		expression = parse_Expression()
-	eat(TType.cap_PEnd)
+		
+	if eat(TType.cap_PEnd):
+		throw("Expecting cap_PEnd {tok}".format( { "tok" : Tok.to_Str()  } ))
+		end_span(node)
+		return node
 	
 	if expression:
 		node.add_Entry(expression)
@@ -3096,8 +3296,18 @@ func op_Assignment():
 		return null
 	
 	match Tok.Type:
-		TType.op_Assign : return SType.op_Assign
-		TType.op_A_Add  : return SType.op_A_Add
+		TType.op_Assign     : return SType.op_Assign
+		TType.op_A_Add      : return SType.op_A_Add
+		TType.op_A_Subtract : return SType.op_A_Subtract
+		TType.op_A_Multiply : return SType.op_A_Multiply
+		TType.op_A_Divide   : return SType.op_A_Divide
+		TType.op_A_Modulo   : return SType.op_A_Modulo
+		TType.op_AB_And     : return SType.op_AB_And
+		TType.op_AB_Not     : return SType.op_AB_Not
+		TType.op_AB_Or      : return SType.op_AB_Or
+		TType.op_AB_SL      : return SType.op_AB_SL
+		TType.op_AB_SR      : return SType.op_AB_SR
+		TType.op_AB_XOr     : return SType.op_AB_XOr
 		_:
 			return null
 	
@@ -3115,7 +3325,11 @@ func parse_sym_Array() -> SNode:
 	eat(TType.cap_SBStart)
 	if Tok.Type != TType.cap_SBEnd:
 		node.add_Entry( parse_Expression() )
-	eat(TType.cap_SBEnd)
+	
+	if eat(TType.cap_SBEnd):
+		throw("Expecting cap_SBEnd {tok}".format( { "tok" : Tok.to_Str()  } ))
+		end_span(node)
+		return node
 	
 	node.add_Entry( parse_sym_Type() )
 	
@@ -3127,7 +3341,10 @@ func parse_sym_Bytepad() -> SNode:
 	start_span(node)
 	eat(TType.sym_Bytepad)
 	
-	eat(TType.op_Define)
+	if eat(TType.op_Define):
+		throw("Expecting op_Define {tok}".format( { "tok" : Tok.to_Str()  } ))
+		end_span(node)
+		return node
 	
 	node.add_Entry( parse_expr_Dependent() )
 	
@@ -3261,6 +3478,11 @@ func parse_op_Goto() -> SNode:
 	var node = Op_GoTo.new()
 	start_span(node)
 	
+	if Tok.Type != TType.sym_Identifier:
+		throw("Expecting sym_Identifier {tok}".format( { "tok" : Tok.to_Str()  } ))
+		end_span(node)
+		return node
+		
 	node.add_Entry( parse_sym_Identifier() )
 	
 	end_span(node)
@@ -3272,6 +3494,7 @@ func parse_op_Return() -> SNode:
 	eat(TType.op_Return)
 	
 	if Tok.Type == TType.def_End:
+		end_span(node)
 		return node
 	
 	match Tok.Type:
