@@ -1,7 +1,7 @@
 class_name Output extends Window
 
 
-@onready var OutView := get_node("OutView") as TextEdit
+@onready var OutView := get_node("Panel/OutView") as TextEdit
 
 
 

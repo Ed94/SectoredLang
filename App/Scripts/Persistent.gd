@@ -25,6 +25,9 @@ func on_EnvUpdated():
 
 #region Node
 func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("Editor_ToggleVEditor"):
+		SEView.get_parent().visible = ! SEView.get_parent().visible
+	
 	if event.is_action_pressed("Editor_ToggleAuxPanel"):
 		Menu.visible = ! Menu.visible
 	

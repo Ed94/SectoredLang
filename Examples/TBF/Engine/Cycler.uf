@@ -1,7 +1,6 @@
 Cycler 
 {
-	ro static Exist type bool
-
+	ro static Exist : bool
 
 	Initialize exe 
 	loop if Exist == false 

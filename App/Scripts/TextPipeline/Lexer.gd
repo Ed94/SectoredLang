@@ -588,14 +588,14 @@ func tokenize(programSrcText):
 			if  result == null || result.strings[0].length() == 0 || result.get_start() != 0 :
 				continue
 				
-			if type == TType.fmt_NL:
-				var addVal   = result.get_string().length()
-				
-				Cursor += addVal
-				Line   += 1
-				Column  = 0
-				error   = false
-				break
+#			if type == TType.fmt_NL:
+#				var addVal   = result.get_string().length()
+#
+#				Cursor += addVal
+#				Line   += 1
+#				Column  = 0
+#				error   = false
+#				break
 				
 			# Skip Whitespace
 			if type == TType.fmt_S :

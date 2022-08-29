@@ -21,14 +21,16 @@ func throw(msg : String, shouldAssert := false):
  
 const SAttribute = \
 {
+	fmt_NewLine = "Format: NewLine",
+	
 	allocator = "Allocator",
 	
 	builtin = "Builtin",
 	literal = "Literal",
 	
-	exe = "executable element",
+	exe = "Executable Element",
 	
-	expression = "expression",
+	expression = "Expression",
 
 	operation  = "Operation",
 	op_Logical = "Op: Logical",
@@ -40,6 +42,8 @@ const SAttribute = \
 
 const SType = \
 {
+	fmt_NL = "NewLine",
+	
 	empty = "Empty Statement",
 	unit  = "Module Unit",
 
@@ -802,7 +806,7 @@ class Sym_Identifier extends SNode:
 		return Data[0]
 		
 	func has_Typedef() -> bool:
-		return Data.size() > 1 && Data[2].Type == SType.sec_Type
+		return Data.size() > 1 && Data[1].Type == SType.sec_Type
 	
 	func typedef() -> SNode:
 		return Data[1]
@@ -900,6 +904,7 @@ const TCatVal   = Lexer.TCatVal
 const TCategory = Lexer.TCategory
 var   Lex   : Lexer
 var   Tok
+var   LastNode
 
 func chk_Tok( tokeSType ):
 	if G.check(Tok != null, "Tok is null!"):
@@ -922,19 +927,41 @@ func eat( tokeSType ) -> bool:
 		return true
 
 	Tok = Lex.next_Token()
+	
+	var matched = false
+	match Tok.Type:
+		TType.fmt_NL:
+#			if LastNode:
+#				LastNode.Attributes[SAttribute.fmt_NewLine] = true
+			matched = true
+
+#		TType.cmt_SL:
+#			LastNode.add_Comment( parse_Comment() )
+#			matched = true
+
+#		TType.cmt_ML:
+#			LastNode.add_Comment( parse_Comment() 
+#			matched = true
+
+	while matched && Tok && Tok.Type == TType.fmt_NL:
+		Tok = Lex.next_Token()
 
 	return false
 
 func start_span(node):
+	LastNode = node
 	node.Span.Start = Tok.Start
 	
 func end_span(node):
 	node.Span.End = Lex.last_Token().End
 
 func parse_unit() -> SNode:
-	Tok = Lex.next_Token()
-	
 	var node = SNode.new(SType.unit)
+	
+	Tok = Lex.next_Token()
+	if Tok == null:
+		return node
+		
 	start_span(node)
 	
 	while Tok != null :

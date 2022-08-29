@@ -10,6 +10,7 @@ CodeEdit/colors/font_readonly_color = Color(1, 1, 1, 1)
 CodeEdit/colors/font_selected_color = Color(0.764706, 0.678431, 1, 1)
 CodeEdit/font_sizes/font_size = 14
 CodeEdit/fonts/font = ExtResource("1_6xe43")
+CodeEdit/styles/normal = ExtResource("2_1yfrv")
 CodeEdit/styles/read_only = ExtResource("2_1yfrv")
 Panel/styles/panel = ExtResource("1_s1gma")
 TextEdit/colors/background_color = Color(0.0980392, 0.113725, 0.160784, 1)

@@ -48,7 +48,7 @@ metadata/_edit_layout_mode = 1
 
 [node name="Views" type="Control" parent="VBoxContainer"]
 offset_right = 1600.0
-offset_bottom = 865.0
+offset_bottom = 900.0
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_vertical = 3
@@ -87,9 +87,19 @@ placeholder_text = "AST Viewer
 editable = false
 metadata/_edit_use_custom_anchors = true
 
+[node name="Control" type="Control" parent="VBoxContainer/Views/HBox"]
+offset_top = 450.0
+offset_bottom = 450.0
+grow_horizontal = 0
+size_flags_horizontal = 0
+size_flags_vertical = 4
+size_flags_stretch_ratio = 0.25
+metadata/_edit_layout_mode = 1
+
 [node name="SE_Viewport" type="SubViewportContainer" parent="VBoxContainer/Views/HBox"]
+offset_left = 4.0
 offset_right = 1600.0
-offset_bottom = 865.0
+offset_bottom = 900.0
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
@@ -103,240 +113,44 @@ metadata/_edit_layout_mode = 1
 process_mode = 1
 disable_3d = true
 handle_input_locally = false
-size = Vector2i(1600, 865)
+size = Vector2i(1596, 900)
 render_target_update_mode = 4
 script = ExtResource("5_h7oa2")
 
 [node name="Camera2D" type="Camera2D" parent="VBoxContainer/Views/HBox/SE_Viewport/SubViewport"]
+offset = Vector2(500, -200)
 current = true
 script = ExtResource("6_wurw0")
 
 [node name="BG" type="Panel" parent="VBoxContainer/Views/HBox/SE_Viewport/SubViewport/Camera2D"]
-custom_minimum_size = Vector2(3000, 2000)
+custom_minimum_size = Vector2(10000, 10000)
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_q1oas")
 
-[node name="Sector" type="VBoxContainer" parent="VBoxContainer/Views/HBox/SE_Viewport/SubViewport"]
-anchor_top = 0.355
-anchor_right = 0.576
-anchor_bottom = 0.441
-offset_left = -72.9
-offset_right = 72.9
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme = ExtResource("7_ohm8i")
-metadata/_edit_use_custom_anchors = true
-
-[node name="VSpacer" type="VSplitContainer" parent="VBoxContainer/Views/HBox/SE_Viewport/SubViewport/Sector"]
-custom_minimum_size = Vector2(0, 6)
-offset_right = 1067.0
-offset_bottom = 6.0
-
-[node name="Header" type="HBoxContainer" parent="VBoxContainer/Views/HBox/SE_Viewport/SubViewport/Sector"]
-offset_top = 10.0
-offset_right = 1067.0
-offset_bottom = 38.0
-auto_translate = false
-
-[node name="ID" type="PanelContainer" parent="VBoxContainer/Views/HBox/SE_Viewport/SubViewport/Sector/Header"]
-offset_right = 75.0
-offset_bottom = 28.0
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/Views/HBox/SE_Viewport/SubViewport"]
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-size_flags_horizontal = 0
-metadata/_edit_layout_mode = 1
 
-[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer/Views/HBox/SE_Viewport/SubViewport/Sector/Header/ID"]
-offset_left = 20.0
-offset_top = 1.0
-offset_right = 74.0
-offset_bottom = 27.0
-size_flags_vertical = 4
-
-[node name="Label" type="Label" parent="VBoxContainer/Views/HBox/SE_Viewport/SubViewport/Sector/Header/ID/MarginContainer"]
-offset_left = -5.0
-offset_top = 4.0
-offset_right = 44.0
-offset_bottom = 26.0
-size_flags_horizontal = 0
-text = "Check"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Capture - CC" type="MarginContainer" parent="VBoxContainer/Views/HBox/SE_Viewport/SubViewport/Sector/Header"]
-offset_left = 79.0
-offset_right = 401.0
-offset_bottom = 28.0
-
-[node name="Label" type="Label" parent="VBoxContainer/Views/HBox/SE_Viewport/SubViewport/Sector/Header/Capture - CC"]
-offset_left = -5.0
-offset_top = 5.0
-offset_right = 312.0
-offset_bottom = 27.0
-text = "( cond : bool, message : String )
-"
-
-[node name="ExeDebug" type="MarginContainer" parent="VBoxContainer/Views/HBox/SE_Viewport/SubViewport/Sector/Header"]
-offset_left = 405.0
-offset_right = 439.0
-offset_bottom = 28.0
-
-[node name="Label" type="Label" parent="VBoxContainer/Views/HBox/SE_Viewport/SubViewport/Sector/Header/ExeDebug"]
-offset_left = -5.0
-offset_top = 5.0
-offset_right = 24.0
-offset_bottom = 27.0
-text = "exe"
-
-[node name="ScopeBody" type="HBoxContainer" parent="VBoxContainer/Views/HBox/SE_Viewport/SubViewport/Sector"]
-offset_top = 42.0
-offset_right = 1067.0
-offset_bottom = 204.0
-size_flags_vertical = 3
-
-[node name="ScopeIndent" type="Panel" parent="VBoxContainer/Views/HBox/SE_Viewport/SubViewport/Sector/ScopeBody"]
-custom_minimum_size = Vector2(5, 0)
-offset_right = 5.0
-offset_bottom = 162.0
-grow_horizontal = 2
-grow_vertical = 2
-size_flags_stretch_ratio = 0.1
-theme = ExtResource("7_ohm8i")
-theme_override_styles/panel = ExtResource("8_1twyj")
-metadata/_edit_layout_mode = 1
-
-[node name="HSpacer" type="HSplitContainer" parent="VBoxContainer/Views/HBox/SE_Viewport/SubViewport/Sector/ScopeBody"]
-custom_minimum_size = Vector2(10, 0)
-offset_left = 9.0
-offset_right = 19.0
-offset_bottom = 162.0
-
-[node name="Sector - Cond" type="VBoxContainer" parent="VBoxContainer/Views/HBox/SE_Viewport/SubViewport/Sector/ScopeBody"]
-offset_left = 23.0
-offset_right = 344.0
-offset_bottom = 162.0
-
-[node name="VSpacer" type="VSplitContainer" parent="VBoxContainer/Views/HBox/SE_Viewport/SubViewport/Sector/ScopeBody/Sector - Cond"]
-custom_minimum_size = Vector2(0, 6)
-offset_right = 321.0
-offset_bottom = 6.0
-
-[node name="Header - Cond" type="HBoxContainer" parent="VBoxContainer/Views/HBox/SE_Viewport/SubViewport/Sector/ScopeBody/Sector - Cond"]
-offset_top = 10.0
-offset_right = 321.0
-offset_bottom = 32.0
-
-[node name="if" type="Label" parent="VBoxContainer/Views/HBox/SE_Viewport/SubViewport/Sector/ScopeBody/Sector - Cond/Header - Cond"]
-offset_right = 20.0
-offset_bottom = 22.0
-size_flags_horizontal = 0
-text = "if"
-
-[node name="expression" type="Label" parent="VBoxContainer/Views/HBox/SE_Viewport/SubViewport/Sector/ScopeBody/Sector - Cond/Header - Cond"]
-offset_left = 24.0
-offset_right = 197.0
-offset_bottom = 22.0
-text = "condition == false"
-
-[node name="Body - Cond" type="HBoxContainer" parent="VBoxContainer/Views/HBox/SE_Viewport/SubViewport/Sector/ScopeBody/Sector - Cond"]
-offset_top = 36.0
-offset_right = 321.0
-offset_bottom = 162.0
-size_flags_vertical = 3
-
-[node name="ScopeIndent" type="Panel" parent="VBoxContainer/Views/HBox/SE_Viewport/SubViewport/Sector/ScopeBody/Sector - Cond/Body - Cond"]
-custom_minimum_size = Vector2(5, 0)
-offset_right = 5.0
-offset_bottom = 126.0
+[node name="VSN_Editor" type="Control" parent="VBoxContainer/Views/HBox/SE_Viewport/SubViewport/VBoxContainer" node_paths=PackedStringArray("IndentSlider")]
+offset_right = 1600.0
+offset_bottom = 900.0
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_vertical = 3
-size_flags_stretch_ratio = 0.1
-theme = ExtResource("7_ohm8i")
-theme_override_styles/panel = ExtResource("8_1twyj")
-metadata/_edit_layout_mode = 1
-
-[node name="HSpacer" type="HSplitContainer" parent="VBoxContainer/Views/HBox/SE_Viewport/SubViewport/Sector/ScopeBody/Sector - Cond/Body - Cond"]
-custom_minimum_size = Vector2(10, 0)
-offset_left = 9.0
-offset_right = 19.0
-offset_bottom = 126.0
-
-[node name="VFlowContainer" type="VBoxContainer" parent="VBoxContainer/Views/HBox/SE_Viewport/SubViewport/Sector/ScopeBody/Sector - Cond/Body - Cond"]
-offset_left = 23.0
-offset_right = 321.0
-offset_bottom = 126.0
-
-[node name="Log" type="Label" parent="VBoxContainer/Views/HBox/SE_Viewport/SubViewport/Sector/ScopeBody/Sector - Cond/Body - Cond/VFlowContainer"]
-offset_right = 298.0
-offset_bottom = 22.0
-size_flags_horizontal = 0
-text = "Log(message, LogCategory.Error)"
-
-[node name="stack" type="Label" parent="VBoxContainer/Views/HBox/SE_Viewport/SubViewport/Sector/ScopeBody/Sector - Cond/Body - Cond/VFlowContainer"]
-offset_top = 26.0
-offset_right = 298.0
-offset_bottom = 48.0
-text = "stack err = ErrorData"
-
-[node name="ErrorData - Body" type="HBoxContainer" parent="VBoxContainer/Views/HBox/SE_Viewport/SubViewport/Sector/ScopeBody/Sector - Cond/Body - Cond/VFlowContainer"]
-offset_top = 52.0
-offset_right = 298.0
-offset_bottom = 100.0
-
-[node name="ScopeIndent" type="Panel" parent="VBoxContainer/Views/HBox/SE_Viewport/SubViewport/Sector/ScopeBody/Sector - Cond/Body - Cond/VFlowContainer/ErrorData - Body"]
-custom_minimum_size = Vector2(5, 40)
-offset_right = 5.0
-offset_bottom = 48.0
-grow_horizontal = 2
-grow_vertical = 2
-size_flags_vertical = 3
-size_flags_stretch_ratio = 0.1
-theme = ExtResource("7_ohm8i")
-theme_override_styles/panel = SubResource("StyleBoxFlat_g1xjf")
-metadata/_edit_layout_mode = 1
-
-[node name="HSpacer" type="HSplitContainer" parent="VBoxContainer/Views/HBox/SE_Viewport/SubViewport/Sector/ScopeBody/Sector - Cond/Body - Cond/VFlowContainer/ErrorData - Body"]
-custom_minimum_size = Vector2(10, 0)
-offset_left = 9.0
-offset_right = 19.0
-offset_bottom = 48.0
-
-[node name="Vbox" type="VBoxContainer" parent="VBoxContainer/Views/HBox/SE_Viewport/SubViewport/Sector/ScopeBody/Sector - Cond/Body - Cond/VFlowContainer/ErrorData - Body"]
-offset_left = 23.0
-offset_right = 298.0
-offset_bottom = 48.0
-size_flags_horizontal = 3
-
-[node name="Message" type="Label" parent="VBoxContainer/Views/HBox/SE_Viewport/SubViewport/Sector/ScopeBody/Sector - Cond/Body - Cond/VFlowContainer/ErrorData - Body/Vbox"]
-offset_right = 275.0
-offset_bottom = 22.0
-size_flags_vertical = 6
-text = "Message = messagee"
-
-[node name="Message2" type="Label" parent="VBoxContainer/Views/HBox/SE_Viewport/SubViewport/Sector/ScopeBody/Sector - Cond/Body - Cond/VFlowContainer/ErrorData - Body/Vbox"]
-offset_top = 26.0
-offset_right = 275.0
-offset_bottom = 48.0
-text = "ShouldAssert = falsee"
-
-[node name="ret" type="Label" parent="VBoxContainer/Views/HBox/SE_Viewport/SubViewport/Sector/ScopeBody/Sector - Cond/Body - Cond/VFlowContainer"]
-offset_top = 104.0
-offset_right = 298.0
-offset_bottom = 126.0
-text = "ret err"
-
-[node name="VSN_Editor" type="Control" parent="VBoxContainer/Views/HBox/SE_Viewport/SubViewport"]
 theme = ExtResource("7_ohm8i")
 script = ExtResource("8_s3wc3")
+IndentSlider = NodePath("../../../../../../MenuTabs/Indent_Slider")
 
 [node name="CodeEdit" type="CodeEdit" parent="VBoxContainer/Views/HBox"]
 visible = false
-offset_right = 1595.0
-offset_bottom = 900.0
+offset_left = 801.0
+offset_right = 1600.0
+offset_bottom = 865.0
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
@@ -369,7 +183,222 @@ placeholder_text = "Environment Viewer
 editable = false
 metadata/_edit_use_custom_anchors = true
 
+[node name="Sector" type="VBoxContainer" parent="VBoxContainer/Views/HBox"]
+visible = false
+anchor_left = 0.181
+anchor_top = 0.377
+anchor_right = 0.598
+anchor_bottom = 0.537
+offset_left = -72.9
+offset_top = 13.195
+offset_right = 72.9
+offset_bottom = 120.795
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme = ExtResource("7_ohm8i")
+metadata/_edit_use_custom_anchors = true
+
+[node name="VSpacer" type="VSplitContainer" parent="VBoxContainer/Views/HBox/Sector"]
+custom_minimum_size = Vector2(0, 6)
+offset_right = 813.0
+offset_bottom = 6.0
+
+[node name="Header" type="HBoxContainer" parent="VBoxContainer/Views/HBox/Sector"]
+offset_top = 10.0
+offset_right = 813.0
+offset_bottom = 44.0
+auto_translate = false
+
+[node name="ID" type="PanelContainer" parent="VBoxContainer/Views/HBox/Sector/Header"]
+offset_right = 75.0
+offset_bottom = 34.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 0
+metadata/_edit_layout_mode = 1
+
+[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer/Views/HBox/Sector/Header/ID"]
+offset_left = 20.0
+offset_top = 1.0
+offset_right = 74.0
+offset_bottom = 33.0
+size_flags_vertical = 4
+
+[node name="Label" type="Label" parent="VBoxContainer/Views/HBox/Sector/Header/ID/MarginContainer"]
+offset_left = -5.0
+offset_top = 4.0
+offset_right = 44.0
+offset_bottom = 32.0
+size_flags_horizontal = 0
+text = "Check"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Capture - CC" type="MarginContainer" parent="VBoxContainer/Views/HBox/Sector/Header"]
+offset_left = 79.0
+offset_right = 401.0
+offset_bottom = 34.0
+
+[node name="Label" type="Label" parent="VBoxContainer/Views/HBox/Sector/Header/Capture - CC"]
+offset_left = -5.0
+offset_top = 5.0
+offset_right = 312.0
+offset_bottom = 33.0
+text = "( cond : bool, message : String )
+"
+
+[node name="ExeDebug" type="MarginContainer" parent="VBoxContainer/Views/HBox/Sector/Header"]
+offset_left = 405.0
+offset_right = 439.0
+offset_bottom = 34.0
+
+[node name="Label" type="Label" parent="VBoxContainer/Views/HBox/Sector/Header/ExeDebug"]
+offset_left = -5.0
+offset_top = 5.0
+offset_right = 24.0
+offset_bottom = 33.0
+text = "exe"
+
+[node name="ScopeBody" type="HBoxContainer" parent="VBoxContainer/Views/HBox/Sector"]
+offset_top = 48.0
+offset_right = 813.0
+offset_bottom = 246.0
+size_flags_vertical = 3
+
+[node name="ScopeIndent" type="Panel" parent="VBoxContainer/Views/HBox/Sector/ScopeBody"]
+custom_minimum_size = Vector2(5, 0)
+offset_right = 5.0
+offset_bottom = 198.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_stretch_ratio = 0.1
+theme = ExtResource("7_ohm8i")
+theme_override_styles/panel = ExtResource("8_1twyj")
+metadata/_edit_layout_mode = 1
+
+[node name="HSpacer" type="HSplitContainer" parent="VBoxContainer/Views/HBox/Sector/ScopeBody"]
+custom_minimum_size = Vector2(10, 0)
+offset_left = 9.0
+offset_right = 19.0
+offset_bottom = 198.0
+
+[node name="Sector - Cond" type="VBoxContainer" parent="VBoxContainer/Views/HBox/Sector/ScopeBody"]
+offset_left = 23.0
+offset_right = 344.0
+offset_bottom = 198.0
+
+[node name="VSpacer" type="VSplitContainer" parent="VBoxContainer/Views/HBox/Sector/ScopeBody/Sector - Cond"]
+custom_minimum_size = Vector2(0, 6)
+offset_right = 321.0
+offset_bottom = 6.0
+
+[node name="Header - Cond" type="HBoxContainer" parent="VBoxContainer/Views/HBox/Sector/ScopeBody/Sector - Cond"]
+offset_top = 10.0
+offset_right = 321.0
+offset_bottom = 38.0
+
+[node name="if" type="Label" parent="VBoxContainer/Views/HBox/Sector/ScopeBody/Sector - Cond/Header - Cond"]
+offset_right = 20.0
+offset_bottom = 28.0
+size_flags_horizontal = 0
+text = "if"
+
+[node name="expression" type="Label" parent="VBoxContainer/Views/HBox/Sector/ScopeBody/Sector - Cond/Header - Cond"]
+offset_left = 24.0
+offset_right = 197.0
+offset_bottom = 28.0
+text = "condition == false"
+
+[node name="Body - Cond" type="HBoxContainer" parent="VBoxContainer/Views/HBox/Sector/ScopeBody/Sector - Cond"]
+offset_top = 42.0
+offset_right = 321.0
+offset_bottom = 198.0
+size_flags_vertical = 3
+
+[node name="ScopeIndent" type="Panel" parent="VBoxContainer/Views/HBox/Sector/ScopeBody/Sector - Cond/Body - Cond"]
+custom_minimum_size = Vector2(5, 0)
+offset_right = 5.0
+offset_bottom = 156.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.1
+theme = ExtResource("7_ohm8i")
+theme_override_styles/panel = ExtResource("8_1twyj")
+metadata/_edit_layout_mode = 1
+
+[node name="HSpacer" type="HSplitContainer" parent="VBoxContainer/Views/HBox/Sector/ScopeBody/Sector - Cond/Body - Cond"]
+custom_minimum_size = Vector2(10, 0)
+offset_left = 9.0
+offset_right = 19.0
+offset_bottom = 156.0
+
+[node name="VFlowContainer" type="VBoxContainer" parent="VBoxContainer/Views/HBox/Sector/ScopeBody/Sector - Cond/Body - Cond"]
+offset_left = 23.0
+offset_right = 321.0
+offset_bottom = 156.0
+
+[node name="Log" type="Label" parent="VBoxContainer/Views/HBox/Sector/ScopeBody/Sector - Cond/Body - Cond/VFlowContainer"]
+offset_right = 298.0
+offset_bottom = 28.0
+size_flags_horizontal = 0
+text = "Log(message, LogCategory.Error)"
+
+[node name="stack" type="Label" parent="VBoxContainer/Views/HBox/Sector/ScopeBody/Sector - Cond/Body - Cond/VFlowContainer"]
+offset_top = 32.0
+offset_right = 298.0
+offset_bottom = 60.0
+text = "stack err = ErrorData"
+
+[node name="ErrorData - Body" type="HBoxContainer" parent="VBoxContainer/Views/HBox/Sector/ScopeBody/Sector - Cond/Body - Cond/VFlowContainer"]
+offset_top = 64.0
+offset_right = 298.0
+offset_bottom = 124.0
+
+[node name="ScopeIndent" type="Panel" parent="VBoxContainer/Views/HBox/Sector/ScopeBody/Sector - Cond/Body - Cond/VFlowContainer/ErrorData - Body"]
+custom_minimum_size = Vector2(5, 40)
+offset_right = 5.0
+offset_bottom = 60.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.1
+theme = ExtResource("7_ohm8i")
+theme_override_styles/panel = SubResource("StyleBoxFlat_g1xjf")
+metadata/_edit_layout_mode = 1
+
+[node name="HSpacer" type="HSplitContainer" parent="VBoxContainer/Views/HBox/Sector/ScopeBody/Sector - Cond/Body - Cond/VFlowContainer/ErrorData - Body"]
+custom_minimum_size = Vector2(10, 0)
+offset_left = 9.0
+offset_right = 19.0
+offset_bottom = 60.0
+
+[node name="Vbox" type="VBoxContainer" parent="VBoxContainer/Views/HBox/Sector/ScopeBody/Sector - Cond/Body - Cond/VFlowContainer/ErrorData - Body"]
+offset_left = 23.0
+offset_right = 298.0
+offset_bottom = 60.0
+size_flags_horizontal = 3
+
+[node name="Message" type="Label" parent="VBoxContainer/Views/HBox/Sector/ScopeBody/Sector - Cond/Body - Cond/VFlowContainer/ErrorData - Body/Vbox"]
+offset_right = 275.0
+offset_bottom = 28.0
+size_flags_vertical = 6
+text = "Message = messagee"
+
+[node name="Message2" type="Label" parent="VBoxContainer/Views/HBox/Sector/ScopeBody/Sector - Cond/Body - Cond/VFlowContainer/ErrorData - Body/Vbox"]
+offset_top = 32.0
+offset_right = 275.0
+offset_bottom = 60.0
+text = "ShouldAssert = falsee"
+
+[node name="ret" type="Label" parent="VBoxContainer/Views/HBox/Sector/ScopeBody/Sector - Cond/Body - Cond/VFlowContainer"]
+offset_top = 128.0
+offset_right = 298.0
+offset_bottom = 156.0
+text = "ret err"
+
 [node name="MenuTabs" type="HBoxContainer" parent="VBoxContainer"]
+visible = false
 offset_top = 869.0
 offset_right = 1600.0
 offset_bottom = 900.0
@@ -421,6 +450,19 @@ icon_alignment = 1
 script = ExtResource("2_fr1oi")
 AuxNode = NodePath("../../../AuxPanels/OutPanel")
 
+[node name="Indent_Slider" type="HSlider" parent="VBoxContainer/MenuTabs"]
+custom_minimum_size = Vector2(300, 10)
+offset_left = 1300.0
+offset_top = 7.0
+offset_right = 1600.0
+offset_bottom = 23.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 10
+size_flags_vertical = 4
+value = 20.0
+metadata/_edit_layout_mode = 1
+
 [node name="AuxPanels" type="Control" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -432,26 +474,31 @@ mouse_filter = 2
 theme = ExtResource("4_hwwia")
 metadata/_edit_layout_mode = 1
 
-[node name="Log" type="Panel" parent="AuxPanels" node_paths=PackedStringArray("TabBtn")]
+[node name="Log" type="Window" parent="AuxPanels" node_paths=PackedStringArray("TabBtn")]
+position = Vector2i(180, 180)
+size = Vector2i(300, 100)
 visible = false
-anchor_right = 0.6
-anchor_bottom = 0.6
-offset_left = 26.0
 script = ExtResource("3_ihmcm")
 TabBtn = NodePath("../../VBoxContainer/MenuTabs/LogTab")
 metadata/_edit_layout_mode = 1
 metadata/_edit_use_custom_anchors = true
 
-[node name="ScrollContainer" type="ScrollContainer" parent="AuxPanels/Log"]
+[node name="Panel" type="Panel" parent="AuxPanels/Log"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="AuxPanels/Log/Panel"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 follow_focus = true
 metadata/_edit_layout_mode = 1
 metadata/_edit_use_custom_anchors = true
 
-[node name="Entries" type="VBoxContainer" parent="AuxPanels/Log/ScrollContainer"]
-offset_right = 934.0
-offset_bottom = 540.0
+[node name="Entries" type="VBoxContainer" parent="AuxPanels/Log/Panel/ScrollContainer"]
+offset_right = 1600.0
+offset_bottom = 900.0
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
@@ -461,12 +508,20 @@ metadata/_edit_layout_mode = 1
 [node name="OutPanel" type="Window" parent="AuxPanels"]
 title = "Output"
 position = Vector2i(180, 188)
+size = Vector2i(300, 100)
 visible = false
+wrap_controls = true
 script = ExtResource("7_xfrtc")
 metadata/_edit_layout_mode = 1
 metadata/_edit_use_custom_anchors = true
 
-[node name="OutView" type="TextEdit" parent="AuxPanels/OutPanel"]
+[node name="Panel" type="Panel" parent="AuxPanels/OutPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="OutView" type="TextEdit" parent="AuxPanels/OutPanel/Panel"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
@@ -500,3 +555,5 @@ access = 2
 show_hidden_files = true
 script = ExtResource("9_pga44")
 TabBtn = NodePath("../../VBoxContainer/MenuTabs/Save File")
+
+[connection signal="ready" from="VBoxContainer/MenuTabs/Indent_Slider" to="VBoxContainer/Views/HBox/SE_Viewport/SubViewport/VBoxContainer/VSN_Editor" method="_on_indent_slider_ready"]

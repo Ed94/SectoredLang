@@ -1,11 +1,17 @@
-[gd_resource type="Theme" load_steps=4 format=3 uid="uid://ir46m6m80a2q"]
+[gd_resource type="Theme" load_steps=5 format=3 uid="uid://ir46m6m80a2q"]
 
 [ext_resource type="StyleBox" uid="uid://dhn258bfo31hx" path="res://Styles/SEditor_SectorID_SBF.tres" id="1_hwrcu"]
 [ext_resource type="FontFile" uid="uid://dvychyr8abjhe" path="res://Assets/FiraCousine-Regular.ttf" id="1_qtr6h"]
+[ext_resource type="StyleBox" uid="uid://c07qj0km37qfw" path="res://Styles/Transparent_SBF.tres" id="2_vu3n6"]
 [ext_resource type="FontFile" uid="uid://vgrj87jo1sg4" path="res://Assets/DF_RecMonoSemiCasul.tres" id="2_wyxxd"]
 
 [resource]
+CodeEdit/colors/background_color = Color(0, 0, 0, 0)
+CodeEdit/fonts/font = ExtResource("2_wyxxd")
+CodeEdit/styles/normal = ExtResource("2_vu3n6")
+CodeEdit/styles/read_only = ExtResource("2_vu3n6")
 Label/colors/font_color = Color(1, 1, 1, 1)
+Label/constants/line_spacing = 9
 Label/font_sizes/font_size = 16
 Label/fonts/font = ExtResource("1_qtr6h")
 MarginContainer/constants/margin_left = -5
