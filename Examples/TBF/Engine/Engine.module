@@ -16,6 +16,7 @@ alias {
 
 
 units {
+	Config     : uf
 	Cycler     : uf
 	Execution  : uf			
 	Engine     : uf
@@ -27,5 +28,20 @@ units {
 	Timing     : uf
 }
 
+order {
+	Config
+	Types
+	Util
+	Math
+	Platform
+	Memory
+	Timing	
+	Engine
+	Input
+	Renderer
+	State
+	Intro
+	Execution
+}
 
 // entrypoint : Entrypoint

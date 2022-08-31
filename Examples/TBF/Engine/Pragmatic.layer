@@ -1,2 +1,0 @@
-ParserRules.Add("NoStackingSectors")
-ParserRules.Add("ExplicitProcCalls")

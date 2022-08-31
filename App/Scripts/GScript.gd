@@ -1,9 +1,11 @@
 class_name GScript extends Node
 
-var MAS         : Interpreter
-var TxtPipeline : TextPipeline
+var Persistent : PersistentType
+var Pipeline   : Pipeline
 
-signal MAS_EnvUpdated
+signal PersistentReady
+signal PipelineReady
+
 
 # Global output buffer
 var   Log     : Log
@@ -70,8 +72,15 @@ const TType := Lexer.TType
 const SType := TParser.SType
 const STxt  := TParser.STxt
 
+const CExec   := Color8(135, 205, 97)
+const CMemory := Color8(227, 66, 70)
+const COp     := Color8(36, 194, 254)
+const CType   := Color8(255, 233, 124)
+
+
 const TypeColor := {
-	TType.op_Define : Color.AQUA,
+	TType.op_Define : COp,
+	TType.sec_Else  : COp,
 	
 	SType.unit : Color.TAN,
 	
@@ -91,105 +100,106 @@ const TypeColor := {
 	SType.literal_String  : Color.SANDY_BROWN,
 	SType.literal_True    : Color.SANDY_BROWN,
 	
+	"op" : COp,
 	SType.op_Dependent : Color.BLANCHED_ALMOND,
-	SType.op_Cast      : Color.AQUA,
-	SType.op_CD        : Color.AQUA,
-	SType.op_Break     : Color.CHARTREUSE,
-	SType.op_Continue  : Color.CHARTREUSE,
-	SType.op_GoTo      : Color.CHARTREUSE,
-	SType.op_Fall      : Color.CHARTREUSE,
+	SType.op_Cast      : COp,
+	SType.op_CD        : COp,
+	SType.op_Break     : CExec,
+	SType.op_Continue  : CExec,
+	SType.op_GoTo      : CExec,
+	SType.op_Fall      : CExec,
 	
-	SType.op_AlignOf  : Color.AQUA,
-	SType.op_OffsetOf : Color.AQUA,
-	SType.op_PosOf    : Color.AQUA,
-	SType.op_SizeOf   : Color.AQUA,
+	SType.op_AlignOf  : COp,
+	SType.op_OffsetOf : COp,
+	SType.op_PosOf    : COp,
+	SType.op_SizeOf   : COp,
 
-	SType.op_Alloc  : Color.RED,
-	SType.op_Resize : Color.RED,
-	SType.op_Free   : Color.RED,
-	SType.op_Wipe   : Color.RED,
+	SType.op_Alloc  : CMemory,
+	SType.op_Resize : CMemory,
+	SType.op_Free   : CMemory,
+	SType.op_Wipe   : CMemory,
 	
-	SType.op_AB_Not : Color.AQUA,
-	SType.op_AB_And : Color.AQUA,
-	SType.op_AB_Or  : Color.AQUA,
-	SType.op_AB_XOr : Color.AQUA,
-	SType.op_AB_SL  : Color.AQUA,
-	SType.op_AB_SR  : Color.AQUA,
+	SType.op_AB_Not : COp,
+	SType.op_AB_And : COp,
+	SType.op_AB_Or  : COp,
+	SType.op_AB_XOr : COp,
+	SType.op_AB_SL  : COp,
+	SType.op_AB_SR  : COp,
 	
-	SType.op_BNot : Color.AQUA,
-	SType.op_BAnd : Color.AQUA,
-	SType.op_BOr  : Color.AQUA,
-	SType.op_BXOr : Color.AQUA,
-	SType.op_BSL  : Color.AQUA,
-	SType.op_BSR  : Color.AQUA,
+	SType.op_BNot : COp,
+	SType.op_BAnd : COp,
+	SType.op_BOr  : COp,
+	SType.op_BXOr : COp,
+	SType.op_BSL  : COp,
+	SType.op_BSR  : COp,
 	
-	SType.op_Equal        : Color.AQUA,
-	SType.op_NotEqual     : Color.AQUA,
-	SType.op_Greater      : Color.AQUA,
-	SType.op_GreaterEqual : Color.AQUA,
-	SType.op_Lesser       : Color.AQUA,
-	SType.op_LesserEqual  : Color.AQUA,
+	SType.op_Equal        : COp,
+	SType.op_NotEqual     : COp,
+	SType.op_Greater      : COp,
+	SType.op_GreaterEqual : COp,
+	SType.op_Lesser       : COp,
+	SType.op_LesserEqual  : COp,
 	
-	SType.op_LAnd   : Color.AQUA,
-	SType.op_LNot   : Color.AQUA,
-	SType.op_LOr    : Color.AQUA,
-	SType.op_Ptr    : Color.AQUA,
-	SType.op_Val    : Color.AQUA,
-	SType.op_Return : Color.CHARTREUSE,
-	SType.op_SMA    : Color.AQUA,
+	SType.op_LAnd   : COp,
+	SType.op_LNot   : COp,
+	SType.op_LOr    : COp,
+	SType.op_Ptr    : COp,
+	SType.op_Val    : COp,
+	SType.op_Return : CExec,
+	SType.op_SMA    : COp,
 	
-	SType.op_Assign : Color.AQUA,
-	SType.op_A_Add  : Color.AQUA,
+	SType.op_Assign : COp,
+	SType.op_A_Add  : COp,
 	
-	SType.op_UnaryNeg : Color.AQUA,
-	SType.op_Add      : Color.AQUA,
-	SType.op_Subtract : Color.AQUA,
-	SType.op_Multiply : Color.AQUA,
-	SType.op_Divide   : Color.AQUA,
-	SType.op_Modulo   : Color.AQUA,
+	SType.op_UnaryNeg : COp,
+	SType.op_Add      : COp,
+	SType.op_Subtract : COp,
+	SType.op_Multiply : COp,
+	SType.op_Divide   : COp,
+	SType.op_Modulo   : COp,
 	
 	SType.expr_Cap   : Color.CADET_BLUE,
-	SType.expr_SBCap : Color.AQUA,
+	SType.expr_SBCap : COp,
 
 	SType.sec_Alias      : Color.GOLD,
-	SType.sec_Allocator  : Color.RED,
-	SType.sec_Cap        : Color.LIGHT_GOLDENROD,
+	SType.sec_Allocator  : CMemory,
+	SType.sec_Cap        : Color.TEAL,
 	SType.sec_CapArgs    : Color.BLANCHED_ALMOND,
-	SType.sec_Cond       : Color.CHARTREUSE,
-	SType.sec_CondBody   : Color.CHARTREUSE,
-	SType.sec_Enum       : Color.LIGHT_GOLDENROD,
-	SType.sec_Exe        : Color.CHARTREUSE,
+	SType.sec_Cond       : CExec,
+	SType.sec_CondBody   : CExec,
+	SType.sec_Enum       : CType,
+	SType.sec_Exe        : CExec,
 	SType.sec_External   : Color.GOLD,
-	SType.sec_Heap       : Color.RED,
-	SType.sec_Label      : Color.CHARTREUSE,
+	SType.sec_Heap       : CMemory,
+	SType.sec_Label      : CExec,
 	SType.sec_Layer      : Color.GOLD,
-	SType.sec_Layout     : Color.LIGHT_GOLDENROD,
-	SType.sec_Loop       : Color.CHARTREUSE,
-	SType.sec_RO         : Color.LIGHT_GOLDENROD,
+	SType.sec_Layout     : CType,
+	SType.sec_Loop       : CExec,
+	SType.sec_RO         : CType,
 	SType.sec_RetMap     : Color.BLANCHED_ALMOND,
-	SType.sec_Stack      : Color.RED,
-	SType.sec_Static     : Color.RED,
-	SType.sec_Struct     : Color.LIGHT_GOLDENROD,
-	SType.sec_Switch     : Color.CHARTREUSE,
-	SType.sec_SwitchCase : Color.CHARTREUSE,
+	SType.sec_Stack      : CMemory,
+	SType.sec_Static     : CMemory,
+	SType.sec_Struct     : CType,
+	SType.sec_Switch     : CExec,
+	SType.sec_SwitchCase : CExec,
 	SType.sec_Trait      : Color.GOLD,
 	SType.sec_TT         : Color.GOLD,
-	SType.sec_Type       : Color.LIGHT_GOLDENROD,
-	SType.sec_Union      : Color.LIGHT_GOLDENROD,
-	SType.sec_Using      : Color.LIGHT_GOLDENROD,
+	SType.sec_Type       : CType,
+	SType.sec_Union      : CType,
+	SType.sec_Using      : CType,
 	SType.sec_Virtual    : Color.GOLD,
 	
-	SType.sym_Allocator : Color.RED,
+	SType.sym_Allocator : CMemory,
 	SType.sym_Array     : Color.MEDIUM_PURPLE,
 	SType.sym_Proc      : Color.BLANCHED_ALMOND,
-	SType.sym_Ptr       : Color.LIGHT_GOLDENROD,
+	SType.sym_Ptr       : CType,
 	SType.sym_LP        : Color.GOLDENROD,
 	SType.sym_Null      : Color.SANDY_BROWN,
-	SType.sym_RO        : Color.LIGHT_GOLDENROD,
-	SType.sym_Self      : Color.LIGHT_GOLDENROD,
-	SType.sym_Type      : Color.LIGHT_GOLDENROD,
+	SType.sym_RO        : CType,
+	SType.sym_Self      : CType,
+	SType.sym_Type      : CType,
 	SType.sym_TT_Type   : Color.GOLD,
-	SType.sym_TType     : Color.LIGHT_GOLDENROD,
+	SType.sym_TType     : CType,
 	
 	SType.sec_EnumElement : Color.WHITE_SMOKE,
 	SType.sec_Identifier  : Color.WHITE,

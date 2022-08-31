@@ -2,7 +2,6 @@ class_name Interpreter extends RefCounted
 
 const LogType := Log.EType
 const SType   := TParser.SType
-#const ASTNode := SyntaxParser.ASTNode
 
 
 #var AST    : SyntaxParser.ASTNode

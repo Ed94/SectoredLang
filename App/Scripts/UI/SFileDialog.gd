@@ -1,9 +1,9 @@
-class_name SLFileDialog extends FileDialog
+class_name SFileDialog extends FileDialog
 
 @export var TabBtn : Button
 
 func on_file_selected(path: String):
-	var file = G.TxtPipeline.CurrentFile
+	var file = G.Pipeline.CurrentFile
 	
 	match file_mode:
 		FILE_MODE_SAVE_FILE:
@@ -12,7 +12,6 @@ func on_file_selected(path: String):
 				return
 			
 			file.open(path, File.WRITE)
-			file = G.TxtPipeline.Editor.text
 			file.save()
 			file.open_Unit(path)
 			

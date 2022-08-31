@@ -1,36 +1,37 @@
-[gd_scene load_steps=21 format=3 uid="uid://c3bapvtsputmr"]
+[gd_scene load_steps=22 format=3 uid="uid://b2vyxp1qbtv22"]
 
 [ext_resource type="StyleBox" uid="uid://nqey8i51uq6n" path="res://Styles/AppBG.SBF.tres" id="1_cc3py"]
 [ext_resource type="Script" path="res://Scripts/Persistent.gd" id="1_p5snc"]
 [ext_resource type="Script" path="res://Scripts/UI/AuxTab.gd" id="2_fr1oi"]
 [ext_resource type="Script" path="res://Scripts/Log/Log.gd" id="3_ihmcm"]
-[ext_resource type="Theme" uid="uid://dmtbie7ic5iam" path="res://Styles/TextPipeline.tres" id="3_ykh8n"]
-[ext_resource type="Script" path="res://Scripts/TextPipeline/TextPipeline.gd" id="4_d3lki"]
+[ext_resource type="Theme" uid="uid://c8b12qbhg0vxy" path="res://Styles/TextPipeline.tres" id="3_ykh8n"]
+[ext_resource type="Script" path="res://Scripts/Pipeline.gd" id="4_d3lki"]
 [ext_resource type="Theme" path="res://Styles/AuxPanel.tres" id="4_hwwia"]
 [ext_resource type="Script" path="res://Scripts/UI/STextEditor.gd" id="5_beomd"]
 [ext_resource type="Script" path="res://Scripts/UI/STree.gd" id="5_ddx1b"]
-[ext_resource type="Script" path="res://Scripts/Nodes/SEditorViewport.gd" id="5_h7oa2"]
-[ext_resource type="Script" path="res://Scripts/SE_Viewport.gd" id="5_m45ir"]
-[ext_resource type="Script" path="res://Scripts/Nodes/SEditorCamera.gd" id="6_wurw0"]
-[ext_resource type="Theme" uid="uid://ir46m6m80a2q" path="res://Styles/SEditor_SectorID.tres" id="7_ohm8i"]
+[ext_resource type="Script" path="res://Scripts/Nodes/VSEditorViewport.gd" id="5_h7oa2"]
+[ext_resource type="Script" path="res://Scripts/VSE_ViewportContainer.gd" id="5_m45ir"]
+[ext_resource type="Script" path="res://Scripts/Nodes/VSEditorCamera.gd" id="6_wurw0"]
+[ext_resource type="Theme" uid="uid://0wclcn57bq5r" path="res://Styles/SEditor_SectorID.tres" id="7_ohm8i"]
 [ext_resource type="Script" path="res://Scripts/UI/Output.gd" id="7_xfrtc"]
-[ext_resource type="StyleBox" uid="uid://c8jhk378hf5fe" path="res://Styles/SEditor_SectorIndent_SBF.tres" id="8_1twyj"]
-[ext_resource type="Script" path="res://Scripts/UI/VSN_Editor.gd" id="8_s3wc3"]
+[ext_resource type="Script" path="res://Scripts/UI/VSEditor.gd" id="8_s3wc3"]
+[ext_resource type="FontFile" uid="uid://dvqk2fjqkpear" path="res://Assets/QuickSilver/Quicksilver.ttf" id="9_cdsto"]
 [ext_resource type="Script" path="res://Scripts/UI/SFileDialog.gd" id="9_pga44"]
 
 [sub_resource type="Theme" id="Theme_l44yk"]
 Panel/styles/panel = ExtResource("1_cc3py")
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_q1oas"]
-bg_color = Color(0.0470588, 0.0470588, 0.0470588, 1)
+bg_color = Color(0.160784, 0.160784, 0.176471, 1)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_g1xjf"]
-bg_color = Color(0.6, 0.6, 0.6, 0)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0, 0.588235, 1, 1)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yrrn4"]
+bg_color = Color(0.6, 0, 0.00392157, 1)
+
+[sub_resource type="Theme" id="Theme_7gp8u"]
+RichTextLabel/colors/default_color = Color(0.84, 0.965333, 1, 0.219608)
+RichTextLabel/font_sizes/bold_font_size = 48
+RichTextLabel/font_sizes/normal_font_size = 48
+RichTextLabel/fonts/normal_font = ExtResource("9_cdsto")
 
 [node name="Persistent" type="Panel"]
 anchor_right = 1.0
@@ -39,16 +40,16 @@ theme = SubResource("Theme_l44yk")
 script = ExtResource("1_p5snc")
 metadata/_edit_vertical_guides_ = [214.0]
 
-[node name="VBoxContainer" type="VBoxContainer" parent="."]
+[node name="VB" type="VBoxContainer" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 metadata/_edit_layout_mode = 1
 
-[node name="Views" type="Control" parent="VBoxContainer"]
+[node name="Views" type="Control" parent="VB"]
 offset_right = 1600.0
-offset_bottom = 900.0
+offset_bottom = 865.0
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_vertical = 3
@@ -56,14 +57,14 @@ theme = ExtResource("3_ykh8n")
 script = ExtResource("4_d3lki")
 metadata/_edit_layout_mode = 1
 
-[node name="HBox" type="HBoxContainer" parent="VBoxContainer/Views"]
+[node name="HB" type="HBoxContainer" parent="VB/Views"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 metadata/_edit_layout_mode = 1
 
-[node name="SView_Tree" type="Tree" parent="VBoxContainer/Views/HBox"]
+[node name="STreeView" type="Tree" parent="VB/Views/HB"]
 visible = false
 offset_right = 751.0
 offset_bottom = 865.0
@@ -72,11 +73,10 @@ size_flags_stretch_ratio = 0.4
 columns = 2
 script = ExtResource("5_ddx1b")
 
-[node name="SView" type="TextEdit" parent="VBoxContainer/Views/HBox"]
+[node name="STreeViewTxt" type="TextEdit" parent="VB/Views/HB"]
 visible = false
-offset_left = 377.0
-offset_right = 704.0
-offset_bottom = 865.0
+offset_right = 696.0
+offset_bottom = 900.0
 grow_horizontal = 0
 grow_vertical = 2
 size_flags_horizontal = 3
@@ -87,19 +87,9 @@ placeholder_text = "AST Viewer
 editable = false
 metadata/_edit_use_custom_anchors = true
 
-[node name="Control" type="Control" parent="VBoxContainer/Views/HBox"]
-offset_top = 450.0
-offset_bottom = 450.0
-grow_horizontal = 0
-size_flags_horizontal = 0
-size_flags_vertical = 4
-size_flags_stretch_ratio = 0.25
-metadata/_edit_layout_mode = 1
-
-[node name="SE_Viewport" type="SubViewportContainer" parent="VBoxContainer/Views/HBox"]
-offset_left = 4.0
+[node name="VSE_Viewport" type="SubViewportContainer" parent="VB/Views/HB"]
 offset_right = 1600.0
-offset_bottom = 900.0
+offset_bottom = 865.0
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
@@ -109,44 +99,58 @@ stretch = true
 script = ExtResource("5_m45ir")
 metadata/_edit_layout_mode = 1
 
-[node name="SubViewport" type="SubViewport" parent="VBoxContainer/Views/HBox/SE_Viewport"]
+[node name="SubViewport" type="SubViewport" parent="VB/Views/HB/VSE_Viewport"]
 process_mode = 1
 disable_3d = true
 handle_input_locally = false
-size = Vector2i(1596, 900)
+size = Vector2i(1600, 865)
 render_target_update_mode = 4
 script = ExtResource("5_h7oa2")
 
-[node name="Camera2D" type="Camera2D" parent="VBoxContainer/Views/HBox/SE_Viewport/SubViewport"]
-offset = Vector2(500, -200)
+[node name="VPCam" type="Camera2D" parent="VB/Views/HB/VSE_Viewport/SubViewport" node_paths=PackedStringArray("HB")]
 current = true
 script = ExtResource("6_wurw0")
+HB = NodePath("../../..")
 
-[node name="BG" type="Panel" parent="VBoxContainer/Views/HBox/SE_Viewport/SubViewport/Camera2D"]
-custom_minimum_size = Vector2(10000, 10000)
+[node name="BG" type="Panel" parent="VB/Views/HB/VSE_Viewport/SubViewport/VPCam"]
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = -5000.0
+offset_top = -5000.0
+offset_right = 5000.0
+offset_bottom = 5000.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_q1oas")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/Views/HBox/SE_Viewport/SubViewport"]
+[node name="VSEditor" type="Control" parent="VB/Views/HB/VSE_Viewport/SubViewport" node_paths=PackedStringArray("IndentSlider", "Mode_Indi", "Follow_Indi")]
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-
-[node name="VSN_Editor" type="Control" parent="VBoxContainer/Views/HBox/SE_Viewport/SubViewport/VBoxContainer" node_paths=PackedStringArray("IndentSlider")]
-offset_right = 1600.0
-offset_bottom = 900.0
-grow_horizontal = 2
-grow_vertical = 2
+size_flags_horizontal = 3
 size_flags_vertical = 3
 theme = ExtResource("7_ohm8i")
 script = ExtResource("8_s3wc3")
-IndentSlider = NodePath("../../../../../../MenuTabs/Indent_Slider")
+IndentSlider = NodePath("../../../../../MenuTabs/VSE_IndentSlider")
+Mode_Indi = NodePath("../../../../VSE_ModeIndicator")
+Follow_Indi = NodePath("../../../../VSE_FollowIndicator")
 
-[node name="CodeEdit" type="CodeEdit" parent="VBoxContainer/Views/HBox"]
+[node name="Reticle" type="Panel" parent="VB/Views/HB/VSE_Viewport/SubViewport"]
+custom_minimum_size = Vector2(10, 10)
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -5.0
+offset_top = -5.0
+offset_right = 5.0
+offset_bottom = 5.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_yrrn4")
+
+[node name="STEditor" type="CodeEdit" parent="VB/Views/HB"]
 visible = false
 offset_left = 801.0
 offset_right = 1600.0
@@ -169,7 +173,7 @@ script = ExtResource("5_beomd")
 metadata/_edit_layout_mode = 1
 metadata/_edit_use_custom_anchors = true
 
-[node name="EnvView" type="TextEdit" parent="VBoxContainer/Views/HBox"]
+[node name="Env" type="TextEdit" parent="VB/Views/HB"]
 visible = false
 offset_left = 759.0
 offset_right = 1600.0
@@ -183,222 +187,30 @@ placeholder_text = "Environment Viewer
 editable = false
 metadata/_edit_use_custom_anchors = true
 
-[node name="Sector" type="VBoxContainer" parent="VBoxContainer/Views/HBox"]
-visible = false
-anchor_left = 0.181
-anchor_top = 0.377
-anchor_right = 0.598
-anchor_bottom = 0.537
-offset_left = -72.9
-offset_top = 13.195
-offset_right = 72.9
-offset_bottom = 120.795
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme = ExtResource("7_ohm8i")
+[node name="VSE_ModeIndicator" type="RichTextLabel" parent="VB/Views"]
+anchor_left = 0.85
+anchor_top = 0.06
+anchor_right = 1.0
+anchor_bottom = 0.14
+grow_horizontal = 0
+theme = SubResource("Theme_7gp8u")
+text = "NAV"
+metadata/_edit_layout_mode = 1
 metadata/_edit_use_custom_anchors = true
 
-[node name="VSpacer" type="VSplitContainer" parent="VBoxContainer/Views/HBox/Sector"]
-custom_minimum_size = Vector2(0, 6)
-offset_right = 813.0
-offset_bottom = 6.0
-
-[node name="Header" type="HBoxContainer" parent="VBoxContainer/Views/HBox/Sector"]
-offset_top = 10.0
-offset_right = 813.0
-offset_bottom = 44.0
-auto_translate = false
-
-[node name="ID" type="PanelContainer" parent="VBoxContainer/Views/HBox/Sector/Header"]
-offset_right = 75.0
-offset_bottom = 34.0
-grow_horizontal = 2
-grow_vertical = 2
-size_flags_horizontal = 0
+[node name="VSE_FollowIndicator" type="RichTextLabel" parent="VB/Views"]
+anchor_left = 0.85
+anchor_top = 0.12
+anchor_right = 1.0
+anchor_bottom = 0.187
+grow_horizontal = 0
+theme = SubResource("Theme_7gp8u")
+theme_override_font_sizes/normal_font_size = 30
+text = "Follow"
 metadata/_edit_layout_mode = 1
+metadata/_edit_use_custom_anchors = true
 
-[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer/Views/HBox/Sector/Header/ID"]
-offset_left = 20.0
-offset_top = 1.0
-offset_right = 74.0
-offset_bottom = 33.0
-size_flags_vertical = 4
-
-[node name="Label" type="Label" parent="VBoxContainer/Views/HBox/Sector/Header/ID/MarginContainer"]
-offset_left = -5.0
-offset_top = 4.0
-offset_right = 44.0
-offset_bottom = 32.0
-size_flags_horizontal = 0
-text = "Check"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Capture - CC" type="MarginContainer" parent="VBoxContainer/Views/HBox/Sector/Header"]
-offset_left = 79.0
-offset_right = 401.0
-offset_bottom = 34.0
-
-[node name="Label" type="Label" parent="VBoxContainer/Views/HBox/Sector/Header/Capture - CC"]
-offset_left = -5.0
-offset_top = 5.0
-offset_right = 312.0
-offset_bottom = 33.0
-text = "( cond : bool, message : String )
-"
-
-[node name="ExeDebug" type="MarginContainer" parent="VBoxContainer/Views/HBox/Sector/Header"]
-offset_left = 405.0
-offset_right = 439.0
-offset_bottom = 34.0
-
-[node name="Label" type="Label" parent="VBoxContainer/Views/HBox/Sector/Header/ExeDebug"]
-offset_left = -5.0
-offset_top = 5.0
-offset_right = 24.0
-offset_bottom = 33.0
-text = "exe"
-
-[node name="ScopeBody" type="HBoxContainer" parent="VBoxContainer/Views/HBox/Sector"]
-offset_top = 48.0
-offset_right = 813.0
-offset_bottom = 246.0
-size_flags_vertical = 3
-
-[node name="ScopeIndent" type="Panel" parent="VBoxContainer/Views/HBox/Sector/ScopeBody"]
-custom_minimum_size = Vector2(5, 0)
-offset_right = 5.0
-offset_bottom = 198.0
-grow_horizontal = 2
-grow_vertical = 2
-size_flags_stretch_ratio = 0.1
-theme = ExtResource("7_ohm8i")
-theme_override_styles/panel = ExtResource("8_1twyj")
-metadata/_edit_layout_mode = 1
-
-[node name="HSpacer" type="HSplitContainer" parent="VBoxContainer/Views/HBox/Sector/ScopeBody"]
-custom_minimum_size = Vector2(10, 0)
-offset_left = 9.0
-offset_right = 19.0
-offset_bottom = 198.0
-
-[node name="Sector - Cond" type="VBoxContainer" parent="VBoxContainer/Views/HBox/Sector/ScopeBody"]
-offset_left = 23.0
-offset_right = 344.0
-offset_bottom = 198.0
-
-[node name="VSpacer" type="VSplitContainer" parent="VBoxContainer/Views/HBox/Sector/ScopeBody/Sector - Cond"]
-custom_minimum_size = Vector2(0, 6)
-offset_right = 321.0
-offset_bottom = 6.0
-
-[node name="Header - Cond" type="HBoxContainer" parent="VBoxContainer/Views/HBox/Sector/ScopeBody/Sector - Cond"]
-offset_top = 10.0
-offset_right = 321.0
-offset_bottom = 38.0
-
-[node name="if" type="Label" parent="VBoxContainer/Views/HBox/Sector/ScopeBody/Sector - Cond/Header - Cond"]
-offset_right = 20.0
-offset_bottom = 28.0
-size_flags_horizontal = 0
-text = "if"
-
-[node name="expression" type="Label" parent="VBoxContainer/Views/HBox/Sector/ScopeBody/Sector - Cond/Header - Cond"]
-offset_left = 24.0
-offset_right = 197.0
-offset_bottom = 28.0
-text = "condition == false"
-
-[node name="Body - Cond" type="HBoxContainer" parent="VBoxContainer/Views/HBox/Sector/ScopeBody/Sector - Cond"]
-offset_top = 42.0
-offset_right = 321.0
-offset_bottom = 198.0
-size_flags_vertical = 3
-
-[node name="ScopeIndent" type="Panel" parent="VBoxContainer/Views/HBox/Sector/ScopeBody/Sector - Cond/Body - Cond"]
-custom_minimum_size = Vector2(5, 0)
-offset_right = 5.0
-offset_bottom = 156.0
-grow_horizontal = 2
-grow_vertical = 2
-size_flags_vertical = 3
-size_flags_stretch_ratio = 0.1
-theme = ExtResource("7_ohm8i")
-theme_override_styles/panel = ExtResource("8_1twyj")
-metadata/_edit_layout_mode = 1
-
-[node name="HSpacer" type="HSplitContainer" parent="VBoxContainer/Views/HBox/Sector/ScopeBody/Sector - Cond/Body - Cond"]
-custom_minimum_size = Vector2(10, 0)
-offset_left = 9.0
-offset_right = 19.0
-offset_bottom = 156.0
-
-[node name="VFlowContainer" type="VBoxContainer" parent="VBoxContainer/Views/HBox/Sector/ScopeBody/Sector - Cond/Body - Cond"]
-offset_left = 23.0
-offset_right = 321.0
-offset_bottom = 156.0
-
-[node name="Log" type="Label" parent="VBoxContainer/Views/HBox/Sector/ScopeBody/Sector - Cond/Body - Cond/VFlowContainer"]
-offset_right = 298.0
-offset_bottom = 28.0
-size_flags_horizontal = 0
-text = "Log(message, LogCategory.Error)"
-
-[node name="stack" type="Label" parent="VBoxContainer/Views/HBox/Sector/ScopeBody/Sector - Cond/Body - Cond/VFlowContainer"]
-offset_top = 32.0
-offset_right = 298.0
-offset_bottom = 60.0
-text = "stack err = ErrorData"
-
-[node name="ErrorData - Body" type="HBoxContainer" parent="VBoxContainer/Views/HBox/Sector/ScopeBody/Sector - Cond/Body - Cond/VFlowContainer"]
-offset_top = 64.0
-offset_right = 298.0
-offset_bottom = 124.0
-
-[node name="ScopeIndent" type="Panel" parent="VBoxContainer/Views/HBox/Sector/ScopeBody/Sector - Cond/Body - Cond/VFlowContainer/ErrorData - Body"]
-custom_minimum_size = Vector2(5, 40)
-offset_right = 5.0
-offset_bottom = 60.0
-grow_horizontal = 2
-grow_vertical = 2
-size_flags_vertical = 3
-size_flags_stretch_ratio = 0.1
-theme = ExtResource("7_ohm8i")
-theme_override_styles/panel = SubResource("StyleBoxFlat_g1xjf")
-metadata/_edit_layout_mode = 1
-
-[node name="HSpacer" type="HSplitContainer" parent="VBoxContainer/Views/HBox/Sector/ScopeBody/Sector - Cond/Body - Cond/VFlowContainer/ErrorData - Body"]
-custom_minimum_size = Vector2(10, 0)
-offset_left = 9.0
-offset_right = 19.0
-offset_bottom = 60.0
-
-[node name="Vbox" type="VBoxContainer" parent="VBoxContainer/Views/HBox/Sector/ScopeBody/Sector - Cond/Body - Cond/VFlowContainer/ErrorData - Body"]
-offset_left = 23.0
-offset_right = 298.0
-offset_bottom = 60.0
-size_flags_horizontal = 3
-
-[node name="Message" type="Label" parent="VBoxContainer/Views/HBox/Sector/ScopeBody/Sector - Cond/Body - Cond/VFlowContainer/ErrorData - Body/Vbox"]
-offset_right = 275.0
-offset_bottom = 28.0
-size_flags_vertical = 6
-text = "Message = messagee"
-
-[node name="Message2" type="Label" parent="VBoxContainer/Views/HBox/Sector/ScopeBody/Sector - Cond/Body - Cond/VFlowContainer/ErrorData - Body/Vbox"]
-offset_top = 32.0
-offset_right = 275.0
-offset_bottom = 60.0
-text = "ShouldAssert = falsee"
-
-[node name="ret" type="Label" parent="VBoxContainer/Views/HBox/Sector/ScopeBody/Sector - Cond/Body - Cond/VFlowContainer"]
-offset_top = 128.0
-offset_right = 298.0
-offset_bottom = 156.0
-text = "ret err"
-
-[node name="MenuTabs" type="HBoxContainer" parent="VBoxContainer"]
-visible = false
+[node name="MenuTabs" type="HBoxContainer" parent="VB"]
 offset_top = 869.0
 offset_right = 1600.0
 offset_bottom = 900.0
@@ -406,8 +218,15 @@ grow_horizontal = 2
 grow_vertical = 2
 metadata/_edit_layout_mode = 1
 
-[node name="Open File" type="Button" parent="VBoxContainer/MenuTabs" node_paths=PackedStringArray("AuxNode")]
-offset_right = 81.0
+[node name="HSpacer_Left" type="HSplitContainer" parent="VB/MenuTabs"]
+offset_right = 59.0
+offset_bottom = 31.0
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.05
+
+[node name="Open File" type="Button" parent="VB/MenuTabs" node_paths=PackedStringArray("AuxNode")]
+offset_left = 63.0
+offset_right = 144.0
 offset_bottom = 31.0
 toggle_mode = true
 action_mode = 0
@@ -416,9 +235,9 @@ icon_alignment = 1
 script = ExtResource("2_fr1oi")
 AuxNode = NodePath("../../../AuxPanels/OpenFileDialog")
 
-[node name="Save File" type="Button" parent="VBoxContainer/MenuTabs" node_paths=PackedStringArray("AuxNode")]
-offset_left = 85.0
-offset_right = 160.0
+[node name="Save File" type="Button" parent="VB/MenuTabs" node_paths=PackedStringArray("AuxNode")]
+offset_left = 148.0
+offset_right = 223.0
 offset_bottom = 31.0
 toggle_mode = true
 action_mode = 0
@@ -427,9 +246,9 @@ icon_alignment = 1
 script = ExtResource("2_fr1oi")
 AuxNode = NodePath("../../../AuxPanels/SaveFileDialog")
 
-[node name="LogTab" type="Button" parent="VBoxContainer/MenuTabs" node_paths=PackedStringArray("AuxNode")]
-offset_left = 164.0
-offset_right = 208.0
+[node name="LogTab" type="Button" parent="VB/MenuTabs" node_paths=PackedStringArray("AuxNode")]
+offset_left = 227.0
+offset_right = 271.0
 offset_bottom = 31.0
 toggle_mode = true
 action_mode = 0
@@ -439,9 +258,9 @@ icon_alignment = 1
 script = ExtResource("2_fr1oi")
 AuxNode = NodePath("../../../AuxPanels/Log")
 
-[node name="OutTab" type="Button" parent="VBoxContainer/MenuTabs" node_paths=PackedStringArray("AuxNode")]
-offset_left = 212.0
-offset_right = 276.0
+[node name="OutTab" type="Button" parent="VB/MenuTabs" node_paths=PackedStringArray("AuxNode")]
+offset_left = 275.0
+offset_right = 339.0
 offset_bottom = 31.0
 toggle_mode = true
 action_mode = 0
@@ -450,11 +269,11 @@ icon_alignment = 1
 script = ExtResource("2_fr1oi")
 AuxNode = NodePath("../../../AuxPanels/OutPanel")
 
-[node name="Indent_Slider" type="HSlider" parent="VBoxContainer/MenuTabs"]
+[node name="VSE_IndentSlider" type="HSlider" parent="VB/MenuTabs"]
 custom_minimum_size = Vector2(300, 10)
-offset_left = 1300.0
+offset_left = 1236.0
 offset_top = 7.0
-offset_right = 1600.0
+offset_right = 1536.0
 offset_bottom = 23.0
 grow_horizontal = 2
 grow_vertical = 2
@@ -462,6 +281,13 @@ size_flags_horizontal = 10
 size_flags_vertical = 4
 value = 20.0
 metadata/_edit_layout_mode = 1
+
+[node name="HSpacer_Right" type="HSplitContainer" parent="VB/MenuTabs"]
+offset_left = 1540.0
+offset_right = 1600.0
+offset_bottom = 31.0
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.05
 
 [node name="AuxPanels" type="Control" parent="."]
 anchor_right = 1.0
@@ -479,7 +305,7 @@ position = Vector2i(180, 180)
 size = Vector2i(300, 100)
 visible = false
 script = ExtResource("3_ihmcm")
-TabBtn = NodePath("../../VBoxContainer/MenuTabs/LogTab")
+TabBtn = NodePath("../../VB/MenuTabs/LogTab")
 metadata/_edit_layout_mode = 1
 metadata/_edit_use_custom_anchors = true
 
@@ -542,7 +368,7 @@ file_mode = 0
 access = 2
 show_hidden_files = true
 script = ExtResource("9_pga44")
-TabBtn = NodePath("../../VBoxContainer/MenuTabs/Open File")
+TabBtn = NodePath("../../VB/MenuTabs/Open File")
 
 [node name="SaveFileDialog" type="FileDialog" parent="AuxPanels" node_paths=PackedStringArray("TabBtn")]
 transparent_bg = true
@@ -554,6 +380,4 @@ dialog_close_on_escape = false
 access = 2
 show_hidden_files = true
 script = ExtResource("9_pga44")
-TabBtn = NodePath("../../VBoxContainer/MenuTabs/Save File")
-
-[connection signal="ready" from="VBoxContainer/MenuTabs/Indent_Slider" to="VBoxContainer/Views/HBox/SE_Viewport/SubViewport/VBoxContainer/VSN_Editor" method="_on_indent_slider_ready"]
+TabBtn = NodePath("../../VB/MenuTabs/Save File")

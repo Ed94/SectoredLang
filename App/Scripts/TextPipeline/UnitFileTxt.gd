@@ -28,8 +28,7 @@ func save():
 	
 func buffer():
 	text = get_as_text()
-	
-	G.TxtPipeline.on_BufferUpdated()
+	G.Pipeline.on_BufferUpdated()
 	return
 
 

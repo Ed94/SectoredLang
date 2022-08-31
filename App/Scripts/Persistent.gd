@@ -1,56 +1,40 @@
-extends Node
+class_name PersistentType extends Node
 
 const LogType := Log.EType
 
-
-var MAS : Interpreter
-
-
-@onready var Views    := get_node("VBoxContainer/Views")
-@onready var Menu     := get_node("VBoxContainer/MenuTabs")
-@onready var EnvView  := Views.get_node("VBoxContainer/Views/HBox/EnvView")
+@onready var Views    := get_node("VB/Views")
+@onready var Menu     := get_node("VB/MenuTabs")
 @onready var Out      := Views.get_node("AuxPanels/OutPanel") as Output
 
-@onready var Editor := Views.get_node("HBox/CodeEdit") as TextEdit
-@onready var SEView := Views.get_node("HBox/SE_Viewport/SubViewport") as SubViewport
+@onready var STEditor := Views.get_node("HB/STEditor") as TextEdit
+@onready var VSE_View := Views.get_node("HB/VSE_Viewport/SubViewport") as VSEditorViewport
 
-@onready var SView_Txt  := Views.get_node("HBox/SView") as TextEdit
-@onready var SView_Tree := Views.get_node("HBox/SView_Tree") as STree
-
-
-func on_EnvUpdated():
-	EnvView.text = JSON.new().stringify(MAS.Env.to_SExpression(), "\t")
-
+@onready var STreeVewTxt := Views.get_node("HB/STreeViewTxt") as TextEdit
+@onready var STreeView   := Views.get_node("HB/STreeView") as STree
 
 
 #region Node
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("Editor_ToggleVEditor"):
-		SEView.get_parent().visible = ! SEView.get_parent().visible
+		VSE_View.get_parent().visible = ! VSE_View.get_parent().visible
 	
 	if event.is_action_pressed("Editor_ToggleAuxPanel"):
 		Menu.visible = ! Menu.visible
-	
-	if event.is_action_pressed("Editor_Interpret"):
-		var result = MAS.eva(G.TxtPipeline.AST)
-	
-		if result != null:
-			Out.write( result )
 		
 	if event.is_action_pressed("Editor_ToggleASTViewTree"):
-		SView_Tree.set_visible(! SView_Tree.is_visible())
+		STreeView.set_visible(! STreeView.is_visible())
 	
 	if event.is_action_pressed("Editor_ToggleTextEditor"):
-		Editor.set_visible(! Editor.is_visible())
-#		SEView.get_parent().visible = ! Editor.visible
-
+		STEditor.set_visible(! STEditor.is_visible())
+#		VSE_View.get_parent().visible = ! Editor.visible
 	return
 
 func _ready() -> void:
-	MAS = Interpreter.new(null)
-	
-	G.MAS = MAS
-	G.MAS_EnvUpdated.connect( on_EnvUpdated )
-	G.Log.out(LogType.log, "Initialized Persistent MAS Interpreter.")
 	return
 #endregion Node
+
+#region Object
+func _init() -> void:
+	G.Persistent = self
+	G.PersistentReady.emit()
+#endregion Object

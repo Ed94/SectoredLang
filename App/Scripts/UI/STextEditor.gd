@@ -94,12 +94,24 @@ var Presets := [
 
 @onready var Highlighter := CodeHighlighter.new()
 
+func on_text_changed():
+	var _font = get_theme_font("normal")
+	var _size = get_theme_font_size("normal")
+
+	var width = custom_minimum_size.x
+	for line in text.split("\n"):
+		width = max(width, _font.get_string_size(line).x * 1.55)
+		custom_minimum_size.x = width
+	custom_minimum_size.y = text.split("\n").size() * _font.get_height(_size) * 1.2
+
+
 
 func _unhandled_input(event: InputEvent) -> void:
 	pass
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	custom_minimum_size = Vector2i(250, 35)
 	
 	Highlighter.clear_color_regions()
 	Highlighter.clear_keyword_colors()
@@ -117,6 +129,9 @@ func _ready() -> void:
 		
 		
 	syntax_highlighter = Highlighter
+	
+	text_changed.connect(on_text_changed)
+	text_set.connect(on_text_changed)
 
 	pass # Replace with function body.
 

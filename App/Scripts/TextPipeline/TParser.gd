@@ -183,6 +183,7 @@ const SType = \
 
 const STxt = {
 	TType.op_Define: ":",
+	TType.sec_Else : "else",
 
 	SType.unit : "unit",
 
@@ -357,7 +358,7 @@ class SNode extends RefCounted :
 
 #region Serialization
 	func array_Serialize(array) -> Array:
-		var result = []
+		var result = [ Type ]
 
 		for _entry in array :
 			if typeof(_entry) == TYPE_ARRAY :
@@ -595,13 +596,7 @@ class Sec_ReadOnly extends SNode:
 class Sec_ReturnMap extends SNode:
 	func expression():
 		return Data[0]
-	
-	func entry( id ):
-		return Data[ id ]
-		
-	func num_Entries():
-		return Data.size() - 1
-		
+
 	func _init():
 		set_Type( SType.sec_RetMap )
 		Attributes[SAttribute.sector] = true
@@ -761,7 +756,7 @@ class Expr_Cast extends SNode:
 		Attributes[SAttribute.operation] = true
 
 class Expr_Dependent extends SNode:
-	func identifier():
+	func name():
 		return Data[0]
 		
 	func args():
@@ -773,11 +768,8 @@ class Expr_Dependent extends SNode:
 		Attributes[SAttribute.operation] = true
 
 class Expr_Unary extends SNode:
-	func op():
-		return Data[0]
-	
 	func operand():
-		return Data[1]
+		return Data[0]
 	
 	func _init( type = "" ):
 		if type != "":
@@ -928,6 +920,9 @@ func eat( tokeSType ) -> bool:
 
 	Tok = Lex.next_Token()
 	
+	if Tok == null:
+		return false
+	
 	var matched = false
 	match Tok.Type:
 		TType.fmt_NL:
@@ -1027,8 +1022,8 @@ func parse_unit() -> SNode:
 
 #region Sectors
 
-func parse_AnySector(node) -> SNode:
-	parse_sec_IdentifierBody(node)
+func parse_AnySector(node):
+	
 	return
 	
 func parse_sec_Alias() -> SNode:
@@ -1595,7 +1590,7 @@ func parse_sec_Enum() -> SNode:
 func parse_sec_EnumElement() -> SNode:
 	var node = Sec_EnumElement.new()
 	start_span(node)
-	node.set_Entry(0, parse_Expression() )
+	node.set_Entry(0, parse_sym_Identifier() )
 	
 	if Tok.Type == TType.op_Assign:
 		eat(TType.op_Assign)
@@ -1993,6 +1988,11 @@ func parse_sec_Identifier() -> SNode:
 		
 		while Tok.Type != TType.def_End:
 			if ! parse_sec_IdentifierBody(node):
+				end_span(node)
+				return node
+			
+			if Tok == null:
+				end_span(node)
 				return node
 					
 		if eat(TType.def_End):
@@ -2891,15 +2891,15 @@ func parse_sec_Type(typeTok : String) -> SNode:
 		eat(TType.op_A_Infer)
 		
 		match Tok.Type:
-			TType.literal_Digit   : node.set_Entry(0, SType.builtin_Int)
-			TType.literal_Decimal : node.set_Entry(0, SType.builtin_Float)
-			TType.literal_String  : node.set_Entry(0, SType.builtin_String)
-			TType.literal_Char    : node.set_Entry(0, SType.builtin_String)
-			TType.literal_True    : node.set_Entry(0, SType.builtin_Bool)
-			TType.literal_False   : node.set_Entry(0, SType.builtin_Bool)
-			TType.literal_Binary  : node.set_Entry(0, SType.builtin_Int)
-			TType.literal_Octal   : node.set_Entry(0, SType.builtin_Int)
-			TType.literal_Hex     : node.set_Entry(0, SType.builtin_Int)
+			TType.literal_Digit   : node.set_Entry(0, parse_Simple(SType.builtin_Int))
+			TType.literal_Decimal : node.set_Entry(0, parse_Simple(SType.builtin_Float))
+			TType.literal_String  : node.set_Entry(0, parse_Simple(SType.builtin_String))
+			TType.literal_Char    : node.set_Entry(0, parse_Simple(SType.builtin_String))
+			TType.literal_True    : node.set_Entry(0, parse_Simple(SType.builtin_Bool))
+			TType.literal_False   : node.set_Entry(0, parse_Simple(SType.builtin_Bool))
+			TType.literal_Binary  : node.set_Entry(0, parse_Simple(SType.builtin_Int))
+			TType.literal_Octal   : node.set_Entry(0, parse_Simple(SType.builtin_Int))
+			TType.literal_Hex     : node.set_Entry(0, parse_Simple(SType.builtin_Int))
 
 		node.set_Entry(1, parse_Expression() )
 
@@ -3176,7 +3176,7 @@ func parse_expr_Dependent() -> SNode:
 
 	if op_Callable(element) && Tok.Type == TType.cap_PStart:
 		var \
-		node = SNode.new(SType.op_Dependent)
+		node = Expr_Dependent.new()
 		node.add_Entry( element )
 		node.add_Entry( parse_expr_Capture() )
 		node.Span.Start = element.Span.End
@@ -3226,7 +3226,7 @@ func parse_expr_Unary() -> SNode:
 		else:
 			return parse_expr_Dependent()
 		
-	var node = SNode.new(operator)
+	var node = Expr_Unary.new(operator)
 	start_span(node)
 	
 	eat(Tok.Type)
@@ -3531,11 +3531,12 @@ func parse_op_Return() -> SNode:
 	end_span(node)
 	return node
 
-func parse_Simple(SType, tType) -> SNode:
+func parse_Simple(SType, tType = null) -> SNode:
 	var node = SNode.new(SType)
 	start_span(node)
 	
-	eat(tType)
+	if tType:
+		eat(tType)
 	
 	end_span(node)
 	return node

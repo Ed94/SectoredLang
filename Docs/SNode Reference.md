@@ -402,12 +402,14 @@ heap
 
 A user defined symbol that is used as a namespace for an encapsulation of definitions.
 
-An identifier may only resolve to either a type definition or executable and not both type definitions can either be defined using the type sector, struct sector, or union sector. Layout sector may only be defined if the type definition is a struct sector.
+An identifier may only resolve to either a type definition or executable and not both.  
+Type definitions can either be defined using the enum, type, struct, or union sectors.  
+Layout sector may only be defined if the type definition is a struct sector.
 
-**structs** and **unions** may have multiple defintions within the sector.  
-If multiple definitions are defined they are conncatenated into a single struct or union for the program model.
+**enums**, **structs** and **unions** may have multiple defintions within the sector.  
+If multiple definitions are defined they are conncatenated into a single version for the program model.
 
-type, struct and union defintions **cannot** be mixed in an identifier sector. Only *one* of these types of definitons may be used.  
+type, enum, struct and union defintions **cannot** be mixed in an identifier sector. Only *one* of these types of definitons may be used.  
 (The program model only supports resolving a symbol to a single type definition class)
 
 Available Sectors :

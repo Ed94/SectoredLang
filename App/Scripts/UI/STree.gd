@@ -83,8 +83,9 @@ func populate(node):
 				generate(ast.cond(), node)
 
 		SType.sec_RetMap:
-			if ast.expression():
-				generate(ast.expression(), node)
+#			if ast.expression():
+#				generate(ast.expression(), node)
+			pass
 					
 		SType.sec_Struct:
 			pass
