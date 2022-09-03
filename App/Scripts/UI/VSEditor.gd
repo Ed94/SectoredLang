@@ -66,6 +66,9 @@ func process_Text():
 	
 	if ast == null:
 		return
+	
+	G.Pipeline.STreeView.clear()
+	G.Pipeline.STreeView.generate(ast)
 		
 	if ast.num_Entries() == 0:
 		return
@@ -118,19 +121,21 @@ func switch_to_Nav():
 func switch_to_Edit():
 	if CurrentMode == Mode.Edit:
 		return
+		
+	NavPanel.inplace_Editor()
 	
-	for sector in SectorNodes:
-		if sector == null:
-			continue
-		
-		var control = sector as Control
-		
-		control.visible    = false
-		CodeEditor.visible = true
+#	for sector in SectorNodes:
+#		if sector == null:
+#			continue
+#
+#		var control = sector as Control
+#
+#		control.visible    = false
+#		CodeEditor.visible = true
 
-	if NavPanel:
-		NavPanel.disengage()
-		NavPanel.visible   = false
+#	if NavPanel:
+#		NavPanel.disengage()
+#		NavPanel.visible   = false
 
 	CurrentMode = Mode.Edit
 	Mode_Indi.text = CurrentMode
@@ -160,9 +165,9 @@ func _unhandled_input(event: InputEvent) -> void:
 				pass
 		
 		Mode.Nav:
-			if event.is_action_pressed("VS_Editor_EditSelected") && !Input.is_key_pressed(KEY_ALT):
-				NavPanel.inplace_Editor()
-				CurrentMode = Mode.Edit
+#			if event.is_action_pressed("VS_Editor_EditSelected") && !Input.is_key_pressed(KEY_ALT):
+#				NavPanel.inplace_Editor()
+#				CurrentMode = Mode.Edit
 			
 			if event.is_action_pressed("VSN_Editor_EnterSector"):
 				if NavPanel:

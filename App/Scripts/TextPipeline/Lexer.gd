@@ -533,7 +533,7 @@ class Token extends RefCounted:
 	var Start : Vector2i
 	var End   : Vector2i
 	
-	func to_str(): return "({type} ||| {value}) Span: {start} {end}".format(
+	func to_Str(): return "({type} ||| {value}) Span: {start} {end}".format(
 		{ "type" : Type, "value" : Value, "start" : Start, "end" : End }
 	)
 

@@ -193,6 +193,7 @@ const TypeColor := {
 	SType.sym_Array     : Color.MEDIUM_PURPLE,
 	SType.sym_Proc      : Color.BLANCHED_ALMOND,
 	SType.sym_Ptr       : CType,
+	SType.sym_Infer     : COp,
 	SType.sym_LP        : Color.GOLDENROD,
 	SType.sym_Null      : Color.SANDY_BROWN,
 	SType.sym_RO        : CType,

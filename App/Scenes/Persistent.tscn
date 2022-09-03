@@ -137,6 +137,7 @@ Mode_Indi = NodePath("../../../../VSE_ModeIndicator")
 Follow_Indi = NodePath("../../../../VSE_FollowIndicator")
 
 [node name="Reticle" type="Panel" parent="VB/Views/HB/VSE_Viewport/SubViewport"]
+visible = false
 custom_minimum_size = Vector2(10, 10)
 anchor_left = 0.5
 anchor_top = 0.5

@@ -41,7 +41,7 @@ Timing
 		Cycle.Microseconds = cast(f64, Cycle.TicksElapsed * TickToMicroseconds)
 		Cycle.Microseconds = cast(f64, Frequency)
 
-		DeltaTime = cast(f64, Cycle.TicksElapsed) cast(f64, MicrosecondToSecond)
+		DeltaTime = cast(f64, Cycle.TicksElapsed) / cast(f64, MicrosecondToSecond)
 
 		Renderer.ProcessTiming(DeltaTime)
 	}

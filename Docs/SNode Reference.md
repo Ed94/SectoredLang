@@ -161,6 +161,7 @@ Available Sectors :
 
 * Alias
 * Capture
+* Conditional
 * Exe
 * External
 * Identifier
@@ -755,8 +756,9 @@ Available Sectors :
 
 * Capture
 * Condition
-* Static
 * Identifier
+* Static
+* Switch
 
 ```
 ro <sector stack>

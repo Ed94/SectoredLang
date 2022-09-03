@@ -1,14 +1,15 @@
 class_name VSNode extends VBoxContainer
 
-const TType     := Lexer.TType
-const STxt      := TParser.STxt
-const SType     := TParser.SType
-const TypeColor := GScript.TypeColor
+const TType      := Lexer.TType
+const STxt       := TParser.STxt
+const SType      := TParser.SType
+const SAttribute := TParser.SAttribute
+const TypeColor  := GScript.TypeColor
 
 const VContentPad_MinSize := Vector2i(0, 0)
 const Spacer_MinSize      := Vector2i(0, 6)
 const Header_MinSize      := Vector2i(300, 0)
-const Indent_MinSize       := Vector2i(6, 0)
+const Indent_MinSize      := Vector2i(6, 0)
 
 const Indent_HSpacer_MinSize := Vector2i(20, 0)
 
@@ -24,10 +25,11 @@ var VB          : VBoxContainer
 var Stack       := []
 var Children    := []
 var Fmt_NLines  := []
+#var VSTxtBlock  : VSTextBlock
 
 
 #region Visuals
-func create_Label(text, type):
+func create_Label(text, type) -> Label:
 	var \
 	label = Label.new()
 	label.text = text
@@ -35,8 +37,9 @@ func create_Label(text, type):
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.add_theme_color_override( "font_color", TypeColor[type] )
 	Content.add_child(label)
+	return label
 
-func create_ASTLabel(ast):
+func create_ASTLabel(ast) -> Label:
 	if ast == null: ast = AST
 		
 	var \
@@ -48,6 +51,20 @@ func create_ASTLabel(ast):
 	label.add_theme_color_override( "font_color", TypeColor[ast.Type]  if typeof(ast) == TYPE_OBJECT else TypeColor[ast] )
 	Content.add_child(label)
 	Stack.append(ast)
+	return label
+	
+#func add_ASTText(ast):
+#	if ast == null : ast = AST
+#	if VSTxtBlock == null:
+#		VSTxtBlock = VSTextBlock.new()
+#		VSTxtBlock.name = "VSTxtBlock"
+##		VSTxtBlock.grow_horizontal = 1
+#		VSTxtBlock.set_parent(Content)
+#
+#	var text = ast.name() if typeof(ast) == TYPE_OBJECT else STxt[ast]
+#	VSTxtBlock.add_Text(text + " ", TypeColor[ast.Type])
+#	Stack.append(ast)
+#	return
 
 func create_Body(ast):
 	HB = HBoxContainer.new()
@@ -59,13 +76,13 @@ func create_Body(ast):
 	VIndent.custom_minimum_size = Indent_MinSize
 	VIndent.name = "VIndent"
 	
-	var new_stylebox := VIndent.get_theme_stylebox("panel").duplicate() as StyleBoxFlat
-		
-	new_stylebox.border_width_top = 2
+	var \
+	new_stylebox := VIndent.get_theme_stylebox("panel").duplicate() as StyleBoxFlat	
+	new_stylebox.border_width_top    = 2
 	new_stylebox.border_width_bottom = 2
-	new_stylebox.border_width_left = 2
-	new_stylebox.border_width_right = 2
-	new_stylebox.border_color = TypeColor[ast.Type]	
+	new_stylebox.border_width_left   = 2
+	new_stylebox.border_width_right  = 2
+	new_stylebox.border_color        = TypeColor[ast.Type]	
 	
 	VIndent.add_theme_stylebox_override("panel", new_stylebox)
 		
@@ -79,6 +96,7 @@ func create_Body(ast):
 	VB = VBoxContainer.new()
 	VB.custom_minimum_size = Header_MinSize
 	VB.name = "VB"
+	VB.alignment = BoxContainer.ALIGNMENT_BEGIN
 	
 	HB.add_child(VB)
 	
@@ -145,6 +163,9 @@ func generate():
 			SType.sec_Struct:
 				process_sec_Struct(AST)
 				
+			SType.sec_Switch:
+				process_sec_Switch(AST)
+				
 			SType.sec_RO:
 				process_sec_RO(AST)
 				
@@ -153,7 +174,10 @@ func generate():
 				
 			SType.sec_TT:
 				process_sec_TranslationTime(AST)
-
+				
+			SType.op_Return: 
+				process_op_Return(AST)
+			
 			_:
 				process_Expr(AST)
 	
@@ -164,7 +188,10 @@ func generate():
 	var nodeName = ""
 	
 	for label in Content.get_children():
-		nodeName += label.text + " "
+		if label.get_class() == "Label":
+			nodeName += label.text + " "
+		else:
+			nodeName += label.get_child(0).text + " "
 	
 	name = nodeName
 	return
@@ -199,7 +226,7 @@ func process_Stack(ast) -> bool:
 				
 			SType.sec_Loop:
 				process_sec_Loop(entry)
-			
+				
 			SType.sec_RO:
 				process_sec_RO(entry)
 			
@@ -209,12 +236,18 @@ func process_Stack(ast) -> bool:
 			SType.sec_Struct:
 				process_sec_Struct(entry)
 				
+			SType.sec_Switch:
+				process_sec_Switch(entry)
+				
 			SType.sec_Type:
 				process_sec_Type(entry)
 			
 			SType.sec_TT:
 				process_sec_TranslationTime(entry)
 
+			SType.op_Return: 
+				process_op_Return(entry)
+			
 			_:
 				process_Expr(entry)
 				
@@ -250,8 +283,10 @@ func process_sec_Capture(ast):
 	if ast.ret_Map():
 		process_sec_RetMap(ast.ret_Map())
 		
+	if process_Stack(ast):
+		return
+		
 	process_Body(ast)
-	
 	return
 	
 func process_sec_CaptureArgs(ast):
@@ -280,6 +315,8 @@ func process_sec_Cond(ast):
 	if ast.alt():
 		create_Label(STxt[TType.sec_Else], TType.sec_Else)
 		process_Body(ast)
+		
+	return
 	
 func process_sec_Enum(ast):
 	create_ASTLabel(ast)
@@ -305,6 +342,7 @@ func process_sec_Exe(ast):
 		return
 				
 	process_Body(ast)
+	return
 	
 func process_sec_External(ast):
 	create_ASTLabel(ast)
@@ -313,6 +351,7 @@ func process_sec_External(ast):
 		return
 		
 	process_Body(ast)
+	return
 	
 func process_sec_Identifier(ast):
 	create_ASTLabel( ast )
@@ -324,6 +363,7 @@ func process_sec_Identifier(ast):
 		return
 		
 	process_Body(ast)
+	return
 	
 func process_sec_Loop(ast):
 	create_ASTLabel( ast )
@@ -334,11 +374,13 @@ func process_sec_Loop(ast):
 		process_Expr( ast.cond())
 	
 	process_Body(ast)
+	return
 	
 func process_sec_RetMap(ast):
 	create_ASTLabel(ast)
 	
 	process_Expr(ast.expression())
+	return
 		
 func process_sec_RO(ast):
 	create_ASTLabel( ast )
@@ -367,12 +409,21 @@ func process_sec_Struct(ast):
 	
 	process_Body(ast)
 	return
+	
+func process_sec_Switch(ast):
+	create_ASTLabel(ast)
+	
+	if ast.Attributes[SAttribute.exe]:
+		process_expr_Capture(ast.cond())
+	else:
+		process_sec_Capture(ast.cond())
 		
-#func process_sec_StructChild(ast):
-#	create_ASTLabel(ast.name())
-#
-#
+	if process_Stack(ast):
+		return
 		
+	process_Body(ast)
+	return
+
 func process_sec_TranslationTime(ast):
 	create_ASTLabel( ast )
 	
@@ -384,12 +435,22 @@ func process_sec_TranslationTime(ast):
 		return
 	
 	process_Body(ast)
+	return
 
 func process_sec_Type(ast):
-	if ast.Parent.Type == SType.sec_Identifier:
+	if ast.typedef().Type == SType.sym_Infer:
+		process_sym_Inferred(ast)
+		return
+	
+	if ast.parent().Type == SType.sec_Identifier:
 		create_Label( STxt[SType.sym_Type], SType.sym_Type )
+	else:
+		create_Label( STxt[TType.op_Define], TType.op_Define )
 	
 	match ast.typedef().Type:
+		SType.sym_Identifier:
+			process_sym_Identifier(ast.typedef())
+		
 		SType.sym_Type:
 			process_sym_Type(ast.typedef())
 		
@@ -400,32 +461,88 @@ func process_sec_Type(ast):
 		create_Label( STxt[SType.op_Assign], SType.op_Assign )
 		Stack.append(ast)
 		process_Expr(ast.assignment())
+		
+	return
 
 func process_sym_Identifier(ast):
 	create_ASTLabel( ast )
 
 	if ast.has_Typedef():
-		create_Label( STxt[TType.op_Define], TType.op_Define )
 		Stack.append(ast)
 		process_sec_Type(ast.typedef() )
+		
+	return
+		
+func process_sym_Inferred(ast):
+	create_ASTLabel(ast.typedef())
+	
+	if ast.assignment():
+		Stack.append(ast)
+		process_Expr(ast.assignment())
+		
+	return
 	
 func process_sym_LP(ast):
 	create_ASTLabel(ast)
+	return
+	
+func process_sym_Proc(ast):
+	create_ASTLabel(ast)
+	
+	if ast.capture():
+		process_expr_Capture(ast.capture())
+		
+	if ast.ret_Map():
+		process_sec_RetMap(ast.ret_Map())
+		
+	return
+	
+func process_sym_Ptr(ast):
+	create_ASTLabel(ast)
+	
+	match ast.Type:
+		SType.sym_Byte:
+			create_ASTLabel(ast.typedef())
+		
+		SType.sym_Word:
+			create_ASTLabel(ast.typedef())
+			
+		_:
+			process_sym_Type(ast.typedef())
 		
 func process_sym_Self(ast):
+	create_ASTLabel(ast)
 	return
 		
 func process_sym_Type(ast):
 	var val = ast.value()
 	match ast.value().Type:
+		SType.sym_Identifier:
+			process_sym_Identifier(ast.value())
+			
+		SType.sym_Proc:
+			process_sym_Proc(ast.value())
+			
+		SType.sym_Ptr:
+			process_sym_Ptr(ast.value())
+			
+		SType.op_SMA:
+			process_op_SMA(ast.value())
+		
+		SType.sym_Type:
+			process_sym_Type(ast.value())
+		
 		SType.sym_TT_Type:
 			process_sym_TT_Type(ast.value())
 		_:
 			create_ASTLabel(ast.value())
+			
+	return
 	
 func process_sym_TT_Type(ast):
 	create_ASTLabel(ast)
 	process_sym_Type(ast.entry(1))
+	return
 	
 func process_Expr(ast):
 	var astval = ast.Type
@@ -438,6 +555,8 @@ func process_Expr(ast):
 		SType.literal_String  : process_Literal(ast)
 		SType.literal_True    : process_Literal(ast)
 		SType.literal_False   : process_Literal(ast)
+		
+		SType.sym_Null : create_ASTLabel(ast)
 		
 		SType.sym_LP         : process_sym_LP(ast)
 		SType.sym_Identifier : process_sym_Identifier(ast)
@@ -494,23 +613,36 @@ func process_op_SMA(ast):
 	create_Label( STxt[SType.op_SMA], SType.op_SMA)
 	Stack.append(ast)
 	process_Expr(ast.member())
+	return
 
 func process_op_Cast(ast):
 	create_ASTLabel(ast)
 	process_Expr(ast.entry(1))
+	return
 
 func process_expr_Capture(ast):
 	create_Label("(", "op")
 	process_Expr(ast.entry(1))
 	create_Label(")", "op")
+	return
 
 func process_op_Dependent(ast):
 	process_Expr( ast.name() )
 	process_expr_Capture(ast.args())
+	return
+
+func process_op_Return(ast):
+	create_ASTLabel(ast)
+	
+	if ast.expression():
+		process_Expr(ast.expression())
+		
+	return
 	
 func process_op_Unary(ast):
 	create_ASTLabel(ast)
 	process_Expr(ast.operand())
+	return
 
 func process_op_Binary(ast):
 	var left  = ast.entry(1)
@@ -519,6 +651,7 @@ func process_op_Binary(ast):
 	process_Expr(left)
 	create_ASTLabel(ast)
 	process_Expr(right)
+	return
 
 func process_Literal(ast):
 	if ast.Type == SType.literal_True: 
@@ -541,6 +674,23 @@ func str_Content() -> String:
 	var result : String
 	for child in Content.get_children():
 		result += child.text + " "
+		
+	return result
+	
+func to_str(nestingIndex := 0) -> String:
+	var result := str_Content()
+	if Children.size() > 0:
+		var tabs : String
+		if nestingIndex == 0:
+			tabs = ""
+		else:
+			tabs = "\t".repeat(nestingIndex)
+		
+		result += "\n" + tabs + "{\n"
+		for child in Children:
+			result += tabs + "\t" + child.to_str(nestingIndex + 1) + "\n"
+			
+		result += tabs + "}\n"
 		
 	return result
 #endregion Serialization

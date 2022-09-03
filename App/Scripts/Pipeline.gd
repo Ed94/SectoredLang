@@ -13,7 +13,7 @@ var MAS       : Interpreter
 #region Editor
 @onready var Editor       := get_node("HB/STEditor") as TextEdit
 @onready var SViewViewTxt := get_node("HB/STreeViewTxt") as TextEdit
-@onready var STreeView    := get_node("HB/STreeTree") as STree
+@onready var STreeView    := get_node("HB/STreeView") as STree
 @onready var VSE_View     := get_node("HB/VSE_Viewport/SubViewport") as SubViewport
 @onready var EnvView      := get_node("HB/EnvView")
 #endregion Editor

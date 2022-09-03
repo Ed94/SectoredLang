@@ -308,7 +308,7 @@ func inplace_Editor():
 	if VSN_Stack.back():
 		vsn = Current
 	
-	CodeView.text = vsn.str_Content()
+	CodeView.text = vsn.to_str()
 	Current.visible = false
 	Editor.SVB.remove_child(CodeView)
 	VBox.add_child(CodeView)
@@ -353,9 +353,3 @@ func _init(editor):
 	Editor = editor
 	
 #endregion Node
-
-
-
-
-
-
