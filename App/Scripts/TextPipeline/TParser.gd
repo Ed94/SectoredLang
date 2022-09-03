@@ -438,6 +438,7 @@ var AS_Interface = {
 var AS_RTD = {
 	TType.cap_PStart     : parse_sec_Capture,
 	TType.sec_If         : parse_sec_Cond,
+	TType.sym_Exe        : parse_sec_Exe,
 	TType.sym_Identifier : parse_sec_Identifier,
 	TType.sec_Switch     : parse_sec_Switch,
 }
@@ -567,13 +568,19 @@ class Sec_AllocatorOp extends SNode:
 	func identifier():
 		return Data[0]
 		
-	func capture():
+	func custom():
 		return Data[1]
+		
+	func capture():
+		return Data[2]
 		
 	func _init(SType =  ""):
 		if SType != "":
 			set_Type(SType)
 		Attributes[SAttribute.exe] = true
+		Data.append(null) # identiifer
+		Data.append(null) # custom
+		Data.append(null) # capture
 
 class Sec_AllocatorImpl extends SNode:
 	func _init(type):
@@ -702,7 +709,7 @@ class Sec_Inline extends SNode:
 		Attributes[SAttribute.sector] = true
 
 class Sec_Interface extends SNode:
-	func name():
+	func identifier():
 		return Data[0]
 	
 	func _init():
@@ -1124,6 +1131,10 @@ func get_SectorParser(ast) -> Dictionary:
 	if precedentNode[0] <= value:
 		precedentNode[0] = value
 		precedentNode[1] = ast
+		
+	if precedentNode[1].Type == SType.sec_TT \
+	&& ast.Type              == SType.sec_Identifier:
+		return AS_TT_Identifier
 			
 	if precedentNode == null:
 		return Dictionary()
@@ -1138,8 +1149,6 @@ func get_SectorParser(ast) -> Dictionary:
 		SType.sec_Identifier : return AS_Identifier
 		
 		SType.sec_TT : return AS_TranslationTime
-		
-		"sec_TT_Identifier" : return AS_TT_Identifier
 
 		SType.sec_Interface : return AS_Interface
 		SType.sec_Trait     : return AS_Interface
@@ -1168,24 +1177,24 @@ func get_SectorParser(ast) -> Dictionary:
 		
 	return Dictionary()
 
-func push_Context(node):
+func push_Context(node) -> void:
 	Context.push_front(node)
 	
-func pop_Context():
+func pop_Context() -> void:
 	Context.pop_front()
 
-func start_span(node):
+func start_span(node) -> void:
 	node.Span.Start = Tok.Start
 	
-func end_span(node):
+func end_span(node) -> void:
 	node.Span.End = Lex.last_Token().End
 	
-func start(node):
+func start(node) -> void:
 	node.Context = Context.duplicate()
 	start_span(node)
 	push_Context(node)
 	
-func end(node):
+func end(node) -> void:
 	LastNode = node
 	end_span(node)
 	pop_Context()
@@ -1263,9 +1272,8 @@ func parse_unit() -> SNode:
 
 #region Sectors
 
-func parse_AnySector(node):
-	
-	return
+func parse_Sector(node) -> SNode:
+	return null
 	
 func parse_SectorBody(node) -> bool:
 	var availableSectors := get_SectorParser(node)
@@ -1375,42 +1383,42 @@ func parse_sec_AllocatorOp(node, identifier) -> SNode:
 	match Tok.Type:
 		TType.op_Alloc:
 			opNode.set_Type(SType.op_Alloc)
-			opNode.add_Entry( identifier )
+			opNode.set_Entry(0, identifier )
 			eat(TType.op_Alloc)
 			
 			if Tok.Type == TType.cap_PStart:
-				opNode.add_Entry( parse_expr_Capture() )
+				opNode.set_Entry(2, parse_expr_Capture() )
 			
 		TType.op_Resize:
 			opNode.set_Type(SType.op_Resize)
-			opNode.add_Entry( identifier )
+			opNode.set_Entry(0, identifier )
 			eat(TType.op_Resize)
 			
 			if Tok.Type == TType.cap_PStart:
-				opNode.add_Entry( parse_expr_Capture() )
+				opNode.set_Entry(2, parse_expr_Capture() )
 				
 		TType.op_Free: 
 			opNode.set_Type(SType.op_Free)
-			opNode.add_Entry( identifier )
+			opNode.set_Entry(0, identifier )
 			eat(TType.op_Free)
 			
 			if Tok.Type == TType.cap_PStart:
-				opNode.add_Entry( parse_expr_Capture() )
+				opNode.set_Entry(2, parse_expr_Capture() )
 			
 		TType.op_Wipe: 
 			opNode.set_Type(SType.op_Wipe)
 			eat(TType.op_Wipe)
 			
 			if Tok.Type == TType.cap_PStart:
-				opNode.add_Entry( parse_expr_Capture() )
+				opNode.set_Entry(2, parse_expr_Capture() )
 		
 		TType.sym_Identifier:
 			opNode.set_Type(SType.sym_Identifier)
-			opNode.add_Entry( identifier )
-			opNode.add_Entry( parse_sym_Identifier() )
+			opNode.set_Entry(0, identifier )
+			opNode.set_Entry(1, parse_sym_Identifier() )
 			
 			if Tok.Type == TType.cap_PStart:
-				opNode.add_Entry( parse_expr_Capture() )
+				opNode.set_Entry(2, parse_expr_Capture() )
 		_:
 			throw("Expecting Allocator op or Custom op {tok}".format( { "tok" : Tok.to_str() } ))
 
@@ -1423,7 +1431,6 @@ func parse_sec_Alloc() -> SNode:
 	start(node)
 	eat(TType.op_Alloc)
 	
-#	parse_sec_AllocImpl_Body(node)
 	parse_SectorBody(node)
 	
 	end(node)
@@ -1434,7 +1441,6 @@ func parse_sec_Resize() -> SNode:
 	start(node)
 	eat(TType.op_Resize)
 	
-#	parse_sec_AllocImpl_Body(node)
 	parse_SectorBody(node)
 	
 	end(node)
@@ -1445,7 +1451,6 @@ func parse_sec_Free() -> SNode:
 	start(node)
 	eat(TType.op_Free)
 	
-#	parse_sec_AllocImpl_Body(node)
 	parse_SectorBody(node)
 	
 	end(node)
@@ -1456,73 +1461,10 @@ func parse_sec_Wipe() -> SNode:
 	start(node)
 	eat(TType.op_Wipe)
 	
-#	parse_sec_AllocImpl_Body(node)
 	parse_SectorBody(node)
 	
 	end(node)
 	return node
-	
-func parse_sec_AllocImpl_Body(node):
-	var result = chk_Tok(TType.def_Start)
-	if  result == null:
-		return
-	
-	if result:
-		eat(TType.def_Start)
-		
-		while Tok.Type != TType.def_End:
-			match Tok.Type:
-				TType.cap_PStart:
-					node.add_Entry( parse_sec_Capture() )
-					
-				TType.sec_If:
-					node.add_Entry( parse_sec_Cond() )
-
-				TType.sym_Exe:
-					node.add_Entry( parse_sec_Exe() )
-
-				TType.sym_Identifier:
-					node.add_Entry( parse_sec_Identifier() )
-
-				TType.sec_Static:
-					node.add_Entry( parse_sec_Static() )
-					
-				TType.sec_Switch:
-					node.add_Entry( parse_sec_Switch() )
-					
-				_:
-					throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
-					return
-				
-		if eat(TType.def_End):
-			throw("{type} : Expecting def_End {tok}".format( { "type" : node.Type, "tok" : Tok.to_Str()  } ))
-			return
-		
-	else:
-		match Tok.Type:
-			TType.cap_PStart:
-				node.add_Entry( parse_sec_Capture() )
-					
-			TType.sec_If:
-				node.add_Entry( parse_sec_Cond() )
-
-			TType.sym_Exe:
-				node.add_Entry( parse_sec_Exe() )
-
-			TType.sym_Identifier:
-				node.add_Entry( parse_sec_Identifier() )
-
-			TType.sec_Static:
-				node.add_Entry( parse_sec_Static() )
-					
-			TType.sec_Switch:
-				node.add_Entry( parse_sec_Switch() )
-				
-			_:
-				throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
-				return
-				
-	return
 #endregion Allocator Interface
 
 func parse_sec_Capture() -> SNode:
@@ -1556,9 +1498,7 @@ func parse_sec_Capture() -> SNode:
 			return
 		
 	else:
-		if 	! parse_SectorBody(node):
-			end(node)
-			return node
+		parse_SectorBody(node)
 
 	end(node)
 	return node
@@ -1617,7 +1557,7 @@ func parse_sec_Cond() -> SNode:
 	end(node)
 	return node
 
-func parse_sec_CondBody():
+func parse_sec_CondBody() -> SNode:
 	var node = Sec_CondBody.new()
 	start(node)
 	
@@ -1633,125 +1573,14 @@ func parse_sec_CondBody():
 				end(node)
 				return node
 		
-#		while Tok.Type != TType.def_End:
-#			match Tok.Type:
-#				TType.op_Alloc:
-#					node.add_Entry( parse_sec_Alloc() )
-#
-#				TType.op_Resize:
-#					node.add_Entry( parse_sec_Resize() )
-#
-#				TType.op_Free:
-#					node.add_Entry( parse_sec_Free() )
-#
-#				TType.op_Wipe:
-#					node.add_Entry( parse_sec_Wipe() )
-#
-#
-#				TType.sec_Alias:
-#					node.add_Entry( parse_sec_Alias() )
-#
-#				TType.cap_PStart:
-#					node.add_Entry( parse_sec_Capture() )
-#
-#				TType.sec_If:
-#					node.add_Entry( parse_sec_Cond() )
-#
-#				TType.sym_Exe:
-#					node.add_Entry( parse_sec_Exe() )
-#
-#				TType.sec_External:
-#					node.add_Entry( parse_sec_External() )
-#
-#				TType.sym_Identifier:
-#					node.add_Entry( parse_sec_Identifier() )
-#
-#				TType.sec_Inline:
-#					node.add_Entry( parse_sec_Inline() )
-#
-#				TType.sec_Layer:
-#					node.add_Entry( parse_sec_Layer() )
-#
-#				TType.sym_RO:
-#					node.add_Entry( parse_sec_Readonly() )
-#
-#				TType.sec_Switch:
-#					node.add_Entry( parse_sec_Switch() )
-#
-#				TType.sec_Static:
-#					node.add_Entry( parse_sec_Static() )
-#
-#				TType.sym_TT:
-#					node.add_Entry( parse_sec_TranslationTime() )
-#
-#				_:
-#					throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
-#					end_span(node)
-#					return node
-					
 		if eat(TType.def_End):
 			throw("Expecting def_End {tok}".format( { "tok" : Tok.to_Str()  } ))
 			end(node)
 			return
 		
 	else:
-		
-		if ! parse_SectorBody(node):
-			end(node)
-			return node
-		
-#		match Tok.Type:
-#			TType.op_Alloc:
-#				node.add_Entry( parse_sec_Alloc() )
-#
-#			TType.op_Resize:
-#				node.add_Entry( parse_sec_Resize() )
-#
-#			TType.op_Free:
-#				node.add_Entry( parse_sec_Free() )
-#
-#			TType.op_Wipe:
-#				node.add_Entry( parse_sec_Wipe() )
-#
-#
-#			TType.sec_Alias:
-#				node.add_Entry( parse_sec_Alias() )
-#
-#			TType.cap_PStart:
-#				node.add_Entry( parse_sec_Capture() )
-#
-#			TType.sec_If:
-#				node.add_Entry( parse_sec_Cond() )
-#
-#			TType.sym_Exe:
-#				node.add_Entry( parse_sec_Exe() )
-#
-#			TType.sec_External:
-#				node.add_Entry( parse_sec_External() )
-#
-#			TType.sym_Identifier:
-#				node.add_Entry( parse_sec_Identifier() )
-#
-#			TType.sec_Inline:
-#				node.add_Entry( parse_sec_Inline() )
-#
-#			TType.sec_Layer:
-#				node.add_Entry( parse_sec_Layer() )
-#
-#			TType.sym_RO:
-#				node.add_Entry( parse_sec_Readonly() )
-#
-#			TType.sec_Static:
-#				node.add_Entry( parse_sec_Static() )
-#
-#			TType.sym_TT:
-#				node.add_Entry( parse_sec_TranslationTime() )
+		parse_SectorBody(node)
 
-#			_:
-#				throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
-#				end_span(node)
-#				return node
-				
 	end(node)
 	return node
 	
@@ -1818,10 +1647,10 @@ func parse_sec_Exe() -> SNode:
 	end(node)
 	return node
 		
-func parse_sec_ExeBody(node):
+func parse_sec_ExeBody(node) -> bool:
 	var result = chk_Tok(TType.def_Start)
 	if  result == null:
-		return
+		return false
 		
 	if result:
 		eat(TType.def_Start)
@@ -1895,11 +1724,11 @@ func parse_sec_ExeBody(node):
 					
 			if !matched:
 				throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
-				return
+				return false
 				
 		if eat(TType.def_End):
 			throw("Expecting def_End {tok}".format( { "tok" : Tok.to_Str()  } ))
-			return
+			return false
 		
 	else:
 		var matched = false
@@ -1962,9 +1791,9 @@ func parse_sec_ExeBody(node):
 					
 		if !matched:
 			throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
-			return
+			return false
 
-	return
+	return true
 
 func parse_sec_ExeConditional() -> SNode:
 	var node = Sec_Cond.new()
@@ -1988,7 +1817,7 @@ func parse_sec_ExeConditional() -> SNode:
 	parse_sec_ExeBody(elseBlock)
 	node.set_Entry(2, elseBlock)
 	
-	start(node)
+	end(node)
 	return node
 
 func parse_sec_ExeSwitch() -> SNode:
@@ -2073,48 +1902,18 @@ func parse_sec_External() -> SNode:
 		eat(TType.def_Start)
 		
 		while Tok.Type != TType.def_End:
-			match Tok.Type:
-				TType.cap_PStart:
-					node.add_Entry( parse_sec_Capture() )
-			
-				TType.sec_If:
-					node.add_Entry( parse_sec_Cond() )
-					
-				TType.sym_Identifier:
-					node.add_Entry( parse_sec_Identifier() )
-					
-				TType.sec_Switch:
-					node.add_Entry( parse_sec_Switch() )
-
-				_:
-					throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
-					end(node)
-					return node
-					
+			if ! parse_SectorBody(node):
+				end(node)
+				return node
+				
 		if eat(TType.def_End):
 			throw("Expecting def_End {tok}".format( { "tok" : Tok.to_Str()  } ))
 			end(node)
 			return node
 		
 	else:
-		match Tok.Type:
-			TType.cap_PStart:
-				node.add_Entry( parse_sec_Capture() )
-			
-			TType.sec_If:
-				node.add_Entry( parse_sec_Cond() )
-					
-			TType.sym_Identifier:
-				node.add_Entry( parse_sec_Identifier() )
-
-			TType.sec_Switch:
-				node.add_Entry( parse_sec_Switch() )
-
-			_:
-				throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
-				end(node)
-				return node
-				
+		parse_SectorBody(node)
+		
 	end(node)
 	return node
 
@@ -2210,88 +2009,6 @@ func parse_sec_Identifier() -> SNode:
 	end(node)
 	return node
 	
-func parse_sec_IdentifierBody(node) -> bool:
-	match Tok.Type:
-#region Memory Interface
-		TType.op_Alloc:
-			node.add_Entry( parse_sec_Alloc() )
-					
-		TType.op_Resize:
-			node.add_Entry( parse_sec_Resize() )
-				
-		TType.op_Free:
-			node.add_Entry( parse_sec_Free() )
-					
-		TType.op_Wipe:
-			node.add_Entry( parse_sec_Wipe() )
-#endregion Memory Interface
-		
-		TType.sec_Alias:
-			node.add_Entry( parse_sec_Alias() )
-				
-		TType.cap_PStart:
-			node.add_Entry( parse_sec_Capture() )
-					
-		TType.sec_If:
-			node.add_Entry( parse_sec_Cond() )
-				
-		TType.sym_Enum:
-			node.add_Entry( parse_sec_Enum() )
-					
-		TType.sym_Exe:
-			node.add_Entry( parse_sec_Exe() )
-					
-		TType.sec_External:
-			node.add_Entry( parse_sec_External() )
-					
-		TType.sym_Identifier:
-			node.add_Entry( parse_sec_Identifier() )
-					
-		TType.sec_Inline:
-			node.add_Entry( parse_sec_Inline() )
-				
-		TType.sec_Interface:
-			node.add_Entry( parse_sec_Interface() )
-				
-		TType.sec_Layer:
-			node.add_Entry( parse_sec_Layer() )
-				
-		TType.sec_Layout:
-			node.add_Entry( parse_sec_Layout() )
-							
-		TType.sym_RO:
-			node.add_Entry( parse_sec_Readonly() )
-					
-		TType.sec_Static:
-			node.add_Entry( parse_sec_Static() )
-					
-		TType.sec_Struct:
-			node.add_Entry( parse_sec_Struct() )
-				
-		TType.sec_Switch:
-			node.add_Entry( parse_sec_Switch() )
-					
-		TType.sec_Trait:
-			node.add_Entry( parse_sec_Trait() )
-					
-		TType.sym_TT:
-			node.add_Entry( parse_sec_TranslationTime() )
-
-		TType.sym_Type:
-			node.add_Entry( parse_sec_Type(TType.sym_Type) )
-				
-		TType.sec_Union:
-			node.add_Entry( parse_sec_Union() )
-					
-		TType.sec_Virtual:
-			node.add_Entry( parse_sec_Virtual() )
-					
-		_:
-			throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
-			return false
-	
-	return true
-	
 func parse_sec_Inline() -> SNode:
 	var node = Sec_Inline.new()
 	start(node)
@@ -2305,47 +2022,17 @@ func parse_sec_Inline() -> SNode:
 		eat(TType.def_Start)
 		
 		while Tok.Type != TType.def_End:
-			match Tok.Type:
-				TType.cap_PStart:
-					node.add_Entry( parse_sec_Capture() )
-					
-				TType.sec_If:
-					node.add_Entry( parse_sec_Cond() )
-
-				TType.sym_Identifier:
-					node.add_Entry( parse_sec_Identifier() )
-
-				TType.sec_Switch:
-					node.add_Entry( parse_sec_Switch() )
-
-				_:
-					throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
-					end(node)
-					return node
-					
+			if ! parse_SectorBody(node):
+				end(node)
+				return node
+				
 		if eat(TType.def_End):
 			throw("Expecting def_End {tok}".format( { "tok" : Tok.to_Str()  } ))
 			end(node)
 			return node
 	
 	else:
-		match Tok.Type:
-			TType.cap_PStart:
-				node.add_Entry( parse_sec_Capture() )
-				
-			TType.sec_If:
-				node.add_Entry( parse_sec_Cond() )
-
-			TType.sym_Identifier:
-				node.add_Entry( parse_sec_Identifier() )
-
-			TType.sec_Switch:
-				node.add_Entry( parse_sec_Switch() )
-				
-			_:
-				throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
-				end(node)
-				return node
+		parse_SectorBody(node)
 
 	end(node)
 	return node
@@ -2355,6 +2042,8 @@ func parse_sec_Interface() -> SNode:
 	start(node)
 	eat(TType.sec_Interface)
 	
+	node.add_Entry( parse_sym_Identifier() )
+	
 	var result = chk_Tok(TType.def_Start)
 	if  result == null:
 		return null
@@ -2363,93 +2052,21 @@ func parse_sec_Interface() -> SNode:
 		eat(TType.def_Start)
 		
 		while Tok.Type != TType.def_End:
-			match Tok.Type:
-				TType.cap_PStart:
-					node.add_Entry( parse_sec_Capture() )
-					
-				TType.sec_If:
-					node.add_Entry( parse_sec_Cond() )
-
-				TType.sym_Exe:
-					node.add_Entry( parse_sec_Exe() )
-
-				TType.sym_Identifier:
-					node.add_Entry( parse_sec_Identifier() )
-
-				TType.sec_Switch:
-					node.add_Entry( parse_sec_Switch() )
-
-				_:
-					throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
-					end(node)
-					return node
-					
+			if ! parse_SectorBody(node):
+				end(node)
+				return node
+			
 		if eat(TType.def_End):
 			throw("Expecting def_End {tok}".format( { "tok" : Tok.to_Str()  } ))
 			end(node)
 			return node
 	
 	else:
-		match Tok.Type:
-			TType.cap_PStart:
-				node.add_Entry( parse_sec_Capture() )
-				
-			TType.sec_If:
-				node.add_Entry( parse_sec_Cond() )
-
-			TType.sym_Exe:
-				node.add_Entry( parse_sec_Exe() )
-
-			TType.sym_Identifier:
-				node.add_Entry( parse_sec_Identifier() )
-
-			TType.sec_Switch:
-				node.add_Entry( parse_sec_Switch() )
-				
-			_:
-				throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
-				end(node)
-				return node
+		parse_SectorBody(node)
 
 	end(node)
 	return node
-	
-func parse_sec_Interface_ImplBody(node) -> bool:
-	match Tok.Type:
-		TType.op_Alloc:
-			node.add_Entry( parse_sec_Alloc() )
-					
-		TType.op_Resize:
-			node.add_Entry( parse_sec_Resize() )
-				
-		TType.op_Free:
-			node.add_Entry( parse_sec_Free() )
-					
-		TType.op_Wipe:
-			node.add_Entry( parse_sec_Wipe() )
-				
-		TType.cap_PStart:
-			node.add_Entry( parse_sec_Capture() )
-					
-		TType.sec_If:
-			node.add_Entry( parse_sec_Cond() )
 
-		TType.sym_Exe:
-			node.add_Entry( parse_sec_Exe() )
-			
-		TType.sym_Identifier:
-			node.add_Entry( parse_sec_Identifier() )
-
-		TType.sec_Switch:
-			node.add_Entry( parse_sec_Switch() )
-
-		_:
-			throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
-			end(node)
-			return node
-			
-	return true
-	
 func parse_sec_Label() -> SNode:
 	var node = Sec_Label.new()
 	start(node)
@@ -2476,38 +2093,9 @@ func parse_sec_Layer() -> SNode:
 		eat(TType.def_Start)
 		
 		while Tok.Type != TType.def_End:
-			match Tok.Type:
-				TType.cap_PStart:
-					node.add_Entry( parse_sec_Capture() )
-					
-				TType.sec_If:
-					node.add_Entry( parse_sec_Cond() )
-
-				TType.sym_Exe:
-					node.add_Entry( parse_sec_Exe() )
-					
-				TType.sec_External:
-					node.add_Entry( parse_sec_External() )
-					
-				TType.sym_Identifier:
-					node.add_Entry( parse_sec_Identifier() )
-					
-				TType.sym_RO:
-					node.add_Entry( parse_sec_Readonly() )
-					
-				TType.sec_Static:
-					node.add_Entry( parse_sec_Static() )
-
-				TType.sec_Switch:
-					node.add_Entry( parse_sec_Switch() )
-					
-				TType.sym_TT:
-					node.add_Entry( parse_sec_TranslationTime() )
-
-				_:
-					throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
-					end(node)
-					return node
+			if ! parse_SectorBody(node):
+				end(node)
+				return node
 					
 		if eat(TType.def_End):
 			throw("Expecting def_End {tok}".format( { "tok" : Tok.to_Str()  } ))
@@ -2515,38 +2103,7 @@ func parse_sec_Layer() -> SNode:
 			return node
 	
 	else:
-		match Tok.Type:
-			TType.cap_PStart:
-				node.add_Entry( parse_sec_Capture() )
-				
-			TType.sec_If:
-				node.add_Entry( parse_sec_Cond() )
-
-			TType.sym_Exe:
-				node.add_Entry( parse_sec_Exe() )
-				
-			TType.sec_External:
-				node.add_Entry( parse_sec_External() )
-				
-			TType.sym_Identifier:
-				node.add_Entry( parse_sec_Identifier() )
-							
-			TType.sym_RO:
-				node.add_Entry( parse_sec_Readonly() )
-
-			TType.sec_Static:
-				node.add_Entry( parse_sec_Static() )
-			
-			TType.sec_Switch:
-				node.add_Entry( parse_sec_Switch() )
-				
-			TType.sym_TT:
-				node.add_Entry( parse_sec_TranslationTime() )
-				
-			_:
-				throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
-				end(node)
-				return node
+		parse_SectorBody(node)
 
 	end(node)
 	return node
@@ -2610,23 +2167,9 @@ func parse_sec_Readonly() -> SNode:
 		eat(TType.def_Start)
 		
 		while Tok.Type != TType.def_End:
-			match Tok.Type:
-				TType.cap_PStart:
-					node.add_Entry( parse_sec_Capture() )
-					
-				TType.sec_If:
-					node.add_Entry( parse_sec_Cond() )
-					
-				TType.sym_Identifier:
-					node.add_Entry( parse_sec_Identifier() )
-
-				TType.sec_Static:
-					node.add_Entry( parse_sec_Static() )
-
-				_:
-					throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
-					end(node)
-					return node
+			if ! parse_SectorBody(node):
+				end(node)
+				return node
 					
 		if eat(TType.def_End):
 			throw("Expecting def_End {tok}".format( { "tok" : Tok.to_Str()  } ))
@@ -2634,26 +2177,7 @@ func parse_sec_Readonly() -> SNode:
 			return node
 		
 	else:
-		match Tok.Type:
-			TType.cap_PStart:
-				node.add_Entry( parse_sec_Capture() )
-				
-			TType.sec_If:
-				node.add_Entry( parse_sec_Cond() )
-			
-			TType.sym_Identifier:
-				node.add_Entry( parse_sec_Identifier() )
-
-			TType.sym_Exe:
-				node.add_Entry( parse_sec_Exe() )
-
-			TType.sec_Static:
-				node.add_Entry( parse_sec_Static() )
-				
-			_:
-				throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
-				end(node)
-				return node
+		parse_SectorBody(node)
 
 	end(node)
 	return node
@@ -2861,51 +2385,9 @@ func parse_sec_SwitchCase() -> SNode:
 		eat(TType.def_Start)
 		
 		while Tok.Type != TType.def_End:
-			match Tok.Type:
-				TType.op_Alloc:
-					node.add_Entry( parse_sec_Alloc() )
-					
-				TType.op_Resize:
-					node.add_Entry( parse_sec_Resize() )
-				
-				TType.op_Free:
-					node.add_Entry( parse_sec_Free() )
-					
-				TType.op_Wipe:
-					node.add_Entry( parse_sec_Wipe() )
-				
-				
-				TType.cap_PStart:
-					node.add_Entry( parse_sec_Capture() )
-						
-				TType.sec_If:
-					node.add_Entry( parse_sec_Cond() )
-							
-				TType.sym_Exe:
-					node.add_Entry( parse_sec_Exe() )
-					
-				TType.sec_External:
-					node.add_Entry( parse_sec_External() )
-			
-				TType.sym_Identifier:
-					node.add_Entry( parse_sec_Identifier() )
-						
-				TType.sym_RO:
-					node.add_Entry( parse_sec_Readonly() )
-							
-				TType.sec_Static:
-					node.add_Entry( parse_sec_Static() )
-							
-				TType.sec_Switch:
-					node.add_Entry( parse_sec_Switch() )
-											
-				TType.sym_TT:
-					node.add_Entry( parse_sec_TranslationTime() )
-					
-				_:
-					throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
-					end(node)
-					return node
+			if ! parse_SectorBody(node):
+				end(node)
+				return node
 
 		if eat(TType.def_End):
 			throw("Expecting def_End {tok}".format( { "tok" : Tok.to_Str()  } ))
@@ -2913,51 +2395,7 @@ func parse_sec_SwitchCase() -> SNode:
 			return node
 		
 	else:
-		match Tok.Type:
-			TType.op_Alloc:
-				node.add_Entry( parse_sec_Alloc() )
-					
-			TType.op_Resize:
-				node.add_Entry( parse_sec_Resize() )
-				
-			TType.op_Free:
-				node.add_Entry( parse_sec_Free() )
-					
-			TType.op_Wipe:
-				node.add_Entry( parse_sec_Wipe() )
-			
-			
-			TType.cap_PStart:
-				node.add_Entry( parse_sec_Capture() )
-						
-			TType.sec_If:
-				node.add_Entry( parse_sec_Cond() )
-							
-			TType.sym_Exe:
-				node.add_Entry( parse_sec_Exe() )
-				
-			TType.sec_External:
-				node.add_Entry( parse_sec_External() )
-			
-			TType.sym_Identifier:
-				node.add_Entry( parse_sec_Identifier() )
-	
-			TType.sym_RO:
-				node.add_Entry( parse_sec_Readonly() )
-							
-			TType.sec_Static:
-				node.add_Entry( parse_sec_Static() )
-							
-			TType.sec_Switch:
-				node.add_Entry( parse_sec_Switch() )
-											
-			TType.sym_TT:
-				node.add_Entry( parse_sec_TranslationTime() )
-				
-			_:
-				throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
-				end(node)
-				return node
+		parse_SectorBody(node)
 
 	end(node)
 	return node
@@ -2980,7 +2418,8 @@ func parse_sec_Trait() -> SNode:
 		eat(TType.def_Start)
 		
 		while Tok.Type != TType.def_End:
-			if ! parse_sec_Interface_ImplBody(node):
+			if ! parse_SectorBody(node):
+				end(node)
 				return node
 					
 		if eat(TType.def_End):
@@ -2989,7 +2428,7 @@ func parse_sec_Trait() -> SNode:
 			return node
 	
 	else:
-		parse_sec_Interface_ImplBody(node)
+		parse_SectorBody(node)
 
 	end(node)
 	return node
@@ -3008,35 +2447,9 @@ func parse_sec_TranslationTime() -> SNode:
 		eat(TType.def_Start)
 		
 		while Tok.Type != TType.def_End:
-			match Tok.Type:
-				TType.sec_Alias:
-					node.add_Entry( parse_sec_Alias() )
-				
-				TType.cap_PStart:
-					node.add_Entry( parse_sec_Capture() )
-					
-				TType.sec_If:
-					node.add_Entry( parse_sec_Cond() )
-					
-				TType.sym_Exe:
-					node.add_Entry( parse_sec_Exe() )
-					
-				TType.sym_Identifier:
-					node.add_Entry( parse_sec_Identifier() )
-					
-				TType.sec_Static:
-					node.add_Entry( parse_sec_Static() )
-					
-				TType.sec_Switch:
-					node.add_Entry( parse_sec_Switch() )
-				
-				TType.sec_Static:
-					node.add_Entry( parse_sec_Static() )
-					
-				_:
-					throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
-					end_span(node)
-					return node
+			if ! parse_SectorBody(node):
+				end(node)
+				return node
 					
 		if eat(TType.def_End):
 			throw("Expecting def_End {tok}".format( { "tok" : Tok.to_Str()  } ))
@@ -3044,35 +2457,7 @@ func parse_sec_TranslationTime() -> SNode:
 			return node
 
 	else:
-		match Tok.Type:
-			TType.sec_Alias:
-				node.add_Entry( parse_sec_Alias() )
-			
-			TType.cap_PStart:
-				node.add_Entry( parse_sec_Capture() )
-					
-			TType.sec_If:
-				node.add_Entry( parse_sec_Cond() )
-				
-			TType.sym_Exe:
-				node.add_Entry( parse_sec_Exe() )
-				
-			TType.sym_Identifier:
-				node.add_Entry( parse_sec_Identifier() )
-				
-			TType.sec_Static:
-				node.add_Entry( parse_sec_Static() )
-				
-			TType.sec_Switch:
-				node.add_Entry( parse_sec_Switch() )
-			
-			TType.sec_Static:
-				node.add_Entry( parse_sec_Static() )
-				
-			_:
-				throw("Failed to match token: {tok}".format( { "tok" : Tok.to_Str() } ))
-				end(node)
-				return node
+		parse_SectorBody(node)
 
 	end(node)
 	return node
@@ -3186,7 +2571,8 @@ func parse_sec_Virtual() -> SNode:
 		eat(TType.def_Start)
 		
 		while Tok.Type != TType.def_End:
-			if ! parse_sec_Interface_ImplBody(node):
+			if ! parse_SectorBody(node):
+				end(node)
 				return node
 					
 		if eat(TType.def_End):
@@ -3195,7 +2581,7 @@ func parse_sec_Virtual() -> SNode:
 			return node
 	
 	else:
-		parse_sec_Interface_ImplBody(node)
+		parse_SectorBody(node)
 
 	end(node)
 	return node

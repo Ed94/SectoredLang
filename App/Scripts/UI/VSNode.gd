@@ -134,52 +134,7 @@ func generate():
 					process_sec_EnumChild(AST)
 					matched = true
 
-	if ! matched:
-		match AST.Type:
-			SType.sec_Alias:
-				process_sec_Alias(AST)
-				
-			SType.sec_Allocator:
-				process_sec_Allocator(AST)
-				
-			SType.sec_Cap:
-				process_sec_Capture(AST)
-				
-			SType.sec_Cond:
-				process_sec_Cond(AST)
-				
-			SType.sec_Enum:
-				process_sec_Enum(AST)
-			
-			SType.sec_Exe:
-				process_sec_Exe(AST)
-				
-			SType.sec_External:
-				process_sec_External(AST)
-
-			SType.sec_Identifier:
-				process_sec_Identifier(AST)
-				
-			SType.sec_Struct:
-				process_sec_Struct(AST)
-				
-			SType.sec_Switch:
-				process_sec_Switch(AST)
-				
-			SType.sec_RO:
-				process_sec_RO(AST)
-				
-			SType.sec_Static:
-				process_sec_Static(AST)
-				
-			SType.sec_TT:
-				process_sec_TranslationTime(AST)
-				
-			SType.op_Return: 
-				process_op_Return(AST)
-			
-			_:
-				process_Expr(AST)
+	process_Stack(AST, true)
 	
 	if Children.size() > 0:
 		for child in Children:
@@ -196,62 +151,93 @@ func generate():
 	name = nodeName
 	return
 	
-func process_Stack(ast) -> bool:
-	if ast.num_Entries() == 1:
-		var entry = ast.entry(1)
-		match entry.Type:
-			SType.sec_Alias:
-				process_sec_Alias(entry)
-				
-			SType.sec_Allocator:
-				process_sec_Allocator(entry)
-				
-			SType.sec_Cap:
-				process_sec_Capture(entry)
-				
-			SType.sec_Cond:
-				process_sec_Cond(entry)
-				
-			SType.sec_Enum:
-				process_sec_Enum(entry)
-			
-			SType.sec_Exe:
-				process_sec_Exe(entry)
-				
-			SType.sec_External:
-				process_sec_External(entry)
-				
-			SType.sec_Identifier:
-				process_sec_Identifier(entry)
-				
-			SType.sec_Loop:
-				process_sec_Loop(entry)
-				
-			SType.sec_RO:
-				process_sec_RO(entry)
-			
-			SType.sec_Static:
-				process_sec_Static(entry)
-				
-			SType.sec_Struct:
-				process_sec_Struct(entry)
-				
-			SType.sec_Switch:
-				process_sec_Switch(entry)
-				
-			SType.sec_Type:
-				process_sec_Type(entry)
-			
-			SType.sec_TT:
-				process_sec_TranslationTime(entry)
+func process_Stack(ast, fromGenerate = false) -> bool:
+	var entry
 
-			SType.op_Return: 
-				process_op_Return(entry)
+	if fromGenerate:
+		entry = ast
+	elif ast.num_Entries() == 1:
+		entry = ast.entry(1)
+	else:
+		return false
+
+	match entry.Type:
+		SType.sec_Alias:
+			process_sec_Alias(entry)
 			
-			_:
-				process_Expr(entry)
+		SType.sec_Allocator:
+			process_sec_Allocator(entry)
+			
+		SType.op_Alloc:
+			process_sec_AllocatorOp(entry)
+			
+		SType.op_Resize:
+			process_sec_AllocatorOp(entry)
+			
+		SType.op_Free:
+			process_sec_AllocatorOp(entry)
+			
+		SType.op_Wipe:
+			process_sec_AllocatorOp(entry)
+
+		SType.sec_Cap:
+			process_sec_Capture(entry)
+			
+		SType.sec_Cond:
+			process_sec_Cond(entry)
+			
+		SType.sec_Enum:
+			process_sec_Enum(entry)
+		
+		SType.sec_Exe:
+			process_sec_Exe(entry)
+			
+		SType.sec_External:
+			process_sec_External(entry)
+			
+		SType.sec_Heap:
+			process_sec_Heap(entry)
+			
+		SType.sec_Identifier:
+			process_sec_Identifier(entry)
+			
+		SType.sec_Inline:
+			process_sec_Inline(entry)
+			
+		SType.sec_Interface:
+			process_sec_Interface(entry)
+			
+		SType.sec_Loop:
+			process_sec_Loop(entry)
+			
+		SType.sec_RO:
+			process_sec_RO(entry)
+		
+		SType.sec_Static:
+			process_sec_Static(entry)
+			
+		SType.sec_Struct:
+			process_sec_Struct(entry)
+			
+		SType.sec_Switch:
+			process_sec_Switch(entry)
+			
+		SType.sec_SwitchCase:
+			process_sec_SwitchCase(entry)
+			
+		SType.sec_Type:
+			process_sec_Type(entry)
+		
+		SType.sec_TT:
+			process_sec_TranslationTime(entry)
+
+		SType.op_Return: 
+			process_op_Return(entry)
+		
+		_:
+			process_Expr(entry)
 				
-	return ast.num_Entries() == 1
+	return true
 	
 func process_Body(ast):
 	create_Body(ast)
@@ -275,6 +261,20 @@ func process_sec_AliasChild(ast):
 	return
 	
 func process_sec_Allocator(ast):
+	return
+	
+func process_sec_AllocatorOp(ast):
+	if ast.identifier():
+		process_Expr(ast.identifier())
+	
+	create_ASTLabel(ast)
+	
+	if ast.custom():
+		process_Expr(ast.custom())
+	
+	if ast.capture():
+		process_Expr(ast.capture())
+
 	return
 	
 func process_sec_Capture(ast):
@@ -353,6 +353,16 @@ func process_sec_External(ast):
 	process_Body(ast)
 	return
 	
+func process_sec_Heap(ast):
+	create_ASTLabel(ast)
+	
+	if process_Stack(ast):
+		return
+	
+	process_Body(ast)
+	
+	return
+	
 func process_sec_Identifier(ast):
 	create_ASTLabel( ast )
 	
@@ -364,6 +374,31 @@ func process_sec_Identifier(ast):
 		
 	process_Body(ast)
 	return
+
+func process_sec_Inline(ast):
+	create_ASTLabel( ast )
+	
+	if process_Stack(ast):
+		return
+		
+	process_Body(ast)
+	return
+	
+func process_sec_Interface(ast):
+	create_ASTLabel(ast)
+	
+	process_sym_Identifier(ast.identifier())
+	
+	if process_Stack(ast):
+		return
+		
+	process_Body(ast)
+	return
+	
+func process_sec_Label(ast):
+	create_ASTLabel(ast)
+	
+	
 	
 func process_sec_Loop(ast):
 	create_ASTLabel( ast )
@@ -422,6 +457,16 @@ func process_sec_Switch(ast):
 		return
 		
 	process_Body(ast)
+	return
+	
+func process_sec_SwitchCase(ast):
+	process_Expr(ast.case())
+	
+	if process_Stack(ast):
+		return
+	
+	process_Body(ast)
+	
 	return
 
 func process_sec_TranslationTime(ast):

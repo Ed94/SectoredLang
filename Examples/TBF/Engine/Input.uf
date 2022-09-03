@@ -115,7 +115,7 @@ Input
 			{
 				currentState.val = latestState
 
-				stack   subIndex uw = 0
+				stack   subIndex : uw = 0
 				loop if subIndex < KeyEventSubs[index].Num
 				{	
 					if  KeyEventSubs[index].Array[subIndex]

@@ -32,7 +32,7 @@ _global_script_classes=[{
 "base": "Window",
 "class": &"Log",
 "language": &"GDScript",
-"path": "res://Scripts/Log/Log.gd"
+"path": "res://Scripts/UI/Log.gd"
 }, {
 "base": "RefCounted",
 "class": &"MasEnv",
